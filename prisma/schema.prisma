@@ -1,0 +1,220 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  name        String
+  phone       String?
+  password    String
+  role        Role      @default(USER)
+  status      UserStatus @default(ACTIVE)
+  joinDate    DateTime  @default(now())
+  lastLogin   DateTime?
+  emailVerified Boolean @default(false)
+  resetToken  String?
+  resetTokenExpiry DateTime?
+  
+  properties  Property[]
+  inquiries   Inquiry[]
+  favorites   Favorite[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("users")
+}
+
+model Property {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  price       Float
+  location    String
+  address     String?
+  type        PropertyType
+  status      PropertyStatus @default(ACTIVE)
+  isFeatured  Boolean     @default(false)
+  bedrooms    Int?
+  bathrooms   Float?
+  area        Float?      // in square feet
+  yearBuilt   Int?
+  features    String?     // JSON string of features array
+  
+  ownerId     String?
+  owner       User?       @relation(fields: [ownerId], references: [id])
+  
+  images      PropertyImage[]
+  inquiries   Inquiry[]
+  favorites   Favorite[]
+  analytics   PropertyAnalytics[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("properties")
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  filename   String
+  isPrimary  Boolean  @default(false)
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  
+  @@map("property_images")
+}
+
+model Inquiry {
+  id        String      @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    InquiryStatus @default(PENDING)
+  
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  
+  propertyId String
+  property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  @@map("inquiries")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, propertyId])
+  @@map("favorites")
+}
+
+model PropertyAnalytics {
+  id        String   @id @default(cuid())
+  event     AnalyticsEvent
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  userId    String?
+  userAgent String?
+  ipAddress String?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("property_analytics")
+}
+
+model ContactInquiry {
+  id      String            @id @default(cuid())
+  name    String
+  email   String
+  phone   String?
+  subject String
+  message String
+  status  ContactInquiryStatus @default(NEW)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("contact_inquiries")
+}
+
+model OfficeSettings {
+  id          String   @id @default(cuid())
+  companyName String?
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  logoUrl     String?
+  
+  // Office Hours
+  mondayHours    String?
+  tuesdayHours   String?
+  wednesdayHours String?
+  thursdayHours  String?
+  fridayHours    String?
+  saturdayHours  String?
+  sundayHours    String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("office_settings")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+  CONDO
+  TOWNHOUSE
+  COMMERCIAL
+  LAND
+}
+
+enum PropertyStatus {
+  ACTIVE
+  SOLD
+  PENDING
+  INACTIVE
+}
+
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  CLOSED
+}
+
+enum AnalyticsEvent {
+  VIEW
+  CONTACT
+  FAVORITE
+  SHARE
+}
+
+enum ContactInquiryStatus {
+  NEW
+  REVIEWED
+  RESPONDED
+  CLOSED
+}
