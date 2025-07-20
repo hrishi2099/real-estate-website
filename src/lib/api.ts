@@ -25,25 +25,33 @@ class ApiClient {
     };
 
     try {
-      console.log('Making API request to:', url);
+      if (typeof console !== 'undefined' && console.log) {
+        console.log('Making API request to:', url);
+      }
       const response = await fetch(url, config);
       
       let data;
       try {
         data = await response.json();
       } catch (jsonError) {
-        console.error('Failed to parse JSON response:', jsonError);
+        if (typeof console !== 'undefined' && console.error) {
+          console.error('Failed to parse JSON response:', jsonError);
+        }
         return { error: 'Invalid response from server' };
       }
 
       if (!response.ok) {
-        console.error('API error response:', response.status, data);
+        if (typeof console !== 'undefined' && console.error) {
+          console.error('API error response:', response.status, data);
+        }
         return { error: data.error || `Server error: ${response.status}` };
       }
 
       return { data };
     } catch (error) {
-      console.error('API request failed:', error);
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('API request failed:', error);
+      }
       
       if (error instanceof TypeError && error.message.includes('fetch')) {
         return { error: 'Network connection failed. Please check your internet connection.' };

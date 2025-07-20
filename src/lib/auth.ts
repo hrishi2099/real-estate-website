@@ -4,7 +4,9 @@ import { NextRequest } from 'next/server'
 
 // Validate required environment variables
 const JWT_SECRET = process.env.JWT_SECRET || (() => {
-  console.error('WARNING: JWT_SECRET environment variable is not set. Using fallback for development.')
+  if (typeof console !== 'undefined' && console.error) {
+    console.error('WARNING: JWT_SECRET environment variable is not set. Using fallback for development.')
+  }
   return 'dev-secret-key-change-in-production'
 })()
 

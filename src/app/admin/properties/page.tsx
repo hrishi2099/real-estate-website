@@ -45,7 +45,9 @@ export default function PropertiesManagement() {
         setProperties(response.data);
       }
     } catch (error) {
-      console.error("Failed to load properties:", error);
+      if (typeof console !== 'undefined' && console.error) {
+        console.error("Failed to load properties:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,9 @@ export default function PropertiesManagement() {
       setProperties(properties.filter(p => p.id !== deleteDialog.property!.id));
       closeDeleteDialog();
     } catch (error) {
-      console.error("Failed to delete property:", error);
+      if (typeof console !== 'undefined' && console.error) {
+        console.error("Failed to delete property:", error);
+      }
       alert('Failed to delete property');
       setDeleteDialog(prev => ({ ...prev, loading: false }));
     }
@@ -267,6 +271,7 @@ export default function PropertiesManagement() {
           </div>
         )}
       </div>
+      )}
 
       {/* Pagination */}
       {filteredProperties.length > 0 && (
@@ -279,7 +284,6 @@ export default function PropertiesManagement() {
           onItemsPerPageChange={handleItemsPerPageChange}
           showItemsPerPage={true}
         />
-      )}
       )}
 
       <ConfirmDialog

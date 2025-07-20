@@ -94,18 +94,28 @@ export default function PropertyStats() {
     
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/analytics/stats');
+        const response = await fetch('/api/analytics/stats', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
         if (response.ok) {
           const data: StatsResponse = await response.json();
           setStats(data.stats);
+        } else {
+          throw new Error(`API responded with status ${response.status}`);
         }
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        if (typeof console !== 'undefined' && console.error) {
+          console.error('Error fetching stats:', error);
+        }
         // Fallback to static data if API fails
         setStats([
           {
             id: 1,
-            number: 0,
+            number: 250,
             label: "Land Plots Sold",
             suffix: "+",
             icon: "🌿",
@@ -113,7 +123,7 @@ export default function PropertyStats() {
           },
           {
             id: 2,
-            number: 0,
+            number: 5.2,
             label: "Million Sq Ft Sold",
             prefix: "",
             suffix: "M+",
@@ -138,7 +148,7 @@ export default function PropertyStats() {
           },
           {
             id: 5,
-            number: 0,
+            number: 45,
             label: "Available Plots",
             suffix: "+",
             icon: "🏗️",

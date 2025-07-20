@@ -13,6 +13,7 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
+    "mysql2": "^3.14.2",
     "next": "15.3.5",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
