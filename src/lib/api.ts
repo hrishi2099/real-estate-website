@@ -251,6 +251,70 @@ class ApiClient {
     return this.deleteUser(id);
   }
 
+  // Plot endpoints
+  async getPlots(params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const query = searchParams.toString();
+    return this.request(`/plots${query ? `?${query}` : ''}`);
+  }
+
+  async getPlot(id: string) {
+    return this.request(`/plots/${id}`);
+  }
+
+  async createPlot(plotData: {
+    plotNumber: string;
+    area: number;
+    price: number;
+    location: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+    status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
+    description?: string;
+    features?: string[];
+  }) {
+    return this.request('/plots', {
+      method: 'POST',
+      body: JSON.stringify(plotData),
+    });
+  }
+
+  async updatePlot(id: string, plotData: {
+    plotNumber?: string;
+    area?: number;
+    price?: number;
+    location?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+    status?: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
+    description?: string;
+    features?: string[];
+    buyerId?: string;
+  }) {
+    return this.request(`/plots/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(plotData),
+    });
+  }
+
+  async deletePlot(id: string) {
+    return this.request(`/plots/${id}`, { method: 'DELETE' });
+  }
+
   // File upload
   async uploadFiles(files: FileList) {
     const formData = new FormData();

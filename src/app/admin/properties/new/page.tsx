@@ -11,6 +11,8 @@ export default function NewProperty() {
     description: '',
     price: '',
     location: '',
+    latitude: '',
+    longitude: '',
     type: 'APARTMENT',
     bedrooms: 1,
     bathrooms: 1,
@@ -26,7 +28,9 @@ export default function NewProperty() {
     { value: 'HOUSE', label: 'House' },
     { value: 'VILLA', label: 'Villa' },
     { value: 'CONDO', label: 'Condo' },
-    { value: 'TOWNHOUSE', label: 'Townhouse' }
+    { value: 'TOWNHOUSE', label: 'Townhouse' },
+    { value: 'COMMERCIAL', label: 'Commercial' },
+    { value: 'LAND', label: 'Land' }
   ];
 
   const availableFeatures = [
@@ -78,12 +82,14 @@ export default function NewProperty() {
         description: formData.description || undefined,
         price: Number(formData.price),
         location: formData.location,
-        type: formData.type as any,
+        latitude: formData.latitude ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude ? Number(formData.longitude) : undefined,
+        type: formData.type as 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND',
         bedrooms: formData.bedrooms,
         bathrooms: formData.bathrooms,
         area: Number(formData.area),
         features: formData.features,
-        status: 'ACTIVE' as any,
+        status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
         isFeatured: false
       };
 
@@ -213,7 +219,7 @@ export default function NewProperty() {
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Area (sqft)
               </label>
@@ -225,6 +231,42 @@ export default function NewProperty() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                 placeholder="1,200"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Latitude
+              </label>
+              <input
+                type="number"
+                name="latitude"
+                value={formData.latitude}
+                onChange={handleInputChange}
+                step="any"
+                min="-90"
+                max="90"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="19.076"
+              />
+              <p className="text-xs text-gray-500 mt-1">GPS latitude coordinate (-90 to 90)</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Longitude
+              </label>
+              <input
+                type="number"
+                name="longitude"
+                value={formData.longitude}
+                onChange={handleInputChange}
+                step="any"
+                min="-180"
+                max="180"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="72.878"
+              />
+              <p className="text-xs text-gray-500 mt-1">GPS longitude coordinate (-180 to 180)</p>
             </div>
           </div>
 

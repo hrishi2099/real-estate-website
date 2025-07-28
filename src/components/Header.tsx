@@ -87,6 +87,12 @@ export default function Header() {
             <Link href="/properties" className="text-base font-medium text-gray-500 hover:text-gray-900">
               Properties
             </Link>
+            <Link href="/plots" className="text-base font-medium text-gray-500 hover:text-gray-900">
+              Plots
+            </Link>
+            <Link href="/search" className="text-base font-medium text-gray-500 hover:text-gray-900">
+              Search
+            </Link>
             <Link href="/gallery" className="text-base font-medium text-gray-500 hover:text-gray-900">
               Gallery
             </Link>
@@ -182,6 +188,9 @@ export default function Header() {
               </Link>
               <Link href="/properties" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                 Properties
+              </Link>
+              <Link href="/plots" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                Plots
               </Link>
               <Link href="/gallery" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                 Gallery

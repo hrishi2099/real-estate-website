@@ -42,7 +42,11 @@ export default function PropertiesManagement() {
       setLoading(true);
       const response = await api.getProperties();
       if (response?.data) {
-        setProperties(response.data);
+        // Handle both array and object responses
+        const propertiesData = Array.isArray(response.data) 
+          ? response.data 
+          : response.data.properties || [];
+        setProperties(propertiesData);
       }
     } catch (error) {
       if (typeof console !== 'undefined' && console.error) {

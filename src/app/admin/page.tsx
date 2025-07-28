@@ -151,16 +151,28 @@ export default function AdminDashboard() {
               + Add New Property
             </a>
             <a
-              href="/admin/users"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              href="/admin/plots/new"
+              className="block w-full text-left px-4 py-3 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
             >
-              📊 View User Analytics
+              + Add New Plot
             </a>
             <a
               href="/admin/properties"
               className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               🏠 Manage Properties
+            </a>
+            <a
+              href="/admin/plots"
+              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              🗺️ Manage Plots
+            </a>
+            <a
+              href="/admin/users"
+              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              📊 View User Analytics
             </a>
             <a
               href="/admin/analytics"

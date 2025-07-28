@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromRequest } from '@/lib/auth'
+import { getMockProperty } from '@/lib/mock-data'
 import { z } from 'zod'
 
 const updatePropertySchema = z.object({
@@ -9,6 +10,8 @@ const updatePropertySchema = z.object({
   price: z.number().positive().optional(),
   location: z.string().min(1).optional(),
   address: z.string().optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'VILLA', 'CONDO', 'TOWNHOUSE', 'COMMERCIAL', 'LAND']).optional(),
   status: z.enum(['ACTIVE', 'SOLD', 'PENDING', 'INACTIVE']).optional(),
   bedrooms: z.number().int().min(0).optional(),
@@ -25,59 +28,80 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const property = await prisma.property.findUnique({
-      where: { id: resolvedParams.id },
-      include: {
-        images: true,
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        },
-        _count: {
-          select: {
-            inquiries: true,
-            favorites: true,
+    
+    // Try database first, fallback to mock data if database unavailable
+    try {
+      const property = await prisma.property.findUnique({
+        where: { id: resolvedParams.id },
+        include: {
+          images: true,
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            }
+          },
+          _count: {
+            select: {
+              inquiries: true,
+              favorites: true,
+            }
           }
         }
-      }
-    })
+      })
 
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Property not found' },
-        { status: 404 }
-      )
+      if (!property) {
+        return NextResponse.json(
+          { error: 'Property not found' },
+          { status: 404 }
+        )
+      }
+
+      // Track view analytics
+      const userPayload = getUserFromRequest(request)
+      const userAgent = request.headers.get('user-agent')
+      const forwardedFor = request.headers.get('x-forwarded-for')
+      const realIp = request.headers.get('x-real-ip')
+      const ipAddress = forwardedFor?.split(',')[0] || realIp || 'unknown'
+
+      // Create analytics record
+      await prisma.propertyAnalytics.create({
+        data: {
+          propertyId: property.id,
+          event: 'VIEW',
+          userId: userPayload?.userId,
+          userAgent: userAgent || undefined,
+          ipAddress,
+        }
+      }).catch(() => {
+        // Silently fail analytics to not affect main request
+      })
+
+      return NextResponse.json({
+        property: {
+          ...property,
+          features: property.features ? JSON.parse(property.features) : [],
+        }
+      })
+    } catch (dbError) {
+      console.log('Database unavailable, using mock data for property:', resolvedParams.id);
+      
+      // Fallback to mock data
+      const mockProperty = getMockProperty(resolvedParams.id);
+      
+      if (!mockProperty) {
+        return NextResponse.json(
+          { error: 'Property not found' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json({
+        property: mockProperty,
+        mockData: true
+      })
     }
-
-    // Track view analytics
-    const userPayload = getUserFromRequest(request)
-    const userAgent = request.headers.get('user-agent')
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const realIp = request.headers.get('x-real-ip')
-    const ipAddress = forwardedFor?.split(',')[0] || realIp || 'unknown'
-
-    // Create analytics record
-    await prisma.propertyAnalytics.create({
-      data: {
-        propertyId: property.id,
-        event: 'VIEW',
-        userId: userPayload?.userId,
-        userAgent: userAgent || undefined,
-        ipAddress,
-      }
-    }).catch(() => {
-      // Silently fail analytics to not affect main request
-    })
-
-    return NextResponse.json({
-      property: {
-        ...property,
-        features: property.features ? JSON.parse(property.features) : [],
-      }
-    })
   } catch (error) {
     console.error('Get property error:', error)
     return NextResponse.json(

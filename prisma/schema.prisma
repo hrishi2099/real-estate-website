@@ -30,6 +30,7 @@ model User {
   properties  Property[]
   inquiries   Inquiry[]
   favorites   Favorite[]
+  plots       Plot[]
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -44,6 +45,8 @@ model Property {
   price       Float
   location    String
   address     String?
+  latitude    Float?      // GPS latitude coordinate
+  longitude   Float?      // GPS longitude coordinate
   type        PropertyType
   status      PropertyStatus @default(ACTIVE)
   isFeatured  Boolean     @default(false)
@@ -210,6 +213,37 @@ enum AnalyticsEvent {
   CONTACT
   FAVORITE
   SHARE
+}
+
+model Plot {
+  id          String    @id @default(cuid())
+  plotNumber  String    @unique
+  area        Float     // Area in square feet
+  price       Float
+  location    String
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  status      PlotStatus @default(AVAILABLE)
+  description String?
+  features    String?   // JSON string of features
+  
+  // Sale information
+  soldDate    DateTime?
+  buyerId     String?
+  buyer       User?     @relation(fields: [buyerId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("plots")
+}
+
+enum PlotStatus {
+  AVAILABLE
+  SOLD
+  RESERVED
+  INACTIVE
 }
 
 enum ContactInquiryStatus {
