@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PropertyType, PropertyStatus, PlotStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
         price: 15000000,
         location: 'Andheri West, Mumbai',
         address: '123 Premium Heights, Andheri West, Mumbai 400058',
-        type: 'VILLA',
-        status: 'ACTIVE',
+        type: PropertyType.VILLA,
+        status: PropertyStatus.ACTIVE,
         bedrooms: 4,
         bathrooms: 3,
         area: 2500,
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
         price: 25000000,
         location: 'Hinjewadi, Pune',
         address: 'Plot 45, Hinjewadi Phase 1, Pune 411057',
-        type: 'COMMERCIAL',
-        status: 'ACTIVE',
+        type: PropertyType.COMMERCIAL,
+        status: PropertyStatus.ACTIVE,
         area: 5000,
         yearBuilt: null,
         features: JSON.stringify(['Corner Plot', 'Wide Road', 'IT Hub Proximity']),
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         price: 5000000,
         location: 'Sector 15, Navi Mumbai',
         address: 'Plot P001, Sector 15, Navi Mumbai',
-        status: 'AVAILABLE',
+        status: PlotStatus.AVAILABLE,
         description: 'Residential plot in prime location with all utilities.',
         features: JSON.stringify(['Water Connection', 'Electricity', 'Road Access']),
       },
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         price: 3500000,
         location: 'Wakad, Pune',
         address: 'Plot P002, Wakad, Pune',
-        status: 'AVAILABLE',
+        status: PlotStatus.AVAILABLE,
         description: 'Commercial plot suitable for office development.',
         features: JSON.stringify(['Corner Plot', 'Metro Connectivity', 'IT Hub']),
       }
