@@ -1,39 +1,28 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { Plot } from '@prisma/client';
 
-interface Plot {
-  id: string;
-  plotNumber: string;
-  area: number;
-  price: number;
-  location: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
-  description?: string;
-  features?: string;
-  soldDate?: string;
+type PlotWithBuyer = Plot & {
   buyer?: {
     id: string;
     name: string;
     email: string;
     phone?: string;
   };
-}
+};
 
 interface PlotMapProps {
-  plots: Plot[];
-  onPlotClick: (plot: Plot) => void;
-  selectedPlot?: Plot | null;
+  plots: PlotWithBuyer[];
+  onPlotClick: (plot: PlotWithBuyer) => void;
+  selectedPlot?: PlotWithBuyer | null;
 }
 
 declare global {
   interface Window {
     google: any;
     initMap: () => void;
-    plotMapClickHandler: (plotId: string) => void;
+    plotMapClickHandler?: (plotId: string) => void;
   }
 }
 
@@ -47,7 +36,7 @@ export default function PlotMap({ plots, onPlotClick, selectedPlot }: PlotMapPro
   useEffect(() => {
     // Check if API key is configured
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    setApiKey(key);
+    setApiKey(key || null);
     
     if (!key || key === 'your-google-maps-api-key-here') {
       setMapError(true);
@@ -90,7 +79,7 @@ export default function PlotMap({ plots, onPlotClick, selectedPlot }: PlotMapPro
       
       // Clean up global handler
       if (typeof window !== 'undefined' && window.plotMapClickHandler) {
-        delete window.plotMapClickHandler;
+        window.plotMapClickHandler = undefined;
       }
     };
   }, []);

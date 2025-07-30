@@ -328,6 +328,20 @@ class ApiClient {
       headers: {}, // Remove Content-Type to let browser set it for FormData
     });
   }
+
+  // Admin-specific methods for analytics and inquiries
+  async getAdminAnalytics(timeframe?: string) {
+    return this.getAnalytics(timeframe);
+  }
+
+  async getAdminInquiries(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    propertyId?: string;
+  }) {
+    return this.getInquiries(params);
+  }
 }
 
 export const api = new ApiClient();

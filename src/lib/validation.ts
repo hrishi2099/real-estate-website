@@ -47,7 +47,7 @@ export const updatePropertySchema = createPropertySchema.partial();
 
 // Inquiry validation schemas
 export const createInquirySchema = z.object({
-  propertyId: z.string().uuid('Invalid property ID'),
+  propertyId: z.string().cuid('Invalid property ID format'),
   message: z.string().min(1, 'Message is required').max(1000, 'Message too long'),
 });
 
@@ -99,7 +99,7 @@ export const paginationSchema = z.object({
 // Search schema
 export const searchSchema = z.object({
   query: z.string().max(200, 'Search query too long').optional(),
-  filters: z.record(z.any()).optional(),
+  filters: z.record(z.string(), z.any()).optional(),
 });
 
 // File upload validation
@@ -112,8 +112,8 @@ export const fileUploadSchema = z.object({
 // Bulk operations schema
 export const bulkOperationSchema = z.object({
   action: z.enum(['delete', 'update', 'activate', 'deactivate']),
-  ids: z.array(z.string().uuid('Invalid ID')).min(1, 'At least one ID required'),
-  data: z.record(z.any()).optional(),
+  ids: z.array(z.string().cuid('Invalid ID format')).min(1, 'At least one ID required'),
+  data: z.record(z.string(), z.any()).optional(),
 });
 
 // Helper function to validate request body

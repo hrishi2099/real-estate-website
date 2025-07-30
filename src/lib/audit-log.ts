@@ -16,12 +16,11 @@ export async function logAdminAction(entry: AuditLogEntry): Promise<void> {
       data: {
         userId: entry.userId,
         action: entry.action,
-        resource: entry.resource,
-        resourceId: entry.resourceId,
-        details: entry.details ? JSON.stringify(entry.details) : null,
+        tableName: entry.resource,
+        recordId: entry.resourceId,
+        newValues: entry.details ? JSON.stringify(entry.details) : null,
         ipAddress: entry.ipAddress,
         userAgent: entry.userAgent,
-        timestamp: new Date(),
       },
     });
   } catch (error) {

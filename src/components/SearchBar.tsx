@@ -7,15 +7,20 @@ interface SearchBarProps {
   onSearch: (query: string) => void;
   defaultValue?: string;
   className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export default function SearchBar({ 
   placeholder = "Search...", 
   onSearch, 
   defaultValue = "",
-  className = ""
+  className = "",
+  value,
+  onChange
 }: SearchBarProps) {
-  const [query, setQuery] = useState(defaultValue);
+  const [internalQuery, setInternalQuery] = useState(defaultValue);
+  const query = value !== undefined ? value : internalQuery;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,8 +28,20 @@ export default function SearchBar({
   };
 
   const handleClear = () => {
-    setQuery("");
+    if (onChange) {
+      onChange("");
+    } else {
+      setInternalQuery("");
+    }
     onSearch("");
+  };
+
+  const handleChange = (newValue: string) => {
+    if (onChange) {
+      onChange(newValue);
+    } else {
+      setInternalQuery(newValue);
+    }
   };
 
   return (
@@ -38,7 +55,7 @@ export default function SearchBar({
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           placeholder={placeholder}
         />

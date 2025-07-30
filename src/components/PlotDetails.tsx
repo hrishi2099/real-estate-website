@@ -1,32 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { Plot } from '@prisma/client';
 
-interface Plot {
-  id: string;
-  plotNumber: string;
-  area: number;
-  price: number;
-  location: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
-  description?: string;
-  features?: string;
-  soldDate?: string;
+type PlotWithBuyer = Plot & {
   buyer?: {
     id: string;
     name: string;
     email: string;
     phone?: string;
   };
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
 interface PlotDetailsProps {
-  plot: Plot;
+  plot: PlotWithBuyer;
   onClose: () => void;
 }
 
@@ -153,7 +140,7 @@ export default function PlotDetails({ plot, onClose }: PlotDetailsProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Listed Date
                     </label>
-                    <p className="text-gray-900">{formatDate(plot.createdAt)}</p>
+                    <p className="text-gray-900">{formatDate(plot.createdAt.toString())}</p>
                   </div>
                 </div>
               </div>
@@ -187,7 +174,7 @@ export default function PlotDetails({ plot, onClose }: PlotDetailsProps) {
                   <h3 className="text-lg font-semibold mb-2">Sale Information</h3>
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <p className="text-sm text-red-800">
-                      <strong>Sold Date:</strong> {formatDate(plot.soldDate)}
+                      <strong>Sold Date:</strong> {plot.soldDate ? formatDate(plot.soldDate.toString()) : ''}
                     </p>
                     {plot.buyer && (
                       <p className="text-sm text-red-800 mt-1">
@@ -231,7 +218,7 @@ export default function PlotDetails({ plot, onClose }: PlotDetailsProps) {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Purchase Date
                         </label>
-                        <p className="text-gray-900">{formatDate(plot.soldDate)}</p>
+                        <p className="text-gray-900">{plot.soldDate ? formatDate(plot.soldDate.toString()) : ''}</p>
                       </div>
                     )}
                   </div>

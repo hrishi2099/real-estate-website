@@ -5,11 +5,12 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const plot = await prisma.plot.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         buyer: {
           select: {
@@ -41,8 +42,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await request.json();
     
@@ -72,7 +74,7 @@ export async function PUT(
     }
 
     const plot = await prisma.plot.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       include: {
         buyer: {
@@ -98,11 +100,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     await prisma.plot.delete({
-      where: { id: params.id }
+      where: { id: id }
     });
 
     return NextResponse.json({ message: 'Plot deleted successfully' });

@@ -43,9 +43,10 @@ export default function PropertiesManagement() {
       const response = await api.getProperties();
       if (response?.data) {
         // Handle both array and object responses
-        const propertiesData = Array.isArray(response.data) 
-          ? response.data 
-          : response.data.properties || [];
+        const data = response.data as any;
+        const propertiesData = Array.isArray(data) 
+          ? data 
+          : data.properties || [];
         setProperties(propertiesData);
       }
     } catch (error) {

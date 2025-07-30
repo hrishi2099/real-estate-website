@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -251,4 +251,21 @@ enum ContactInquiryStatus {
   REVIEWED
   RESPONDED
   CLOSED
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  action      String    // Action performed (CREATE, UPDATE, DELETE, etc.)
+  tableName   String    // Table/model name affected
+  recordId    String?   // ID of the affected record
+  oldValues   String?   // JSON string of old values
+  newValues   String?   // JSON string of new values
+  userId      String?   // User who performed the action
+  userEmail   String?   // Email of user who performed the action
+  ipAddress   String?   // IP address of the request
+  userAgent   String?   // User agent string
+  
+  createdAt   DateTime  @default(now())
+  
+  @@map("audit_logs")
 }

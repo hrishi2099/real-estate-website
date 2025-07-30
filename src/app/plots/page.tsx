@@ -1,32 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Plot } from '@prisma/client';
 import PlotMap from '@/components/PlotMap';
 import PlotStats from '@/components/PlotStats';
 import PlotDetails from '@/components/PlotDetails';
 
-interface Plot {
-  id: string;
-  plotNumber: string;
-  area: number;
-  price: number;
-  location: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
-  description?: string;
-  features?: string;
-  soldDate?: string;
+type PlotWithBuyer = Plot & {
   buyer?: {
     id: string;
     name: string;
     email: string;
     phone?: string;
   };
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
 interface PlotStats {
   total: number;
@@ -37,7 +24,7 @@ interface PlotStats {
 }
 
 export default function PlotsPage() {
-  const [plots, setPlots] = useState<Plot[]>([]);
+  const [plots, setPlots] = useState<PlotWithBuyer[]>([]);
   const [stats, setStats] = useState<PlotStats>({
     total: 0,
     available: 0,
@@ -45,7 +32,7 @@ export default function PlotsPage() {
     reserved: 0,
     inactive: 0
   });
-  const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
+  const [selectedPlot, setSelectedPlot] = useState<PlotWithBuyer | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
 
@@ -72,7 +59,7 @@ export default function PlotsPage() {
     }
   };
 
-  const handlePlotClick = (plot: Plot) => {
+  const handlePlotClick = (plot: PlotWithBuyer) => {
     setSelectedPlot(plot);
   };
 

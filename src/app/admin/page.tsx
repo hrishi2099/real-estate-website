@@ -34,12 +34,13 @@ export default function AdminDashboard() {
       
       // Load analytics data for stats
       const analyticsResponse = await api.getAdminAnalytics();
-      if (analyticsResponse?.data?.overview) {
+      if (analyticsResponse?.data) {
+        const data = analyticsResponse.data as any;
         setStats({
-          totalProperties: analyticsResponse.data.overview.totalProperties || 0,
-          activeUsers: analyticsResponse.data.overview.totalUsers || 0,
+          totalProperties: data.overview?.totalProperties || 0,
+          activeUsers: data.overview?.totalUsers || 0,
           totalRevenue: `$${(0).toLocaleString()}`, // Revenue calculation would need implementation
-          pendingInquiries: analyticsResponse.data.overview.pendingInquiries || 0,
+          pendingInquiries: data.overview?.pendingInquiries || 0,
         });
       }
 
@@ -53,7 +54,7 @@ export default function AdminDashboard() {
           // Update stats to include both property inquiries and contact inquiries
           setStats(prevStats => prevStats ? {
             ...prevStats,
-            pendingInquiries: (analyticsResponse?.data?.overview?.pendingInquiries || 0) + newContactInquiries
+            pendingInquiries: ((analyticsResponse?.data as any)?.overview?.pendingInquiries || 0) + newContactInquiries
           } : prevStats);
         }
       } catch (error) {
@@ -63,14 +64,15 @@ export default function AdminDashboard() {
       // Load recent activity (using inquiries as recent activity)
       const inquiriesResponse = await api.getAdminInquiries();
       if (inquiriesResponse?.data) {
-        const activities: RecentActivity[] = inquiriesResponse.data
+        const inquiriesData = inquiriesResponse.data as any;
+        const activities: RecentActivity[] = Array.isArray(inquiriesData) ? inquiriesData
           .slice(0, 4)
           .map((inquiry: any) => ({
             id: inquiry.id,
             action: "Property inquiry",
             details: inquiry.property?.title || "Property inquiry",
             time: new Date(inquiry.createdAt).toLocaleDateString()
-          }));
+          })) : [];
         setRecentActivity(activities);
       }
     } catch (error) {

@@ -89,10 +89,6 @@ export const defaultMetadata: Metadata = {
     apple: '/apple-icon.png',
   },
   manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
   openGraph: {
     type: "website",
     locale: "en_US",

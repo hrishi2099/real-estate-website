@@ -6,8 +6,9 @@ import { ContactInquiryStatus } from '@prisma/client'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const rateLimitResponse = rateLimit(rateLimitConfigs.admin)(request);
   if (rateLimitResponse) {
     return rateLimitResponse;
@@ -30,7 +31,6 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
     const { status } = await request.json()
 
     if (!status || !Object.values(ContactInquiryStatus).includes(status)) {
@@ -71,8 +71,9 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const rateLimitResponse = rateLimit(rateLimitConfigs.admin)(request);
   if (rateLimitResponse) {
     return rateLimitResponse;
@@ -94,8 +95,6 @@ export async function GET(
         { status: 403 }
       )
     }
-
-    const { id } = params
 
     const contactInquiry = await prisma.contactInquiry.findUnique({
       where: { id }

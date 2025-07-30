@@ -52,9 +52,10 @@ export default function AdminPlotsManagement() {
       const response = await api.getPlots();
       if (response?.data) {
         // Handle both array and object responses
-        const plotsData = Array.isArray(response.data) 
-          ? response.data 
-          : response.data.plots || [];
+        const data = response.data as any;
+        const plotsData = Array.isArray(data) 
+          ? data 
+          : data.plots || [];
         setPlots(plotsData);
       }
     } catch (error) {
@@ -167,6 +168,7 @@ export default function AdminPlotsManagement() {
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
+              onSearch={(query) => setSearchQuery(query)}
               placeholder="Search by plot number, location, or address..."
             />
           </div>
@@ -344,6 +346,8 @@ export default function AdminPlotsManagement() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
+              totalItems={filteredPlots.length}
+              itemsPerPage={itemsPerPage}
               onPageChange={setCurrentPage}
             />
           </div>
@@ -361,13 +365,13 @@ export default function AdminPlotsManagement() {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
-        onClose={closeDeleteDialog}
+        onCancel={closeDeleteDialog}
         onConfirm={handleDeletePlot}
         title="Delete Plot"
         message={`Are you sure you want to delete plot #${deleteDialog.plot?.plotNumber}? This action cannot be undone.`}
         loading={deleteDialog.loading}
-        confirmButtonText="Delete Plot"
-        confirmButtonClassName="bg-red-600 hover:bg-red-700"
+        confirmText="Delete Plot"
+        confirmButtonColor="red"
       />
     </div>
   );

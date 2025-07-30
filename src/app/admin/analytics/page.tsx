@@ -30,17 +30,18 @@ export default function Analytics() {
       setLoading(true);
       const response = await api.getAdminAnalytics(`?timeframe=${timeframe}`);
       if (response?.data) {
+        const data = response.data as any;
         setAnalyticsData({
-          totalViews: response.data.totalViews || 0,
-          uniqueVisitors: response.data.uniqueVisitors || 0,
-          inquiries: response.data.totalInquiries || 0,
-          conversions: response.data.conversions || 0,
-          revenue: `$${(response.data.totalRevenue || 0).toLocaleString()}`,
-          avgTimeOnSite: response.data.avgTimeOnSite || "0m 0s",
-          totalProperties: response.data.totalProperties || 0,
-          totalUsers: response.data.totalUsers || 0,
-          totalRevenue: response.data.totalRevenue || 0,
-          totalInquiries: response.data.totalInquiries || 0,
+          totalViews: data.totalViews || 0,
+          uniqueVisitors: data.uniqueVisitors || 0,
+          inquiries: data.totalInquiries || 0,
+          conversions: data.conversions || 0,
+          revenue: `$${(data.totalRevenue || 0).toLocaleString()}`,
+          avgTimeOnSite: data.avgTimeOnSite || "0m 0s",
+          totalProperties: data.totalProperties || 0,
+          totalUsers: data.totalUsers || 0,
+          totalRevenue: data.totalRevenue || 0,
+          totalInquiries: data.totalInquiries || 0,
         });
       }
     } catch (error) {
