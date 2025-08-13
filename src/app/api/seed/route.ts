@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, PropertyType, PropertyStatus, PlotStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +15,7 @@ export async function POST(request: NextRequest) {
     console.log('🌱 Starting database seed...');
 
     // Check if admin already exists
-    const existingAdmin = await prisma.user.findFirst({
-      where: { email: 'admin@zaminseva.com' }
-    });
+    const existingAdmin = await prisma.user.findUnique({ where: { email: 'admin@zaminseva.com' } });
 
     if (existingAdmin) {
       return NextResponse.json({ 
@@ -49,26 +45,26 @@ export async function POST(request: NextRequest) {
         price: 15000000,
         location: 'Andheri West, Mumbai',
         address: '123 Premium Heights, Andheri West, Mumbai 400058',
-        type: PropertyType.VILLA,
-        status: PropertyStatus.ACTIVE,
+        type: 'VILLA' as const,
+        status: 'ACTIVE' as const,
         bedrooms: 4,
         bathrooms: 3,
         area: 2500,
         yearBuilt: 2020,
-        features: JSON.stringify(['Swimming Pool', 'Gym', 'Parking', 'Security']),
+        features: 'Swimming Pool, Gym, Parking, Security',
         ownerId: admin.id,
       },
       {
-        title: 'Commercial Plot in Pune',
-        description: 'Prime commercial land in the heart of Pune IT hub.',
+        title: 'Commercial Property in Pune',
+        description: 'Prime commercial property in the heart of Pune IT hub.',
         price: 25000000,
         location: 'Hinjewadi, Pune',
         address: 'Plot 45, Hinjewadi Phase 1, Pune 411057',
-        type: PropertyType.COMMERCIAL,
-        status: PropertyStatus.ACTIVE,
+        type: 'COMMERCIAL' as const,
+        status: 'ACTIVE' as const,
         area: 5000,
         yearBuilt: null,
-        features: JSON.stringify(['Corner Plot', 'Wide Road', 'IT Hub Proximity']),
+        features: 'Corner Location, Wide Road Access, IT Hub Proximity',
         ownerId: admin.id,
       }
     ];
@@ -79,35 +75,7 @@ export async function POST(request: NextRequest) {
       createdProperties.push(property);
     }
 
-    // Create sample plots
-    const samplePlots = [
-      {
-        plotNumber: 'P001',
-        area: 1200,
-        price: 5000000,
-        location: 'Sector 15, Navi Mumbai',
-        address: 'Plot P001, Sector 15, Navi Mumbai',
-        status: PlotStatus.AVAILABLE,
-        description: 'Residential plot in prime location with all utilities.',
-        features: JSON.stringify(['Water Connection', 'Electricity', 'Road Access']),
-      },
-      {
-        plotNumber: 'P002',
-        area: 800,
-        price: 3500000,
-        location: 'Wakad, Pune',
-        address: 'Plot P002, Wakad, Pune',
-        status: PlotStatus.AVAILABLE,
-        description: 'Commercial plot suitable for office development.',
-        features: JSON.stringify(['Corner Plot', 'Metro Connectivity', 'IT Hub']),
-      }
-    ];
-
-    const createdPlots = [];
-    for (const plotData of samplePlots) {
-      const plot = await prisma.plot.create({ data: plotData });
-      createdPlots.push(plot);
-    }
+    // Note: Plot functionality has been removed from this application
 
     return NextResponse.json({
       success: true,
@@ -115,7 +83,6 @@ export async function POST(request: NextRequest) {
       data: {
         admin: admin.email,
         properties: createdProperties.length,
-        plots: createdPlots.length,
       }
     });
 

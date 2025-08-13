@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { trackNavigation } from "./Analytics";
 
 interface OfficeSettings {
   id: string;
@@ -15,7 +16,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [officeSettings, setOfficeSettings] = useState<OfficeSettings | null>(null);
-  const { user, isAuthenticated, isAdmin, logout, isHydrated } = useAuth();
+  const { user, isAuthenticated, isAdmin, isSalesManager, logout, isHydrated } = useAuth();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Prevent hydration mismatch by not rendering auth-dependent UI until hydrated
@@ -74,21 +75,18 @@ export default function Header() {
                 </div>
               )}
               {/* Company Name - Dynamic from office settings */}
-              <span className="hidden sm:block text-xl font-bold text-blue-600">
-                {officeSettings?.companyName || "Company Name"}
+              <span className="text-lg sm:text-xl font-bold text-blue-600">
+                {officeSettings?.companyName || "Real Estate"}
               </span>
             </Link>
           </div>
           
-          <nav className="hidden md:flex space-x-10">
+          <nav className="hidden md:flex space-x-10" data-section="main-navigation">
             <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
               Home
             </Link>
             <Link href="/properties" className="text-base font-medium text-gray-500 hover:text-gray-900">
               Properties
-            </Link>
-            <Link href="/plots" className="text-base font-medium text-gray-500 hover:text-gray-900">
-              Plots
             </Link>
             <Link href="/search" className="text-base font-medium text-gray-500 hover:text-gray-900">
               Search
@@ -104,7 +102,7 @@ export default function Header() {
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0" data-section="auth-navigation">
             {showAuthUI && isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
                 <button
@@ -133,11 +131,16 @@ export default function Header() {
                           Admin Panel
                         </Link>
                       )}
+                      {isSalesManager && (
+                        <Link href="/sales" className="block px-4 py-2 text-sm text-green-700 hover:bg-green-50">
+                          Sales Dashboard
+                        </Link>
+                      )}
                       <Link href="/dashboard/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Profile
                       </Link>
                       <Link href="/dashboard/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Saved Plots
+                        Favorites
                       </Link>
                       <button
                         onClick={logout}
@@ -169,36 +172,68 @@ export default function Header() {
           <div className="md:hidden">
             <button
               type="button"
-              className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+              className="bg-white rounded-md p-3 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
             >
-              <span className="sr-only">Open menu</span>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <span className="sr-only">{isMenuOpen ? 'Close' : 'Open'} menu</span>
+              {isMenuOpen ? (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden">
+          <div className="md:hidden" id="mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link href="/" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link 
+                href="/" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Home
               </Link>
-              <Link href="/properties" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link 
+                href="/properties" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Properties
               </Link>
-              <Link href="/plots" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                Plots
+              <Link 
+                href="/search" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Search
               </Link>
-              <Link href="/gallery" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link 
+                href="/gallery" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Gallery
               </Link>
-              <Link href="/about" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link 
+                href="/about" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 About
               </Link>
-              <Link href="/contact" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link 
+                href="/contact" 
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Contact
               </Link>
               
@@ -216,20 +251,48 @@ export default function Header() {
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
-                    <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                    <Link 
+                      href="/dashboard" 
+                      className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       Dashboard
                     </Link>
                     {isAdmin && (
-                      <Link href="/admin" className="block px-3 py-2 text-base font-medium text-blue-700 hover:text-blue-900 hover:bg-blue-50">
+                      <Link 
+                        href="/admin" 
+                        className="block px-4 py-3 text-base font-medium text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-md touch-manipulation"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
                         Admin Panel
                       </Link>
                     )}
-                    <Link href="/dashboard/profile" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                    {isSalesManager && (
+                      <Link 
+                        href="/sales" 
+                        className="block px-4 py-3 text-base font-medium text-green-700 hover:text-green-900 hover:bg-green-50 rounded-md touch-manipulation"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sales Dashboard
+                      </Link>
+                    )}
+                    <Link 
+                      href="/dashboard/profile" 
+                      className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       Profile
                     </Link>
+                    <Link 
+                      href="/dashboard/favorites" 
+                      className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Favorites
+                    </Link>
                     <button
-                      onClick={logout}
-                      className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      onClick={() => { logout(); setIsMenuOpen(false); }}
+                      className="block w-full text-left px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                     >
                       Sign out
                     </button>
@@ -237,10 +300,18 @@ export default function Header() {
                 </div>
               ) : showAuthUI ? (
                 <div className="border-t border-gray-200 pt-4 pb-3 space-y-1">
-                  <Link href="/login" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                  <Link 
+                    href="/login" 
+                    className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Sign in
                   </Link>
-                  <Link href="/signup" className="block px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md mx-3">
+                  <Link 
+                    href="/signup" 
+                    className="block px-4 py-3 mx-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md touch-manipulation"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Sign up
                   </Link>
                 </div>

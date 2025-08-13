@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
+import StructuredData from "./StructuredData";
+import { trackPropertyView, trackPropertyInquiry } from "./Analytics";
 
 interface PropertyDetailsProps {
   property: {
@@ -39,8 +41,38 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     message: ""
   });
 
+  // Track property view on component mount
+  useEffect(() => {
+    const trackView = async () => {
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event: 'VIEW',
+            propertyId: property.id,
+            metadata: {
+              title: property.title,
+              price: property.price,
+              location: property.location,
+              type: property.type
+            }
+          }),
+        });
+        
+        // Also track with existing analytics system
+        trackPropertyView(property.id, property.title, property.price);
+      } catch (error) {
+        console.error('Error tracking property view:', error);
+      }
+    };
+
+    trackView();
+  }, [property.id, property.title, property.price]);
+
   // Calculate derived values
-  const plotNumber = `P${Math.floor(Math.random() * 90000) + 10000}`;
   const pricePerSqft = property.area ? Math.round(property.price / property.area) : null;
   const walkScore = Math.floor(Math.random() * 40) + 60;
   const localityScore = Math.floor(Math.random() * 30) + 70;
@@ -56,6 +88,10 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     e.preventDefault();
     // Implementation for bid submission
     console.log('Bid submitted:', { propertyId: property.id, amount: bidAmount });
+    
+    // Track bid submission
+    trackPropertyInquiry(property.id, property.title, 'bid');
+    
     setShowBidModal(false);
     setBidAmount("");
     alert('Bid submitted successfully!');
@@ -63,15 +99,45 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
   const handleEnquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementation for enquiry submission
-    console.log('Enquiry submitted:', { propertyId: property.id, ...enquiryForm });
-    setShowEnquiryModal(false);
-    setEnquiryForm({ name: "", email: "", phone: "", message: "" });
-    alert('Enquiry submitted successfully!');
+    
+    try {
+      // Track property inquiry with new analytics system
+      await fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event: 'INQUIRY',
+          propertyId: property.id,
+          metadata: {
+            title: property.title,
+            contactName: enquiryForm.name,
+            contactEmail: enquiryForm.email,
+            message: enquiryForm.message
+          }
+        }),
+      });
+
+      // Track with existing analytics system
+      trackPropertyInquiry(property.id, property.title, 'enquiry');
+      
+      // Implementation for enquiry submission
+      console.log('Enquiry submitted:', { propertyId: property.id, ...enquiryForm });
+      
+      setShowEnquiryModal(false);
+      setEnquiryForm({ name: "", email: "", phone: "", message: "" });
+      alert('Enquiry submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting enquiry:', error);
+      alert('Error submitting enquiry. Please try again.');
+    }
   };
 
   return (
-    <div className="space-y-8">
+    <>
+      <StructuredData property={property} />
+      <div className="space-y-8">
       {/* Property Overview */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -80,7 +146,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-3">
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  Plot {plotNumber}
+                  Property
                 </span>
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                   {property.status}
@@ -241,7 +307,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
               <li>• Switch between Street, Satellite, and Terrain views</li>
               <li>• Toggle property boundaries on/off</li>
               <li>• Interactive map with zoom and pan controls</li>
-              <li>• Precise GPS coordinates: {property.latitude.toFixed(6)}, {property.longitude.toFixed(6)}</li>
+              <li>• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
             </ul>
           </div>
         </div>
@@ -356,5 +422,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         </div>
       )}
     </div>
+    </>
   );
 }

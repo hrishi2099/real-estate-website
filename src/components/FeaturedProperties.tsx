@@ -61,7 +61,7 @@ export default function FeaturedProperties() {
           <div className="lg:text-center">
             <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Featured</h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Premium Land Plots
+              Featured Properties
             </p>
           </div>
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -90,7 +90,7 @@ export default function FeaturedProperties() {
             Premium Land Plots
           </p>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            Explore our handpicked selection of prime land plots and development opportunities.
+            Explore our handpicked selection of premium properties and investment opportunities.
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export default function FeaturedProperties() {
             href="/properties"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
           >
-            View All Land Plots
+            View All Properties
             <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>

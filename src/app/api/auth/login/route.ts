@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma, ensureConnection } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import { verifyPassword, generateToken } from '@/lib/auth'
 import { z } from 'zod'
 
@@ -13,19 +13,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = loginSchema.parse(body)
 
-    // Ensure database connection
-    const connected = await ensureConnection()
-    if (!connected) {
-      console.error('Database connection failed during login attempt')
-      return NextResponse.json(
-        { error: 'Service temporarily unavailable. Please try again later.' },
-        { status: 503 }
-      )
-    }
-
     // Find user
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     })
 
     if (!user) {
@@ -56,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Update last login
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLogin: new Date() }
+      data: { lastLogin: new Date() },
     })
 
     // Generate token
@@ -76,6 +66,8 @@ export async function POST(request: NextRequest) {
         role: user.role,
         status: user.status,
         joinDate: user.joinDate,
+        territory: user.territory,
+        commission: user.commission ? parseFloat(user.commission.toString()) : null,
       },
       token,
     })

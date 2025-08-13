@@ -1,0 +1,135 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { authLimiter, apiLimiter, strictLimiter, uploadLimiter, createRateLimitMiddleware } from './lib/rate-limiter';
+import { validateCSRF } from './lib/csrf';
+
+// Security headers
+const securityHeaders = {
+  // Prevent XSS attacks
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  
+  // HTTPS enforcement
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  
+  // Content Security Policy
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https: http:",
+    "connect-src 'self' https://www.google-analytics.com https://api.whatsapp.com",
+    "frame-ancestors 'none'",
+  ].join('; '),
+  
+  // Referrer Policy
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  
+  // Permissions Policy
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self), payment=()',
+};
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Apply rate limiting based on route
+  let rateLimitResult;
+  
+  if (pathname.startsWith('/api/auth/')) {
+    rateLimitResult = createRateLimitMiddleware(authLimiter)(request);
+  } else if (pathname.startsWith('/api/upload') || pathname.includes('images')) {
+    rateLimitResult = createRateLimitMiddleware(uploadLimiter)(request);
+  } else if (pathname.startsWith('/api/admin/') || pathname.startsWith('/api/analytics/')) {
+    rateLimitResult = createRateLimitMiddleware(strictLimiter)(request);
+  } else if (pathname.startsWith('/api/')) {
+    rateLimitResult = createRateLimitMiddleware(apiLimiter)(request);
+  }
+  
+  // If rate limit exceeded, return the error response
+  if (rateLimitResult && rateLimitResult instanceof Response) {
+    return rateLimitResult;
+  }
+  
+  // CSRF protection for state-changing API requests
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/csrf')) {
+    if (!validateCSRF(request)) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'CSRF validation failed',
+          message: 'Invalid or missing CSRF token'
+        }),
+        {
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    }
+  }
+  
+  // Create response with security headers
+  const response = NextResponse.next();
+  
+  // Apply security headers to all responses
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  
+  // Add rate limit headers if available
+  if (rateLimitResult && rateLimitResult.headers) {
+    Object.entries(rateLimitResult.headers).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+  }
+  
+  // CORS headers for API routes
+  if (pathname.startsWith('/api/')) {
+    // Only allow specific origins in production
+    const allowedOrigins = process.env.NODE_ENV === 'production' 
+      ? [process.env.NEXT_PUBLIC_SITE_URL]
+      : ['http://localhost:3000', 'http://localhost:3001'];
+    
+    const origin = request.headers.get('origin');
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+    }
+    
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    );
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, X-CSRF-Token'
+    );
+    
+    // Handle preflight requests
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 200, headers: response.headers });
+    }
+  }
+  
+  // Add anti-clickjacking for admin pages
+  if (pathname.startsWith('/admin/')) {
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  }
+  
+  return response;
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+};

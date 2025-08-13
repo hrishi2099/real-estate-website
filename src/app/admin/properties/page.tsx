@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
+import ExportButton from "@/components/ExportButton";
+import ExportModal from "@/components/ExportModal";
 
 interface Property {
   id: string;
@@ -32,6 +34,7 @@ export default function PropertiesManagement() {
     property: null,
     loading: false
   });
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -134,12 +137,39 @@ export default function PropertiesManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Property Management</h1>
-        <a
-          href="/admin/properties/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          + Add New Property
-        </a>
+        <div className="flex gap-3">
+          <ExportButton
+            data={filteredProperties.map(property => ({
+              id: property.id,
+              title: property.title,
+              price: Number(property.price),
+              location: property.location,
+              type: property.type,
+              status: property.status,
+              bedrooms: property.bedrooms,
+              bathrooms: property.bathrooms,
+              area: property.area ? Number(property.area) : undefined,
+              createdAt: property.createdAt
+            }))}
+            type="properties"
+            filters={{
+              status: filter === 'all' ? undefined : filter,
+              search: searchQuery
+            }}
+          />
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            📊 Advanced Export
+          </button>
+          <a
+            href="/admin/properties/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Add New Property
+          </a>
+        </div>
       </div>
 
       {loading ? (
@@ -236,7 +266,7 @@ export default function PropertiesManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">${property.price.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-gray-900">₹{Number(property.price).toLocaleString()}</div>
                     <div className="text-sm text-gray-500">{property.type}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -246,7 +276,7 @@ export default function PropertiesManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div>{property.bedrooms} bed, {property.bathrooms} bath</div>
-                    <div>{property.area} sqft</div>
+                    <div>{Number(property.area)} sqft</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <a
@@ -290,6 +320,17 @@ export default function PropertiesManagement() {
           showItemsPerPage={true}
         />
       )}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        type="properties"
+        filters={{
+          status: filter === 'all' ? undefined : filter,
+          search: searchQuery
+        }}
+      />
 
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}

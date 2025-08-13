@@ -39,7 +39,7 @@ export default function AdminDashboard() {
         setStats({
           totalProperties: data.overview?.totalProperties || 0,
           activeUsers: data.overview?.totalUsers || 0,
-          totalRevenue: `$${(0).toLocaleString()}`, // Revenue calculation would need implementation
+          totalRevenue: `₹${(0).toLocaleString()}`, // Revenue calculation would need implementation
           pendingInquiries: data.overview?.pendingInquiries || 0,
         });
       }
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
       setStats({
         totalProperties: 0,
         activeUsers: 0,
-        totalRevenue: "$0",
+        totalRevenue: "₹0",
         pendingInquiries: 0,
       });
     } finally {
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
   const statsDisplay = [
     { name: "Total Properties", value: stats?.totalProperties?.toString() || "0", icon: "🏠" },
     { name: "Active Users", value: stats?.activeUsers?.toString() || "0", icon: "👥" },
-    { name: "Total Revenue", value: stats?.totalRevenue || "$0", icon: "💰" },
+    { name: "Total Revenue", value: stats?.totalRevenue || "₹0", icon: "💰" },
     { name: "Pending Inquiries", value: stats?.pendingInquiries?.toString() || "0", icon: "📧" },
   ];
 
@@ -153,22 +153,10 @@ export default function AdminDashboard() {
               + Add New Property
             </a>
             <a
-              href="/admin/plots/new"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-            >
-              + Add New Plot
-            </a>
-            <a
               href="/admin/properties"
               className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               🏠 Manage Properties
-            </a>
-            <a
-              href="/admin/plots"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              🗺️ Manage Plots
             </a>
             <a
               href="/admin/users"

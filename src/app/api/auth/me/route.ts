@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
         joinDate: true,
         lastLogin: true,
         emailVerified: true,
+        territory: true,
+        commission: true,
       }
     })
 

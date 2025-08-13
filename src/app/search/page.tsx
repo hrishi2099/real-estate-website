@@ -16,7 +16,6 @@ interface Property {
   type: string;
   status: string;
   images: { id: string; url: string; isPrimary: boolean }[];
-  plotNumber?: string;
   pricePerSqft?: number;
   walkScore?: number;
   localityScore?: number;
@@ -30,7 +29,6 @@ interface SearchFilters {
   minArea: string;
   maxArea: string;
   pricePerSqft: string;
-  plotType: string;
 }
 
 export default function PropertySearchPage() {
@@ -46,18 +44,9 @@ export default function PropertySearchPage() {
     maxPrice: "",
     minArea: "",
     maxArea: "",
-    pricePerSqft: "",
-    plotType: ""
+    pricePerSqft: ""
   });
 
-  const plotTypes = [
-    { value: "", label: "All Plots" },
-    { value: "developed", label: "Developed Plots" },
-    { value: "undeveloped", label: "Undeveloped Plots" },
-    { value: "agricultural", label: "Agricultural Land" },
-    { value: "commercial", label: "Commercial Plots" },
-    { value: "residential", label: "Residential Plots" }
-  ];
 
   const propertyTypes = [
     { value: "", label: "All Types" },
@@ -90,8 +79,7 @@ export default function PropertySearchPage() {
         const data = await response.json();
         const enrichedProperties = data.properties.map((property: any) => ({
           ...property,
-          plotNumber: `P${Math.floor(Math.random() * 90000) + 10000}`,
-          pricePerSqft: property.area ? Math.round(property.price / property.area) : null,
+          pricePerSqft: property.area ? Math.round(Number(property.price) / Number(property.area)) : null,
           walkScore: Math.floor(Math.random() * 40) + 60, // 60-100
           localityScore: Math.floor(Math.random() * 30) + 70, // 70-100
         }));
@@ -120,8 +108,7 @@ export default function PropertySearchPage() {
       maxPrice: "",
       minArea: "",
       maxArea: "",
-      pricePerSqft: "",
-      plotType: ""
+      pricePerSqft: ""
     });
   };
 
@@ -144,7 +131,7 @@ export default function PropertySearchPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Property Search</h1>
-              <p className="mt-1 text-gray-600">Find your perfect plot from our collection</p>
+              <p className="mt-1 text-gray-600">Find your perfect property from our collection</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex bg-gray-100 rounded-lg p-1">
@@ -229,23 +216,6 @@ export default function PropertySearchPage() {
                     </select>
                   </div>
 
-                  {/* Plot Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Plot Category
-                    </label>
-                    <select
-                      value={filters.plotType}
-                      onChange={(e) => handleFilterChange('plotType', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {plotTypes.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
 
                   {/* Price Range */}
                   <div>
@@ -371,11 +341,6 @@ export default function PropertySearchPage() {
                             {property.status}
                           </span>
                         </div>
-                        {property.plotNumber && (
-                          <div className="absolute top-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-                            Plot {property.plotNumber}
-                          </div>
-                        )}
                       </div>
                       
                       <div className="p-4">
@@ -404,7 +369,7 @@ export default function PropertySearchPage() {
                         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Area:</span>
-                            <span className="font-medium">{property.area?.toLocaleString() || 'N/A'} sq ft</span>
+                            <span className="font-medium">{Number(property.area)?.toLocaleString() || 'N/A'} sq ft</span>
                           </div>
                           {property.walkScore && (
                             <div className="flex items-center justify-between">
@@ -435,8 +400,8 @@ export default function PropertySearchPage() {
               <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[600px]">
                 {properties.length > 0 && properties.some(p => p.latitude && p.longitude) ? (
                   <PropertyMap
-                    latitude={properties.find(p => p.latitude)?.latitude || 19.076}
-                    longitude={properties.find(p => p.longitude)?.longitude || 72.877}
+                    latitude={Number(properties.find(p => p.latitude)?.latitude) || 19.076}
+                    longitude={Number(properties.find(p => p.longitude)?.longitude) || 72.877}
                     propertyTitle="Property Search Results"
                     className="h-full w-full"
                   />

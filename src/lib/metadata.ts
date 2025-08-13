@@ -10,17 +10,22 @@ interface OfficeSettings {
 export function generateMetadata(
   title?: string,
   description?: string,
-  officeSettings?: OfficeSettings | null
+  officeSettings?: OfficeSettings | null,
+  options?: {
+    canonical?: string;
+    images?: string[];
+    keywords?: string[];
+  }
 ): Metadata {
   const companyName = officeSettings?.companyName || "Real Estate Platform";
   const baseTitle = title ? `${title} | ${companyName}` : `${companyName} - Premium Properties`;
-  const baseDescription = description || `Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and land plots with expert guidance.`;
+  const baseDescription = description || `Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and apartments with expert guidance.`;
   const siteUrl = officeSettings?.website || process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
   return {
     title: baseTitle,
     description: baseDescription,
-    keywords: ["real estate", "properties", "homes", "luxury", "investment", "land", "condos", "apartments", "buy", "sell"],
+    keywords: options?.keywords || ["real estate", "properties", "homes", "luxury", "investment", "condos", "apartments", "villas", "buy", "sell"],
     authors: [{ name: companyName }],
     creator: companyName,
     publisher: companyName,
@@ -36,7 +41,12 @@ export function generateMetadata(
       siteName: companyName,
       title: baseTitle,
       description: baseDescription,
-      images: [
+      images: options?.images ? options.images.map(img => ({
+        url: img,
+        width: 1200,
+        height: 630,
+        alt: baseTitle,
+      })) : [
         {
           url: "/og-image.jpg",
           width: 1200,
@@ -49,7 +59,7 @@ export function generateMetadata(
       card: "summary_large_image",
       title: baseTitle,
       description: baseDescription,
-      images: ["/og-image.jpg"],
+      images: options?.images || ["/og-image.jpg"],
       creator: "@realestate",
     },
     robots: {
@@ -64,6 +74,9 @@ export function generateMetadata(
       },
     },
     metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: options?.canonical || siteUrl,
+    },
   };
 }
 
@@ -73,8 +86,8 @@ export const defaultMetadata: Metadata = {
     default: "Real Estate Platform - Premium Properties",
     template: "%s | Real Estate Platform"
   },
-  description: "Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and land plots with expert guidance.",
-  keywords: ["real estate", "properties", "homes", "luxury", "investment", "land", "condos", "apartments", "buy", "sell"],
+  description: "Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and apartments with expert guidance.",
+  keywords: ["real estate", "properties", "homes", "luxury", "investment", "condos", "apartments", "villas", "buy", "sell"],
   authors: [{ name: "Real Estate Platform" }],
   creator: "Real Estate Platform",
   publisher: "Real Estate Platform",

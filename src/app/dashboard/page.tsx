@@ -1,65 +1,85 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-const recentActivity = [
-  {
-    id: 1,
-    action: "Saved land plot",
-    property: "Premium Residential Plot in Green Valley",
-    date: "2 hours ago",
-    type: "save"
-  },
-  {
-    id: 2,
-    action: "Viewed property",
-    property: "Commercial Development Land in Business District",
-    date: "1 day ago",
-    type: "view"
-  },
-  {
-    id: 3,
-    action: "Contacted agent",
-    property: "Farmland Investment Plot in Rural County",
-    date: "3 days ago",
-    type: "contact"
-  }
-];
+interface DashboardStats {
+  savedProperties: number;
+  propertiesViewed: number;
+  agentContacts: number;
+}
 
-const savedProperties = [
-  {
-    id: 1,
-    title: "Premium Residential Plot",
-    price: "₹2,85,00,000",
-    location: "Green Valley, CA",
-    area: "8,500 sqft",
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80",
-    savedDate: "2 days ago"
-  },
-  {
-    id: 2,
-    title: "Commercial Development Land",
-    price: "₹7,50,00,000",
-    location: "Business District, TX",
-    area: "12,000 sqft",
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80",
-    savedDate: "1 week ago"
-  }
-];
+interface RecentActivity {
+  id: string;
+  action: string;
+  property: string;
+  date: string;
+  type: string;
+}
+
+interface SavedProperty {
+  id: string;
+  title: string;
+  price: string;
+  location: string;
+  area: string;
+  image: string;
+  savedDate: string;
+}
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, isHydrated } = useAuth();
   const router = useRouter();
+  
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
     if (isHydrated && !isLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, isLoading, isHydrated, router]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!isAuthenticated || !user) return;
+      
+      setIsLoadingData(true);
+      try {
+        const [statsRes, activityRes, favoritesRes] = await Promise.all([
+          fetch('/api/dashboard/stats'),
+          fetch('/api/dashboard/activity'),
+          fetch('/api/dashboard/favorites')
+        ]);
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        }
+
+        if (activityRes.ok) {
+          const activityData = await activityRes.json();
+          setRecentActivity(activityData);
+        }
+
+        if (favoritesRes.ok) {
+          const favoritesData = await favoritesRes.json();
+          setSavedProperties(favoritesData);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [isAuthenticated, user]);
 
   if (!isHydrated || isLoading) {
     return (
@@ -80,71 +100,77 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Dashboard Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Welcome back, {user?.name}!
               </h1>
-              <p className="mt-2 text-gray-600">
-                Manage your land investments and track your property interests
+              <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
+                Manage your property investments and track your interests
               </p>
             </div>
             <Link
               href="/properties"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 touch-manipulation"
             >
-              Browse Land Plots
+              Browse Properties
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                 <div className="flex items-center">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{savedProperties.length}</h3>
-                    <p className="text-gray-600">Saved Plots</p>
+                  <div className="ml-3 sm:ml-4 min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {isLoadingData ? '...' : (stats?.savedProperties ?? 0)}
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600">Saved Properties</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">12</h3>
-                    <p className="text-gray-600">Properties Viewed</p>
+                  <div className="ml-3 sm:ml-4 min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {isLoadingData ? '...' : (stats?.propertiesViewed ?? 0)}
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600">Properties Viewed</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                 <div className="flex items-center">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">3</h3>
-                    <p className="text-gray-600">Agent Contacts</p>
+                  <div className="ml-3 sm:ml-4 min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {isLoadingData ? '...' : (stats?.agentContacts ?? 0)}
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600">Agent Contacts</p>
                   </div>
                 </div>
               </div>
@@ -156,14 +182,21 @@ export default function DashboardPage() {
                 <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
+                {isLoadingData ? (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : recentActivity.length === 0 ? (
+                  <p className="text-center text-gray-500 py-4">No recent activity</p>
+                ) : (
+                  <div className="space-y-4">
+                    {recentActivity.map((activity) => (
                     <div key={activity.id} className="flex items-start space-x-3">
                       <div className={`p-2 rounded-full ${
-                        activity.type === 'save' ? 'bg-blue-100' :
+                        (activity.type === 'save' || activity.type === 'favorite') ? 'bg-blue-100' :
                         activity.type === 'view' ? 'bg-green-100' : 'bg-orange-100'
                       }`}>
-                        {activity.type === 'save' && (
+                        {(activity.type === 'save' || activity.type === 'favorite') && (
                           <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
@@ -173,7 +206,7 @@ export default function DashboardPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                         )}
-                        {activity.type === 'contact' && (
+                        {(activity.type === 'contact') && (
                           <svg className="h-4 w-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                           </svg>
@@ -187,30 +220,31 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Profile Card */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center space-x-3">
-                <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
-                  <span className="text-white text-lg font-medium">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-base sm:text-lg font-medium">
                     {user?.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">{user?.name}</h3>
-                  <p className="text-sm text-gray-500">{user?.email}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">{user?.name}</h3>
+                  <p className="text-sm text-gray-500 truncate">{user?.email}</p>
                 </div>
               </div>
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <Link
                   href="/dashboard/profile"
-                  className="w-full inline-flex justify-center items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="w-full inline-flex justify-center items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 touch-manipulation"
                 >
                   Edit Profile
                 </Link>
@@ -220,13 +254,20 @@ export default function DashboardPage() {
             {/* Saved Properties */}
             <div className="bg-white rounded-lg shadow">
               <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900">Saved Plots</h3>
+                <h3 className="text-lg font-medium text-gray-900">Saved Properties</h3>
                 <Link href="/dashboard/favorites" className="text-sm text-blue-600 hover:text-blue-500">
                   View all
                 </Link>
               </div>
               <div className="p-4 space-y-4">
-                {savedProperties.map((property) => (
+                {isLoadingData ? (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : savedProperties.length === 0 ? (
+                  <p className="text-center text-gray-500 py-4 text-sm">No saved properties</p>
+                ) : (
+                  savedProperties.map((property) => (
                   <div key={property.id} className="flex space-x-3">
                     <div className="relative h-16 w-16 rounded-lg overflow-hidden">
                       <Image
@@ -241,27 +282,28 @@ export default function DashboardPage() {
                         {property.title}
                       </p>
                       <p className="text-sm text-gray-500">{property.location}</p>
-                      <p className="text-sm font-medium text-blue-600">{property.price}</p>
+                      <p className="text-sm font-medium text-blue-600">₹{Number(property.price).toLocaleString()}</p>
                       <p className="text-xs text-gray-400">Saved {property.savedDate}</p>
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link
                   href="/properties"
-                  className="w-full inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  className="w-full inline-flex justify-center items-center px-3 py-3 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 touch-manipulation"
                 >
-                  Browse New Plots
+                  Browse New Properties
                 </Link>
                 <Link
                   href="/contact"
-                  className="w-full inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="w-full inline-flex justify-center items-center px-3 py-3 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 touch-manipulation"
                 >
                   Contact Support
                 </Link>

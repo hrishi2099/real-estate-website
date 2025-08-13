@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { getUserFromRequest } from '@/lib/auth'
 import { getMockProperties } from '@/lib/mock-data'
 import { z } from 'zod'
-import { PropertyType, PropertyStatus } from '@prisma/client'
 
 const createPropertySchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -41,19 +40,10 @@ export async function GET(request: NextRequest) {
 
     // Try database first, fallback to mock data if unavailable
     try {
-      const where: {
-        type?: PropertyType;
-        status?: PropertyStatus;
-        isFeatured?: boolean;
-        location?: { contains: string; mode: 'insensitive' };
-        bedrooms?: number;
-        bathrooms?: number;
-        price?: { gte?: number; lte?: number };
-        area?: { gte: number };
-      } = {}
+      const where: any = {}
 
-      if (type) where.type = type as PropertyType
-      if (status) where.status = status as PropertyStatus
+      if (type) where.type = type
+      if (status) where.status = status
       if (featured) where.isFeatured = featured === 'true'
       if (location) where.location = { contains: location, mode: 'insensitive' }
       if (bedrooms) where.bedrooms = parseInt(bedrooms)
@@ -73,11 +63,14 @@ export async function GET(request: NextRequest) {
         prisma.property.findMany({
           where,
           include: {
+            owner: {
+              select: { name: true, email: true }
+            },
             images: true,
             _count: {
               select: {
                 inquiries: true,
-                favorites: true,
+                favorites: true
               }
             }
           },
@@ -88,11 +81,13 @@ export async function GET(request: NextRequest) {
         prisma.property.count({ where })
       ])
 
+      const propertiesWithDetails = properties.map(property => ({
+        ...property,
+        features: property.features ? property.features.split(',').map(f => f.trim()) : [],
+      }))
+
       return NextResponse.json({
-        properties: properties.map(property => ({
-          ...property,
-          features: property.features ? JSON.parse(property.features) : [],
-        })),
+        properties: propertiesWithDetails,
         pagination: {
           page,
           limit,
@@ -145,18 +140,14 @@ export async function POST(request: NextRequest) {
     const property = await prisma.property.create({
       data: {
         ...data,
-        features: data.features ? JSON.stringify(data.features) : null,
+        features: data.features ? data.features.join(', ') : null,
         ownerId: userPayload.userId,
       },
       include: {
-        images: true,
         owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        }
+          select: { name: true, email: true }
+        },
+        images: true,
       }
     })
 
@@ -164,7 +155,7 @@ export async function POST(request: NextRequest) {
       message: 'Property created successfully',
       property: {
         ...property,
-        features: property.features ? JSON.parse(property.features) : [],
+        features: property.features ? property.features.split(', ') : [],
       }
     })
   } catch (error) {

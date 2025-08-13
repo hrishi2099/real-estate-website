@@ -36,7 +36,7 @@ export default function Analytics() {
           uniqueVisitors: data.uniqueVisitors || 0,
           inquiries: data.totalInquiries || 0,
           conversions: data.conversions || 0,
-          revenue: `$${(data.totalRevenue || 0).toLocaleString()}`,
+          revenue: `₹${(data.totalRevenue || 0).toLocaleString()}`,
           avgTimeOnSite: data.avgTimeOnSite || "0m 0s",
           totalProperties: data.totalProperties || 0,
           totalUsers: data.totalUsers || 0,
@@ -52,7 +52,7 @@ export default function Analytics() {
         uniqueVisitors: 0,
         inquiries: 0,
         conversions: 0,
-        revenue: "$0",
+        revenue: "₹0",
         avgTimeOnSite: "0m 0s",
         totalProperties: 0,
         totalUsers: 0,
@@ -65,11 +65,11 @@ export default function Analytics() {
   };
 
   const topProperties = [
-    { id: 1, title: "Modern Downtown Apartment", views: 1250, inquiries: 45, price: "$450,000" },
-    { id: 2, title: "Luxury Villa with Pool", views: 980, inquiries: 38, price: "$850,000" },
-    { id: 3, title: "Cozy Family House", views: 750, inquiries: 22, price: "$320,000" },
-    { id: 4, title: "Penthouse Suite", views: 650, inquiries: 19, price: "$1,200,000" },
-    { id: 5, title: "Suburban Townhouse", views: 540, inquiries: 15, price: "$380,000" }
+    { id: 1, title: "Modern Downtown Apartment", views: 1250, inquiries: 45, price: "₹4,50,00,000" },
+    { id: 2, title: "Luxury Villa with Pool", views: 980, inquiries: 38, price: "₹8,50,00,000" },
+    { id: 3, title: "Cozy Family House", views: 750, inquiries: 22, price: "₹3,20,00,000" },
+    { id: 4, title: "Penthouse Suite", views: 650, inquiries: 19, price: "₹12,00,00,000" },
+    { id: 5, title: "Suburban Townhouse", views: 540, inquiries: 15, price: "₹3,80,00,000" }
   ];
 
   const monthlyData = [

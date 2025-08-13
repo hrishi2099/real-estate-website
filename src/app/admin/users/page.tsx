@@ -25,6 +25,9 @@ export default function UsersManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const [filter, setFilter] = useState<'all' | 'USER' | 'ADMIN'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all');
@@ -77,6 +80,66 @@ export default function UsersManagement() {
       console.error('Error deleting user:', err);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleSaveUser = async (userData: Partial<User>) => {
+    if (!editingUser) return;
+
+    try {
+      setUpdating(editingUser.id);
+      const response = await api.updateUser(editingUser.id, userData);
+      if (response.error) {
+        setError(response.error);
+      } else {
+        // Update user in local state
+        setUsers(users.map(user => 
+          user.id === editingUser.id 
+            ? { ...user, ...userData }
+            : user
+        ));
+        setShowEditModal(false);
+        setEditingUser(null);
+      }
+    } catch (err) {
+      setError('Failed to update user');
+      console.error('Error updating user:', err);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const handleToggleStatus = async (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+    const action = newStatus === 'suspended' ? 'suspend' : 'unsuspend';
+    
+    if (!confirm(`Are you sure you want to ${action} this user?`)) {
+      return;
+    }
+
+    try {
+      setUpdating(userId);
+      const response = await api.updateUser(userId, { status: newStatus });
+      if (response.error) {
+        setError(response.error);
+      } else {
+        // Update user status in local state
+        setUsers(users.map(user => 
+          user.id === userId 
+            ? { ...user, status: newStatus as 'active' | 'inactive' | 'suspended' }
+            : user
+        ));
+      }
+    } catch (err) {
+      setError(`Failed to ${action} user`);
+      console.error(`Error ${action}ing user:`, err);
+    } finally {
+      setUpdating(null);
     }
   };
 
@@ -328,11 +391,19 @@ export default function UsersManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button 
+                        onClick={() => handleEditUser(user)}
+                        disabled={updating === user.id}
+                        className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         Edit
                       </button>
-                      <button className="text-yellow-600 hover:text-yellow-900">
-                        {user.status === 'suspended' ? 'Unsuspend' : 'Suspend'}
+                      <button 
+                        onClick={() => handleToggleStatus(user.id, user.status)}
+                        disabled={updating === user.id}
+                        className="text-yellow-600 hover:text-yellow-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {updating === user.id ? 'Updating...' : (user.status === 'suspended' ? 'Unsuspend' : 'Suspend')}
                       </button>
                       <button 
                         onClick={() => handleDeleteUser(user.id, user.name)}
@@ -355,6 +426,123 @@ export default function UsersManagement() {
           </div>
         )}
       </div>
+
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Edit User</h3>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingUser(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const userData = {
+                    name: formData.get('name') as string,
+                    email: formData.get('email') as string,
+                    phone: formData.get('phone') as string,
+                    role: formData.get('role') as 'USER' | 'ADMIN',
+                    status: formData.get('status') as 'active' | 'inactive' | 'suspended',
+                  };
+                  handleSaveUser(userData);
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    defaultValue={editingUser.name}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={editingUser.email}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    defaultValue={editingUser.phone || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <select
+                    name="role"
+                    defaultValue={editingUser.role}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="USER">User</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    name="status"
+                    defaultValue={editingUser.status}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                </div>
+                
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditingUser(null);
+                    }}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updating === editingUser.id}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updating === editingUser.id ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

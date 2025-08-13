@@ -3,8 +3,8 @@
 export const mockProperties = [
   {
     id: "1",
-    title: "Premium Land Plot in Mumbai",
-    description: "Beautiful 10,000 sq ft land plot in prime location with excellent connectivity and all amenities nearby.",
+    title: "Premium Property in Mumbai",
+    description: "Beautiful 10,000 sq ft property in prime location with excellent connectivity and all amenities nearby.",
     price: 15000000,
     location: "Andheri West, Mumbai",
     latitude: 19.1358,
@@ -16,7 +16,7 @@ export const mockProperties = [
     bedrooms: null,
     bathrooms: null,
     yearBuilt: null,
-    features: ["Corner Plot", "Clear Title", "Ready for Construction", "Near Metro Station", "Gated Community"],
+    features: ["Corner Property", "Clear Title", "Ready to Move", "Near Metro Station", "Gated Community"],
     images: [
       {
         id: "img1",
@@ -41,8 +41,8 @@ export const mockProperties = [
   },
   {
     id: "2", 
-    title: "Commercial Land in Pune",
-    description: "Excellent commercial land opportunity in developing area with high growth potential.",
+    title: "Commercial Property in Pune",
+    description: "Excellent commercial property opportunity in developing area with high growth potential.",
     price: 25000000,
     location: "Hinjewadi, Pune",
     latitude: 18.5912,
@@ -73,8 +73,8 @@ export const mockProperties = [
   },
   {
     id: "3",
-    title: "Residential Plot in Bangalore",
-    description: "Prime residential plot in well-established neighborhood with all modern amenities.",
+    title: "Residential Property in Bangalore",
+    description: "Prime residential property in well-established neighborhood with all modern amenities.",
     price: 8500000,
     location: "Whitefield, Bangalore", 
     latitude: 12.9698,
@@ -86,7 +86,7 @@ export const mockProperties = [
     bedrooms: null,
     bathrooms: null,
     yearBuilt: null,
-    features: ["Residential Zone", "Park Facing", "24/7 Security", "Underground Utilities"],
+    features: ["Residential Zone", "Park Facing", "24/7 Security", "Modern Utilities"],
     images: [
       {
         id: "img4",

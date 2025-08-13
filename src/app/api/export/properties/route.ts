@@ -1,0 +1,97 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format') || 'json';
+    const status = searchParams.get('status');
+    const type = searchParams.get('type');
+    const location = searchParams.get('location');
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+
+    // Build where clause
+    const where: any = {};
+    
+    if (status && status !== 'all') {
+      where.status = status as any;
+    }
+    
+    if (type && type !== 'all') {
+      where.type = type as any;
+    }
+    
+    if (location) {
+      where.location = {
+        contains: location,
+        mode: 'insensitive'
+      };
+    }
+    
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    const properties = await prisma.property.findMany({
+      where,
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Transform data for export
+    const exportData = properties.map(property => ({
+      id: property.id,
+      title: property.title,
+      price: Number(property.price),
+      location: property.location,
+      address: property.address,
+      type: property.type,
+      status: property.status,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.area ? Number(property.area) : undefined,
+      yearBuilt: property.yearBuilt,
+      features: property.features,
+      latitude: property.latitude ? Number(property.latitude) : undefined,
+      longitude: property.longitude ? Number(property.longitude) : undefined,
+      owner: property.owner,
+      createdAt: property.createdAt.toISOString(),
+      updatedAt: property.updatedAt.toISOString()
+    }));
+
+    return NextResponse.json({
+      data: exportData,
+      count: exportData.length,
+      exportedAt: new Date().toISOString(),
+      filters: {
+        status,
+        type,
+        location,
+        minPrice,
+        maxPrice
+      }
+    });
+
+  } catch (error) {
+    console.error('Error exporting properties:', error);
+    return NextResponse.json(
+      { error: 'Failed to export properties' },
+      { status: 500 }
+    );
+  }
+}
