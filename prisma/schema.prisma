@@ -1,72 +1,92 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String    @id @default(cuid())
-  email       String    @unique
-  name        String
-  phone       String?
-  password    String
-  role        Role      @default(USER)
-  status      UserStatus @default(ACTIVE)
-  joinDate    DateTime  @default(now())
-  lastLogin   DateTime?
-  emailVerified Boolean @default(false)
-  resetToken  String?
+  id               String    @id @default(cuid())
+  email            String    @unique
+  name             String
+  phone            String?
+  password         String
+  role             Role      @default(USER)
+  status           UserStatus @default(ACTIVE)
+  joinDate         DateTime  @default(now())
+  lastLogin        DateTime?
+  emailVerified    Boolean   @default(false)
+  resetToken       String?
   resetTokenExpiry DateTime?
   
-  properties  Property[]
-  inquiries   Inquiry[]
-  favorites   Favorite[]
-  plots       Plot[]
+  // Sales Manager specific fields
+  territory        String?   // Geographic territory for sales manager
+  commission       Decimal?  @db.Decimal(5, 2) // Commission percentage
+  managerId        String?   // Reference to supervising admin
   
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  properties       Property[]
+  inquiries        Inquiry[]
+  favorites        Favorite[]
+  analytics        PropertyAnalytics[]
+  auditLogs        AuditLog[]
+  leadScore        LeadScore?
+  leadActivities   LeadActivity[]
   
+  // Sales Manager relations
+  manager          User?    @relation("ManagerSubordinate", fields: [managerId], references: [id])
+  subordinates     User[]   @relation("ManagerSubordinate")
+  assignedLeads    LeadAssignment[]
+  leadAssignments  LeadAssignment[] @relation("LeadAssignments")
+  calendarEvents   CalendarEvent[]
+  leadCalendarEvents CalendarEvent[] @relation("CalendarLead")
+  
+  // RCS Messaging relations
+  createdMessages  RCSMessage[]
+  messageRecipients RCSRecipient[]
+  messageTemplates MessageTemplate[]
+
   @@map("users")
 }
 
 model Property {
-  id          String      @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
-  description String?
-  price       Float
+  description String?        @db.Text
+  price       Decimal        @db.Decimal(12, 2)
   location    String
   address     String?
-  latitude    Float?      // GPS latitude coordinate
-  longitude   Float?      // GPS longitude coordinate
+  latitude    Decimal?       @db.Decimal(10, 8)
+  longitude   Decimal?       @db.Decimal(11, 8)
   type        PropertyType
   status      PropertyStatus @default(ACTIVE)
-  isFeatured  Boolean     @default(false)
+  isFeatured  Boolean        @default(false)
   bedrooms    Int?
-  bathrooms   Float?
-  area        Float?      // in square feet
+  bathrooms   Int?
+  area        Decimal?       @db.Decimal(10, 2)
   yearBuilt   Int?
-  features    String?     // JSON string of features array
-  
+  features    String?        @db.Text
   ownerId     String?
-  owner       User?       @relation(fields: [ownerId], references: [id])
-  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  owner       User?              @relation(fields: [ownerId], references: [id])
   images      PropertyImage[]
   inquiries   Inquiry[]
   favorites   Favorite[]
   analytics   PropertyAnalytics[]
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
+  leadActivities LeadActivity[]
+  calendarEvents CalendarEvent[] @relation("CalendarProperty")
+
   @@map("properties")
 }
 
@@ -75,91 +95,86 @@ model PropertyImage {
   url        String
   filename   String
   isPrimary  Boolean  @default(false)
-  
   propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
   createdAt  DateTime @default(now())
-  
+
+  // Relations
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
   @@map("property_images")
 }
 
 model Inquiry {
-  id        String      @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  message   String
-  status    InquiryStatus @default(PENDING)
-  
-  userId    String?
-  user      User?       @relation(fields: [userId], references: [id])
-  
+  id         String        @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  message    String        @db.Text
+  status     InquiryStatus @default(PENDING)
+  userId     String?
   propertyId String
-  property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  // Relations
+  user       User?     @relation(fields: [userId], references: [id])
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
   @@map("inquiries")
 }
 
 model Favorite {
-  id        String   @id @default(cuid())
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id         String   @id @default(cuid())
+  userId     String
   propertyId String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-  
+
   @@unique([userId, propertyId])
   @@map("favorites")
 }
 
 model PropertyAnalytics {
-  id        String   @id @default(cuid())
-  event     AnalyticsEvent
-  
+  id         String        @id @default(cuid())
+  event      AnalyticsEvent
   propertyId String
+  userId     String?
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime      @default(now())
+
+  // Relations
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  userId    String?
-  userAgent String?
-  ipAddress String?
-  
-  createdAt DateTime @default(now())
-  
+  user       User?    @relation(fields: [userId], references: [id])
+
   @@map("property_analytics")
 }
 
 model ContactInquiry {
-  id      String            @id @default(cuid())
-  name    String
-  email   String
-  phone   String?
-  subject String
-  message String
-  status  ContactInquiryStatus @default(NEW)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  id        String              @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String              @db.Text
+  status    ContactInquiryStatus @default(NEW)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
   @@map("contact_inquiries")
 }
 
 model OfficeSettings {
-  id          String   @id @default(cuid())
-  companyName String?
-  address     String?
-  phone       String?
-  email       String?
-  website     String?
-  logoUrl     String?
-  
-  // Office Hours
+  id             String   @id @default(cuid())
+  companyName    String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  logoUrl        String?
   mondayHours    String?
   tuesdayHours   String?
   wednesdayHours String?
@@ -168,15 +183,161 @@ model OfficeSettings {
   saturdayHours  String?
   sundayHours    String?
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Google Tag Manager Integration
+  gtmContainerId String?  // GTM-XXXXXXX format
+  gtmEnabled     Boolean? @default(false)
   
+  // Google Analytics 4
+  ga4MeasurementId String? // G-XXXXXXXXXX format
+  ga4Enabled       Boolean? @default(false)
+  
+  // Facebook Pixel
+  facebookPixelId String?
+  facebookPixelEnabled Boolean? @default(false)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   @@map("office_settings")
 }
 
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  tableName  String
+  recordId   String?
+  oldValues  String?  @db.Text
+  newValues  String?  @db.Text
+  userId     String?
+  userEmail  String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model LeadScore {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  score                 Int      @default(0)
+  grade                 LeadGrade @default(COLD)
+  
+  // Engagement metrics
+  propertyViews         Int      @default(0)
+  inquiriesMade         Int      @default(0)
+  contactFormSubmissions Int     @default(0)
+  favoritesSaved        Int      @default(0)
+  
+  // Behavior patterns
+  avgSessionDuration    Int?     // in minutes
+  returnVisits          Int      @default(0)
+  priceRangeSearches    String?  @db.Text // JSON array of price ranges
+  locationSearches      String?  @db.Text // JSON array of locations
+  propertyTypeInterests String?  @db.Text // JSON array of property types
+  
+  // Temporal factors
+  lastActivity          DateTime?
+  daysActive            Int      @default(0)
+  
+  // Calculated factors
+  budgetEstimate        Decimal? @db.Decimal(12, 2)
+  seriousBuyerIndicator Boolean  @default(false)
+  
+  // Timestamps
+  lastCalculated        DateTime @default(now())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lead_scores")
+}
+
+model LeadActivity {
+  id           String              @id @default(cuid())
+  userId       String
+  activityType LeadActivityType
+  propertyId   String?
+  metadata     String?             @db.Text // JSON for additional data
+  score        Int                 @default(0) // Points earned from this activity
+  createdAt    DateTime            @default(now())
+
+  // Relations
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property     Property?           @relation(fields: [propertyId], references: [id])
+
+  @@map("lead_activities")
+}
+
+model LeadAssignment {
+  id              String               @id @default(cuid())
+  leadId          String               // Reference to User (lead)
+  salesManagerId  String               // Reference to User (sales manager)
+  assignedAt      DateTime             @default(now())
+  status          LeadAssignmentStatus @default(ACTIVE)
+  notes           String?              @db.Text
+  expectedCloseDate DateTime?
+  priority        LeadPriority         @default(MEDIUM)
+  
+  // Relations
+  lead            User                 @relation("LeadAssignments", fields: [leadId], references: [id], onDelete: Cascade)
+  salesManager    User                 @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+  pipelineStages  PipelineStage[]
+  
+  @@unique([leadId, salesManagerId])
+  @@map("lead_assignments")
+}
+
+model PipelineStage {
+  id              String            @id @default(cuid())
+  assignmentId    String
+  stage           SalesStage
+  enteredAt       DateTime          @default(now())
+  exitedAt        DateTime?
+  durationHours   Int?              // Time spent in this stage (hours)
+  notes           String?           @db.Text
+  probability     Int?              // Probability of closing (0-100%)
+  estimatedValue  Decimal?          @db.Decimal(12, 2) // Expected deal value
+  nextAction      String?           // Next planned action
+  nextActionDate  DateTime?         // When next action should happen
+  createdBy       String?           // Sales manager who created this stage
+  
+  // Relations
+  assignment      LeadAssignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  stageActivities PipelineActivity[]
+  
+  @@map("pipeline_stages")
+}
+
+model PipelineActivity {
+  id            String            @id @default(cuid())
+  stageId       String
+  activityType  PipelineActivityType
+  description   String            @db.Text
+  outcome       String?           @db.Text
+  scheduledAt   DateTime?
+  completedAt   DateTime?
+  createdBy     String            // Sales manager ID
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  
+  // Relations
+  stage         PipelineStage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  
+  @@map("pipeline_activities")
+}
+
+// Enums
 enum Role {
   USER
   ADMIN
+  SALES_MANAGER
 }
 
 enum UserStatus {
@@ -215,37 +376,6 @@ enum AnalyticsEvent {
   SHARE
 }
 
-model Plot {
-  id          String    @id @default(cuid())
-  plotNumber  String    @unique
-  area        Float     // Area in square feet
-  price       Float
-  location    String
-  address     String?
-  latitude    Float?
-  longitude   Float?
-  status      PlotStatus @default(AVAILABLE)
-  description String?
-  features    String?   // JSON string of features
-  
-  // Sale information
-  soldDate    DateTime?
-  buyerId     String?
-  buyer       User?     @relation(fields: [buyerId], references: [id])
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  @@map("plots")
-}
-
-enum PlotStatus {
-  AVAILABLE
-  SOLD
-  RESERVED
-  INACTIVE
-}
-
 enum ContactInquiryStatus {
   NEW
   REVIEWED
@@ -253,19 +383,412 @@ enum ContactInquiryStatus {
   CLOSED
 }
 
-model AuditLog {
-  id          String    @id @default(cuid())
-  action      String    // Action performed (CREATE, UPDATE, DELETE, etc.)
-  tableName   String    // Table/model name affected
-  recordId    String?   // ID of the affected record
-  oldValues   String?   // JSON string of old values
-  newValues   String?   // JSON string of new values
-  userId      String?   // User who performed the action
-  userEmail   String?   // Email of user who performed the action
-  ipAddress   String?   // IP address of the request
-  userAgent   String?   // User agent string
-  
-  createdAt   DateTime  @default(now())
-  
-  @@map("audit_logs")
+enum LeadGrade {
+  COLD      // 0-30 points
+  WARM      // 31-60 points  
+  HOT       // 61-80 points
+  QUALIFIED // 81-100 points
 }
+
+enum LeadActivityType {
+  PROPERTY_VIEW
+  PROPERTY_INQUIRY
+  CONTACT_FORM
+  FAVORITE_ADDED
+  SEARCH_PERFORMED
+  RETURN_VISIT
+  PHONE_CALL_MADE
+  EMAIL_OPENED
+  BROCHURE_DOWNLOADED
+}
+
+enum LeadAssignmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum SalesStage {
+  NEW_LEAD           // Just assigned to sales manager
+  CONTACTED          // Initial contact made
+  QUALIFIED          // Lead has been qualified (budget, authority, need, timeline)
+  PROPOSAL_SENT      // Proposal or quote sent to lead
+  NEGOTIATION        // In negotiation phase
+  PROPERTY_VIEWING   // Scheduled or completed property viewings
+  APPLICATION        // Application submitted/being processed
+  CLOSING            // Final steps, contracts being signed
+  WON                // Deal successfully closed
+  LOST               // Deal lost/lead went cold
+  ON_HOLD           // Temporarily paused
+}
+
+enum PipelineActivityType {
+  PHONE_CALL
+  EMAIL_SENT
+  EMAIL_RECEIVED
+  MEETING_SCHEDULED
+  MEETING_COMPLETED
+  PROPERTY_SHOWING
+  PROPOSAL_SENT
+  FOLLOW_UP
+  DOCUMENT_RECEIVED
+  APPLICATION_SUBMITTED
+  NEGOTIATION
+  CONTRACT_SENT
+  CONTRACT_SIGNED
+  PAYMENT_RECEIVED
+  DEAL_CLOSED
+  DEAL_LOST
+  NOTE_ADDED
+}
+
+model CalendarEvent {
+  id              String            @id @default(cuid())
+  title           String
+  description     String?           @db.Text
+  startTime       DateTime
+  endTime         DateTime
+  eventType       CalendarEventType @default(OTHER)
+  status          EventStatus       @default(SCHEDULED)
+  salesManagerId  String
+  leadId          String?
+  propertyId      String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  salesManager    User              @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+  lead            User?             @relation("CalendarLead", fields: [leadId], references: [id], onDelete: SetNull)
+  property        Property?         @relation("CalendarProperty", fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@map("calendar_events")
+}
+
+enum CalendarEventType {
+  MEETING
+  PROPERTY_VIEWING
+  FOLLOW_UP
+  CALL
+  OTHER
+}
+
+enum EventStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model RCSMessage {
+  id              String            @id @default(cuid())
+  title           String
+  content         String            @db.Text
+  richContent     String?           @db.Text // JSON for rich media content
+  messageType     RCSMessageType    @default(TEXT)
+  templateId      String?           // Reference to message template
+  scheduledAt     DateTime?         // For scheduled messages
+  sentAt          DateTime?         // When message was actually sent
+  status          MessageStatus     @default(DRAFT)
+  targetAudience  MessageAudience   @default(ALL_USERS)
+  createdById     String
+  
+  // Advanced Features
+  personalizationData String?        @db.Text // JSON for personalization variables
+  aiGenerated     Boolean           @default(false) // AI-generated content
+  aiPrompt        String?           @db.Text // Original AI prompt used
+  priority        MessagePriority   @default(NORMAL)
+  campaignId      String?           // Link to marketing campaigns
+  abTestGroup     String?           // A/B testing group identifier
+  abTestVariant   String?           // A/B testing variant (A, B, C, etc.)
+  conversionGoal  String?           // What action we want users to take
+  
+  // Geolocation targeting
+  geoTargeting    String?           @db.Text // JSON for geographic targeting
+  timezone        String?           // Timezone for scheduling
+  
+  // Performance tracking
+  expectedCTR     Decimal?          @db.Decimal(5, 2) // Expected click-through rate
+  actualCTR       Decimal?          @db.Decimal(5, 2) // Actual click-through rate
+  engagementScore Decimal?          @db.Decimal(5, 2) // Overall engagement score
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  createdBy       User              @relation(fields: [createdById], references: [id])
+  recipients      RCSRecipient[]
+  deliveryReports MessageDeliveryReport[]
+  campaign        Campaign?         @relation(fields: [campaignId], references: [id])
+  abTest          ABTest?           @relation(fields: [abTestGroup], references: [id])
+  interactions    MessageInteraction[]
+
+  @@map("rcs_messages")
+}
+
+model RCSRecipient {
+  id            String         @id @default(cuid())
+  messageId     String
+  userId        String
+  status        RecipientStatus @default(PENDING)
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  readAt        DateTime?
+  clickedAt     DateTime?
+  errorMessage  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  message       RCSMessage     @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@map("rcs_recipients")
+}
+
+model MessageTemplate {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  content     String            @db.Text
+  richContent String?           @db.Text // JSON for rich media content
+  messageType RCSMessageType    @default(TEXT)
+  category    TemplateCategory  @default(GENERAL)
+  isActive    Boolean           @default(true)
+  createdById String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  createdBy   User              @relation(fields: [createdById], references: [id])
+
+  @@map("message_templates")
+}
+
+model MessageDeliveryReport {
+  id            String          @id @default(cuid())
+  messageId     String
+  totalSent     Int             @default(0)
+  totalDelivered Int            @default(0)
+  totalRead     Int             @default(0)
+  totalClicked  Int             @default(0)
+  totalFailed   Int             @default(0)
+  deliveryRate  Decimal         @db.Decimal(5, 2) @default(0)
+  openRate      Decimal         @db.Decimal(5, 2) @default(0)
+  clickRate     Decimal         @db.Decimal(5, 2) @default(0)
+  generatedAt   DateTime        @default(now())
+
+  // Relations
+  message       RCSMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("message_delivery_reports")
+}
+
+enum RCSMessageType {
+  TEXT
+  RICH_TEXT
+  IMAGE
+  VIDEO
+  CARD
+  CAROUSEL
+  QUICK_REPLY
+  SUGGESTION
+}
+
+enum MessageStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum MessageAudience {
+  ALL_USERS
+  LEADS_ONLY
+  SALES_MANAGERS
+  CUSTOM_LIST
+  PROPERTY_INQUIRERS
+  ACTIVE_USERS
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  CLICKED
+  FAILED
+  BOUNCED
+}
+
+enum TemplateCategory {
+  GENERAL
+  MARKETING
+  NOTIFICATION
+  WELCOME
+  PROPERTY_UPDATE
+  APPOINTMENT
+  FOLLOW_UP
+}
+
+enum MessagePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+model Campaign {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?          @db.Text
+  startDate       DateTime
+  endDate         DateTime?
+  status          CampaignStatus   @default(ACTIVE)
+  budget          Decimal?         @db.Decimal(10, 2)
+  targetMetrics   String?          @db.Text // JSON for KPIs
+  createdById     String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  createdBy       User             @relation(fields: [createdById], references: [id])
+  messages        RCSMessage[]
+  abTests         ABTest[]
+
+  @@map("campaigns")
+}
+
+model ABTest {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?          @db.Text
+  variants        String           @db.Text // JSON array of variants
+  trafficSplit    String           @db.Text // JSON for traffic distribution
+  startDate       DateTime
+  endDate         DateTime?
+  status          ABTestStatus     @default(RUNNING)
+  winnerVariant   String?          // Winning variant
+  confidenceLevel Decimal?         @db.Decimal(5, 2)
+  createdById     String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  createdBy       User             @relation(fields: [createdById], references: [id])
+  messages        RCSMessage[]
+  campaign        Campaign?        @relation(fields: [campaignId], references: [id])
+  campaignId      String?
+
+  @@map("ab_tests")
+}
+
+model MessageInteraction {
+  id              String           @id @default(cuid())
+  messageId       String
+  userId          String
+  interactionType InteractionType
+  data            String?          @db.Text // JSON for interaction data
+  timestamp       DateTime         @default(now())
+  deviceInfo      String?          @db.Text // JSON for device information
+  location        String?          // Geographic location
+
+  // Relations
+  message         RCSMessage       @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("message_interactions")
+}
+
+model SmartSegment {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?          @db.Text
+  criteria        String           @db.Text // JSON for segmentation criteria
+  estimatedSize   Int?             // Estimated number of users
+  actualSize      Int?             // Actual number of users when executed
+  refreshSchedule String?          // Cron expression for auto-refresh
+  lastRefreshed   DateTime?
+  createdById     String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  createdBy       User             @relation(fields: [createdById], references: [id])
+
+  @@map("smart_segments")
+}
+
+model MessageAutomation {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?          @db.Text
+  trigger         AutomationTrigger
+  triggerData     String           @db.Text // JSON for trigger configuration
+  messageTemplate String           @db.Text // Message template with variables
+  conditions      String?          @db.Text // JSON for additional conditions
+  isActive        Boolean          @default(true)
+  executionCount  Int              @default(0)
+  lastExecuted    DateTime?
+  createdById     String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  createdBy       User             @relation(fields: [createdById], references: [id])
+
+  @@map("message_automations")
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum ABTestStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum InteractionType {
+  DELIVERED
+  OPENED
+  CLICKED
+  REPLIED
+  SHARED
+  SAVED
+  DISMISSED
+  BLOCKED
+  CONVERTED
+}
+
+enum AutomationTrigger {
+  USER_SIGNUP
+  PROPERTY_VIEW
+  INQUIRY_SUBMITTED
+  LEAD_SCORE_CHANGE
+  APPOINTMENT_SCHEDULED
+  DEAL_CLOSED
+  INACTIVITY_DETECTED
+  BIRTHDAY
+  ANNIVERSARY
+  CUSTOM_EVENT
+}
+

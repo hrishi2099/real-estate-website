@@ -29,12 +29,21 @@ export function verifyPassword(password: string, hashedPassword: string): Promis
 }
 
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign(payload, JWT_SECRET, { 
+    expiresIn: '24h', // Reduced from 7d for better security
+    issuer: 'real-estate-app',
+    audience: 'real-estate-users',
+    algorithm: 'HS256'
+  })
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload
+    return jwt.verify(token, JWT_SECRET, {
+      issuer: 'real-estate-app',
+      audience: 'real-estate-users',
+      algorithms: ['HS256']
+    }) as JWTPayload
   } catch {
     return null
   }

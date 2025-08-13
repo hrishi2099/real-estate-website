@@ -1,14 +1,85 @@
 import { z } from 'zod';
+import DOMPurify from 'isomorphic-dompurify';
 
-// Common validation schemas
-export const emailSchema = z.string().email('Invalid email format');
-export const phoneSchema = z.string().regex(/^[\+]?[\d\s\-\(\)]+$/, 'Invalid phone number format').optional();
-export const urlSchema = z.string().url('Invalid URL format').optional();
-export const passwordSchema = z.string().min(8, 'Password must be at least 8 characters');
+// Sanitization helpers
+export function sanitizeHtml(input: string): string {
+  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+}
+
+export function sanitizeText(input: string): string {
+  return input
+    .trim()
+    .replace(/[<>\"'&]/g, '') // Remove dangerous characters
+    .replace(/\s+/g, ' '); // Normalize whitespace
+}
+
+export function sanitizeEmail(email: string): string {
+  return email.toLowerCase().trim();
+}
+
+// SQL injection prevention patterns
+const sqlInjectionPatterns = [
+  /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi,
+  /(\b(or|and)\b\s*\d+\s*=\s*\d+)/gi,
+  /(--|\/\*|\*\/|;)/g,
+  /('|\"|`)/g,
+];
+
+export function containsSqlInjection(input: string): boolean {
+  return sqlInjectionPatterns.some(pattern => pattern.test(input));
+}
+
+// XSS prevention
+const xssPatterns = [
+  /<script[^>]*>.*?<\/script>/gi,
+  /javascript:/gi,
+  /on\w+\s*=/gi,
+  /<iframe[^>]*>.*?<\/iframe>/gi,
+  /<object[^>]*>.*?<\/object>/gi,
+  /<embed[^>]*>/gi,
+];
+
+export function containsXss(input: string): boolean {
+  return xssPatterns.some(pattern => pattern.test(input));
+}
+
+// Enhanced validation with security checks
+export function createSecureTextSchema(minLength: number, maxLength: number, fieldName: string) {
+  return z.string()
+    .min(minLength, `${fieldName} must be at least ${minLength} characters`)
+    .max(maxLength, `${fieldName} must not exceed ${maxLength} characters`)
+    .refine((value) => !containsSqlInjection(value), `${fieldName} contains potentially dangerous content`)
+    .refine((value) => !containsXss(value), `${fieldName} contains potentially dangerous scripts`)
+    .transform(sanitizeText);
+}
+
+// Common validation schemas with enhanced security
+export const emailSchema = z.string()
+  .email('Invalid email format')
+  .min(5, 'Email must be at least 5 characters')
+  .max(254, 'Email must not exceed 254 characters')
+  .refine((email) => !/[<>'"&]/.test(email), 'Email contains invalid characters')
+  .transform(sanitizeEmail);
+
+export const phoneSchema = z.string()
+  .regex(/^[\+]?[\d\s\-\(\)]+$/, 'Invalid phone number format')
+  .max(20, 'Phone number too long')
+  .optional();
+
+export const urlSchema = z.string()
+  .url('Invalid URL format')
+  .refine((url) => url.startsWith('https://') || url.startsWith('http://'), 'URL must use HTTP or HTTPS')
+  .optional();
+
+export const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password must not exceed 128 characters')
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+    'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character');
 
 // User validation schemas
 export const createUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  name: createSecureTextSchema(1, 100, 'Name'),
   email: emailSchema,
   password: passwordSchema,
   phone: phoneSchema,
@@ -16,7 +87,7 @@ export const createUserSchema = z.object({
 });
 
 export const updateUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
+  name: createSecureTextSchema(1, 100, 'Name').optional(),
   email: emailSchema.optional(),
   phone: phoneSchema,
   role: z.enum(['USER', 'ADMIN']).optional(),
@@ -30,16 +101,16 @@ export const loginSchema = z.object({
 
 // Property validation schemas
 export const createPropertySchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
-  description: z.string().max(2000, 'Description too long').optional(),
+  title: createSecureTextSchema(1, 200, 'Title'),
+  description: createSecureTextSchema(0, 2000, 'Description').optional(),
   price: z.number().min(0, 'Price must be positive'),
-  location: z.string().min(1, 'Location is required').max(200, 'Location too long'),
+  location: createSecureTextSchema(1, 200, 'Location'),
   type: z.enum(['APARTMENT', 'HOUSE', 'VILLA', 'CONDO', 'TOWNHOUSE']),
   status: z.enum(['ACTIVE', 'SOLD', 'PENDING']).default('ACTIVE'),
   bedrooms: z.number().int().min(0, 'Bedrooms must be non-negative'),
   bathrooms: z.number().min(0, 'Bathrooms must be non-negative'),
   area: z.number().min(0, 'Area must be positive'),
-  features: z.array(z.string()).optional(),
+  features: z.array(createSecureTextSchema(1, 100, 'Feature')).optional(),
   isFeatured: z.boolean().default(false),
 });
 
@@ -48,7 +119,7 @@ export const updatePropertySchema = createPropertySchema.partial();
 // Inquiry validation schemas
 export const createInquirySchema = z.object({
   propertyId: z.string().cuid('Invalid property ID format'),
-  message: z.string().min(1, 'Message is required').max(1000, 'Message too long'),
+  message: createSecureTextSchema(1, 1000, 'Message'),
 });
 
 export const updateInquirySchema = z.object({
@@ -57,11 +128,11 @@ export const updateInquirySchema = z.object({
 
 // Contact validation schemas
 export const contactInquirySchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  name: createSecureTextSchema(1, 100, 'Name'),
   email: emailSchema,
   phone: phoneSchema,
-  subject: z.string().min(1, 'Subject is required').max(200, 'Subject too long'),
-  message: z.string().min(1, 'Message is required').max(1000, 'Message too long'),
+  subject: createSecureTextSchema(1, 200, 'Subject'),
+  message: createSecureTextSchema(1, 1000, 'Message'),
 });
 
 // Office settings validation schema

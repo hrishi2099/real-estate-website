@@ -116,10 +116,10 @@ export default function PropertyStats() {
           {
             id: 1,
             number: 250,
-            label: "Land Plots Sold",
+            label: "Properties Sold",
             suffix: "+",
-            icon: "🌿",
-            description: "Successfully transferred land parcels"
+            icon: "🏠",
+            description: "Successfully completed property transactions"
           },
           {
             id: 2,
@@ -128,7 +128,7 @@ export default function PropertyStats() {
             prefix: "",
             suffix: "M+",
             icon: "📏",
-            description: "Total land area transferred"
+            description: "Total property area transferred"
           },
           {
             id: 3,
@@ -136,7 +136,7 @@ export default function PropertyStats() {
             label: "Years Experience",
             suffix: "+",
             icon: "⏰",
-            description: "In land development market"
+            description: "In real estate market"
           },
           {
             id: 4,
@@ -144,15 +144,15 @@ export default function PropertyStats() {
             label: "Client Satisfaction",
             suffix: "%",
             icon: "⭐",
-            description: "Happy landowners rating"
+            description: "Happy property owners rating"
           },
           {
             id: 5,
             number: 45,
-            label: "Available Plots",
+            label: "Available Properties",
             suffix: "+",
             icon: "🏗️",
-            description: "Ready for development"
+            description: "Ready for purchase"
           },
           {
             id: 6,
@@ -200,10 +200,10 @@ export default function PropertyStats() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Leading Land Development Solutions
+            Leading Real Estate Solutions
           </h2>
           <p className="mt-4 text-xl text-blue-100">
-            Trusted by investors and developers across the region
+            Trusted by property buyers and investors across the region
           </p>
         </div>
         
@@ -261,15 +261,15 @@ export default function PropertyStats() {
               Ready to Join Our Success Stories?
             </h3>
             <p className="text-blue-100 mb-6">
-              Let our proven track record work for you. Whether investing in land or developing property, 
-              we&apos;ll help you achieve your land acquisition goals.
+              Let our proven track record work for you. Whether buying, selling, or investing in property, 
+              we&apos;ll help you achieve your real estate goals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/properties"
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors"
               >
-                Browse Land Plots
+                Browse Properties
               </Link>
               <Link
                 href="/contact"

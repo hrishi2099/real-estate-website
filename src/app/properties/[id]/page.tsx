@@ -1,10 +1,9 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Gallery from "@/components/Gallery";
 import PropertyDetails from "@/components/PropertyDetails";
+import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
+import type { Metadata } from "next";
 
 interface Property {
   id: string;
@@ -36,106 +35,84 @@ interface PropertyImage {
   isPrimary: boolean;
 }
 
-export default function PropertyDetailsPage() {
-  const params = useParams();
-  const propertyId = params.id as string;
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        console.log('Fetching property with ID:', propertyId);
-        const response = await fetch(`/api/properties/${propertyId}`);
-        console.log('Response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Property data received:', data);
-          
-          // Validate required data
-          if (!data.property) {
-            throw new Error('No property data in response');
-          }
-          
-          setProperty({
-            ...data.property,
-            features: data.property.features ? 
-              (Array.isArray(data.property.features) ? data.property.features : JSON.parse(data.property.features)) 
-              : []
-          });
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.log('API Error response:', errorData);
-          setError(`Property not found (${response.status}): ${errorData.error || 'Unknown error'}`);
-        }
-      } catch (err) {
-        setError('Failed to load property');
-        console.error('Error fetching property:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (propertyId) {
-      fetchProperty();
+async function getProperty(id: string): Promise<Property | null> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/properties/${id}`, {
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      return null;
     }
-  }, [propertyId]);
+    
+    const data = await response.json();
+    
+    if (!data.property) {
+      return null;
+    }
+    
+    return {
+      ...data.property,
+      features: data.property.features ? 
+        (Array.isArray(data.property.features) ? data.property.features : JSON.parse(data.property.features)) 
+        : []
+    };
+  } catch (error) {
+    console.error('Error fetching property for metadata:', error);
+    return null;
+  }
+}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-semibold text-blue-900">Loading Property...</h3>
-            <p className="text-blue-800 text-sm">Property ID: {propertyId}</p>
-          </div>
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-300 rounded w-32 mb-6"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="h-96 bg-gray-300 rounded-lg mb-6"></div>
-                <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-gray-300 rounded w-1/2 mb-6"></div>
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-20 bg-gray-300 rounded"></div>
-                  ))}
-                </div>
-              </div>
-              <div className="lg:col-span-1">
-                <div className="h-64 bg-gray-300 rounded-lg"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const property = await getProperty(id);
+  
+  if (!property) {
+    return {
+      title: 'Property Not Found',
+      description: 'The requested property could not be found.',
+    };
   }
 
-  if (error || !property) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md mx-auto p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Property Not Found</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <div className="text-sm text-gray-500 mb-6">
-            <p>Property ID: {propertyId}</p>
-            <p>Check console for detailed error information</p>
-          </div>
-          <div className="space-y-3">
-            <Link 
-              href="/properties" 
-              className="block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              ← Back to Properties
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const title = `${property.title} - ${formatPrice(property.price)}`;
+  const description = `${property.description || `${property.type} in ${property.location}`}. ${property.area ? `${property.area} sqft. ` : ''}${property.bedrooms ? `${property.bedrooms} bedrooms. ` : ''}${property.bathrooms ? `${property.bathrooms} bathrooms. ` : ''}Price: ${formatPrice(property.price)}`;
+  const images = property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url;
+
+  return generateMetadataHelper(title, description, {
+    companyName: "Real Estate Platform",
+    website: process.env.NEXT_PUBLIC_SITE_URL,
+  }, {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/properties/${id}`,
+    images: images ? [images] : undefined,
+    keywords: [
+      'real estate',
+      'property',
+      property.type.toLowerCase(),
+      property.location.toLowerCase(),
+      'buy property',
+      'investment',
+      ...(property.features || [])
+    ]
+  });
+}
+
+export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const property = await getProperty(id);
+
+  if (!property) {
+    notFound();
   }
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -149,24 +126,61 @@ export default function PropertyDetailsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center space-x-2 text-sm">
+            <li>
+              <Link href="/" className="text-blue-600 hover:text-blue-800">
+                Home
+              </Link>
+            </li>
+            <li className="text-gray-500">/</li>
+            <li>
+              <Link href="/properties" className="text-blue-600 hover:text-blue-800">
+                Properties
+              </Link>
+            </li>
+            <li className="text-gray-500">/</li>
+            <li className="text-gray-900 font-medium" aria-current="page">
+              {property.title}
+            </li>
+          </ol>
+        </nav>
+
         <Link href="/properties" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Land Plots
+          Back to Properties
         </Link>
 
-        {/* Gallery Component */}
-        <div className="mb-8 relative">
-          <Gallery 
-            images={property.images} 
-            propertyTitle={property.title}
-            className="w-full"
-          />
-        </div>
+        <article>
+          <header className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
+            <div className="flex items-center space-x-4 text-gray-600">
+              <span className="flex items-center">
+                <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                {property.location}
+              </span>
+              <span className="text-2xl font-bold text-blue-600">
+                {formatPrice(property.price)}
+              </span>
+            </div>
+          </header>
 
-        {/* Enhanced Property Details */}
-        <PropertyDetails property={property} />
+          <section className="mb-8 relative" aria-label="Property Images">
+            <Gallery 
+              images={property.images} 
+              propertyTitle={property.title}
+              className="w-full"
+            />
+          </section>
+
+          <section aria-label="Property Details">
+            <PropertyDetails property={property} />
+          </section>
+        </article>
       </div>
     </div>
   );

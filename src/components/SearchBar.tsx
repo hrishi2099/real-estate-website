@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackSearch } from "./Analytics";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -24,6 +25,10 @@ export default function SearchBar({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Track search event
+    trackSearch(query.trim());
+    
     onSearch(query);
   };
 

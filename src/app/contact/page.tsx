@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { trackContactSubmission } from "@/components/Analytics";
 
 interface OfficeSettings {
   id: string;
@@ -82,6 +83,9 @@ export default function ContactPage() {
 
       if (response.ok) {
         setIsSubmitted(true);
+        
+        // Track contact form submission
+        trackContactSubmission('contact_page');
         
         // Reset form after showing thank you message
         setFormData({

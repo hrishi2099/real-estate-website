@@ -2,21 +2,25 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { trackAuth } from "@/components/Analytics";
 
 interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  role?: 'USER' | 'ADMIN';
+  role?: 'USER' | 'ADMIN' | 'SALES_MANAGER';
   status?: string;
   joinDate?: string;
+  territory?: string;
+  commission?: number;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isSalesManager: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   isLoading: boolean;
@@ -65,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = 'user' in responseData ? responseData.user : responseData;
         if (userData && typeof userData === 'object' && 'id' in userData) {
           setUser(userData as User);
+          trackAuth('login', 'email');
           return { success: true };
         }
       }
@@ -86,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } finally {
       setUser(null);
+      trackAuth('logout');
     }
   };
 
@@ -93,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
+    isSalesManager: user?.role === 'SALES_MANAGER',
     login,
     logout,
     isLoading,

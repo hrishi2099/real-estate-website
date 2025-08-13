@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const type = searchParams.get('type');
     const search = searchParams.get('search');
+    const sortBy = searchParams.get('sortBy') || 'newest';
 
     const where: {
       property: {
@@ -52,10 +53,23 @@ export async function GET(request: NextRequest) {
             }
           }
         },
-        orderBy: [
-          { isPrimary: 'desc' }, // Primary images first
-          { createdAt: 'desc' }   // Then newest first
-        ],
+        orderBy: (() => {
+          const baseOrder = [{ isPrimary: 'desc' as const }]; // Primary images first
+          
+          switch (sortBy) {
+            case 'oldest':
+              return [...baseOrder, { createdAt: 'asc' as const }];
+            case 'name-asc':
+              return [...baseOrder, { property: { title: 'asc' as const } }];
+            case 'name-desc':
+              return [...baseOrder, { property: { title: 'desc' as const } }];
+            case 'location':
+              return [...baseOrder, { property: { location: 'asc' as const } }];
+            case 'newest':
+            default:
+              return [...baseOrder, { createdAt: 'desc' as const }];
+          }
+        })(),
         skip: (page - 1) * limit,
         take: limit,
       }),

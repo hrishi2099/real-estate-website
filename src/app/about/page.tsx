@@ -16,30 +16,30 @@ const teamMembers = [
     name: "Dattatray Ghore",
     role: "Founder & CEO",
     image: "https://images.unsplash.com/photo-1494790108755-2616c6e2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-    bio: "With over 15 years in land development, Dattatray founded the company to provide unparalleled service to investors and developers."
+    bio: "With over 15 years in real estate, Dattatray founded the company to provide unparalleled service to property buyers and investors."
   },
   {
     name: "Michael Chen",
     role: "Senior Sales Director",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "Michael specializes in commercial land development and has closed over ₹1,500 Cr in land acquisition transactions."
+    bio: "Michael specializes in commercial real estate and has closed over ₹1,500 Cr in property transactions."
   },
   {
     name: "Emily Rodriguez",
     role: "Investment Specialist",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "Emily helps clients build wealth through strategic land investments with her expertise in zoning and development analysis."
+    bio: "Emily helps clients build wealth through strategic property investments with her expertise in market and investment analysis."
   },
   {
     name: "David Thompson",
     role: "Property Manager",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "David oversees our land development projects, ensuring optimal site preparation and regulatory compliance."
+    bio: "David oversees our property management services, ensuring optimal maintenance and regulatory compliance."
   }
 ];
 
 const stats = [
-  { number: "1247+", label: "Land Plots Sold" },
+  { number: "1247+", label: "Properties Sold" },
   { number: "3.2M+", label: "Sq Ft Developed" },
   { number: "15+", label: "Years Experience" },
   { number: "97%", label: "Client Satisfaction" }
@@ -53,7 +53,7 @@ export default function AboutPage() {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900">About Our Company</h1>
             <p className="mt-4 text-xl text-gray-600">
-              Your trusted partner in land development and plot sales since 2008
+              Your trusted partner in real estate since 2008
             </p>
           </div>
         </div>
@@ -64,18 +64,18 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <p className="text-gray-600 mb-4">
-              Founded in 2008, our company has grown from a small land brokerage to one of the most trusted 
-              names in land development and plot sales. Our journey began with a simple vision: to provide exceptional service 
-              and expertise to clients seeking prime land parcels for investment and development.
+              Founded in 2008, our company has grown from a small real estate brokerage to one of the most trusted 
+              names in property sales and investment. Our journey began with a simple vision: to provide exceptional service 
+              and expertise to clients seeking premium properties for investment and personal use.
             </p>
             <p className="text-gray-600 mb-4">
-              Over the years, we&apos;ve built a reputation for excellence, integrity, and innovation in land acquisition. Our team of 
-              experienced professionals combines deep knowledge of zoning laws, land values, and development potential with 
-              cutting-edge surveying technology to deliver results that exceed expectations.
+              Over the years, we&apos;ve built a reputation for excellence, integrity, and innovation in real estate. Our team of 
+              experienced professionals combines deep knowledge of market trends, property values, and investment potential with 
+              cutting-edge technology to deliver results that exceed expectations.
             </p>
             <p className="text-gray-600">
-              Today, we continue to set the standard for land development services, helping investors, builders, and developers 
-              navigate complex land transactions and achieve their development goals with confidence.
+              Today, we continue to set the standard for real estate services, helping investors, buyers, and sellers 
+              navigate complex property transactions and achieve their real estate goals with confidence.
             </p>
           </div>
           <div className="relative h-96 rounded-lg overflow-hidden">
@@ -111,7 +111,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Integrity</h3>
               <p className="text-gray-600">
-                We conduct business with the highest ethical standards, ensuring transparency and honesty in every land transaction.
+                We conduct business with the highest ethical standards, ensuring transparency and honesty in every property transaction.
               </p>
             </div>
             <div className="text-center">
@@ -122,7 +122,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Excellence</h3>
               <p className="text-gray-600">
-                We strive for excellence in everything we do, from land surveys to development consulting and beyond.
+                We strive for excellence in everything we do, from property evaluation to investment consulting and beyond.
               </p>
             </div>
             <div className="text-center">
@@ -133,7 +133,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Client-Focused</h3>
               <p className="text-gray-600">
-                Our clients&apos; development goals come first. We listen, understand, and tailor our land solutions to exceed expectations.
+                Our clients&apos; real estate goals come first. We listen, understand, and tailor our property solutions to exceed expectations.
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function AboutPage() {
         <div className="mt-16 bg-blue-50 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to Work With Us?</h2>
           <p className="text-gray-600 mb-6">
-            Whether you&apos;re acquiring land, developing property, or investing, our expert team is here to guide you every step of the way.
+            Whether you&apos;re buying, selling, or investing in property, our expert team is here to guide you every step of the way.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -176,7 +176,7 @@ export default function AboutPage() {
               href="/properties"
               className="inline-flex items-center justify-center px-6 py-3 border border-blue-600 text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50"
             >
-              View Land Plots
+              View Properties
             </Link>
           </div>
         </div>

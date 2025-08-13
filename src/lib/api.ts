@@ -210,6 +210,132 @@ class ApiClient {
     return this.request(`/admin/analytics${query}`);
   }
 
+  // Lead scoring methods
+  async getLeadScores(params?: Record<string, string>) {
+    const query = params ? '?' + new URLSearchParams(params).toString() : '';
+    return this.request<any>(`/admin/leads${query}`);
+  }
+
+  async getUserScore(userId: string) {
+    return this.request<any>(`/admin/leads/${userId}`);
+  }
+
+  async updateUserScore(userId: string) {
+    return this.request<any>(`/admin/leads/${userId}`, {
+      method: 'POST',
+    });
+  }
+
+  async recalculateAllScores() {
+    return this.request<any>('/admin/leads/recalculate', {
+      method: 'POST',
+    });
+  }
+
+  async trackLeadActivity(data: {
+    userId: string;
+    activityType: string;
+    propertyId?: string;
+    metadata?: Record<string, any>;
+  }) {
+    return this.request<any>('/admin/leads/activity', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Sales Manager methods
+  async getSalesManagers() {
+    return this.request<any>('/admin/sales-managers');
+  }
+
+  async createSalesManager(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    territory?: string;
+    commission?: number;
+    managerId?: string;
+  }) {
+    return this.request<any>('/admin/sales-managers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getSalesManager(id: string) {
+    return this.request<any>(`/admin/sales-managers/${id}`);
+  }
+
+  async updateSalesManager(id: string, data: any) {
+    return this.request<any>(`/admin/sales-managers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSalesManager(id: string) {
+    return this.request<any>(`/admin/sales-managers/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getLeadAssignments(params?: Record<string, string>) {
+    const query = params ? '?' + new URLSearchParams(params).toString() : '';
+    return this.request<any>(`/admin/lead-assignments${query}`);
+  }
+
+  async createLeadAssignment(data: {
+    leadId: string;
+    salesManagerId: string;
+    notes?: string;
+    expectedCloseDate?: string;
+    priority?: string;
+  }) {
+    return this.request<any>('/admin/lead-assignments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Lead Distribution methods
+  async getUnassignedLeads(params?: Record<string, string>) {
+    const query = params ? '?' + new URLSearchParams(params).toString() : '';
+    return this.request<any>(`/admin/leads/unassigned${query}`);
+  }
+
+  async distributeLeads(data: {
+    rule: {
+      type: 'round_robin' | 'load_balanced' | 'score_based' | 'manual';
+      salesManagerIds?: string[];
+      leadIds?: string[];
+    };
+    priority?: string;
+    notes?: string;
+    expectedCloseDate?: string;
+  }) {
+    return this.request<any>('/admin/leads/distribute', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async bulkUpdateAssignments(data: {
+    action: 'update_status' | 'update_priority' | 'reassign' | 'delete';
+    assignmentIds: string[];
+    data?: any;
+  }) {
+    return this.request<any>('/admin/lead-assignments/bulk', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAssignmentStats() {
+    return this.request<any>('/admin/lead-assignments/bulk');
+  }
+
   async getInquiries(params?: {
     page?: number;
     limit?: number;
@@ -251,69 +377,6 @@ class ApiClient {
     return this.deleteUser(id);
   }
 
-  // Plot endpoints
-  async getPlots(params?: {
-    status?: string;
-    page?: number;
-    limit?: number;
-  }) {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
-    
-    const query = searchParams.toString();
-    return this.request(`/plots${query ? `?${query}` : ''}`);
-  }
-
-  async getPlot(id: string) {
-    return this.request(`/plots/${id}`);
-  }
-
-  async createPlot(plotData: {
-    plotNumber: string;
-    area: number;
-    price: number;
-    location: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
-    status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
-    description?: string;
-    features?: string[];
-  }) {
-    return this.request('/plots', {
-      method: 'POST',
-      body: JSON.stringify(plotData),
-    });
-  }
-
-  async updatePlot(id: string, plotData: {
-    plotNumber?: string;
-    area?: number;
-    price?: number;
-    location?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
-    status?: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'INACTIVE';
-    description?: string;
-    features?: string[];
-    buyerId?: string;
-  }) {
-    return this.request(`/plots/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(plotData),
-    });
-  }
-
-  async deletePlot(id: string) {
-    return this.request(`/plots/${id}`, { method: 'DELETE' });
-  }
 
   // File upload
   async uploadFiles(files: FileList) {

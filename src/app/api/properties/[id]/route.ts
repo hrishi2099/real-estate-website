@@ -50,6 +50,7 @@ export async function GET(
           }
         }
       })
+      
 
       if (!property) {
         return NextResponse.json(
@@ -78,10 +79,21 @@ export async function GET(
         // Silently fail analytics to not affect main request
       })
 
+      // Parse features safely
+      let parsedFeatures = [];
+      if (property.features) {
+        try {
+          parsedFeatures = JSON.parse(property.features);
+        } catch (parseError) {
+          // If it's not valid JSON, treat it as comma-separated string
+          parsedFeatures = property.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+        }
+      }
+
       return NextResponse.json({
         property: {
           ...property,
-          features: property.features ? JSON.parse(property.features) : [],
+          features: parsedFeatures,
         }
       })
     } catch (dbError) {
@@ -167,11 +179,21 @@ export async function PUT(
       }
     })
 
+    // Parse features safely for response
+    let parsedFeatures = [];
+    if (property.features) {
+      try {
+        parsedFeatures = JSON.parse(property.features);
+      } catch (parseError) {
+        parsedFeatures = property.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+      }
+    }
+
     return NextResponse.json({
       message: 'Property updated successfully',
       property: {
         ...property,
-        features: property.features ? JSON.parse(property.features) : [],
+        features: parsedFeatures,
       }
     })
   } catch (error) {

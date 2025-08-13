@@ -153,7 +153,7 @@ export default function NewProperty() {
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                placeholder="$450,000"
+                placeholder="₹45,00,000"
               />
             </div>
 

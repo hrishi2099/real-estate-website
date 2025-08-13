@@ -17,6 +17,15 @@ interface OfficeSettings {
   fridayHours: string | null;
   saturdayHours: string | null;
   sundayHours: string | null;
+  // Google Tag Manager Integration
+  gtmContainerId: string | null;
+  gtmEnabled: boolean | null;
+  // Google Analytics 4
+  ga4MeasurementId: string | null;
+  ga4Enabled: boolean | null;
+  // Facebook Pixel
+  facebookPixelId: string | null;
+  facebookPixelEnabled: boolean | null;
 }
 
 export default function AdminSettingsPage() {
@@ -39,7 +48,16 @@ export default function AdminSettingsPage() {
     thursdayHours: "",
     fridayHours: "",
     saturdayHours: "",
-    sundayHours: ""
+    sundayHours: "",
+    // Google Tag Manager
+    gtmContainerId: "",
+    gtmEnabled: false,
+    // Google Analytics 4
+    ga4MeasurementId: "",
+    ga4Enabled: false,
+    // Facebook Pixel
+    facebookPixelId: "",
+    facebookPixelEnabled: false
   });
 
   useEffect(() => {
@@ -67,7 +85,16 @@ export default function AdminSettingsPage() {
           thursdayHours: data.thursdayHours || "",
           fridayHours: data.fridayHours || "",
           saturdayHours: data.saturdayHours || "",
-          sundayHours: data.sundayHours || ""
+          sundayHours: data.sundayHours || "",
+          // Google Tag Manager
+          gtmContainerId: data.gtmContainerId || "",
+          gtmEnabled: data.gtmEnabled || false,
+          // Google Analytics 4
+          ga4MeasurementId: data.ga4MeasurementId || "",
+          ga4Enabled: data.ga4Enabled || false,
+          // Facebook Pixel
+          facebookPixelId: data.facebookPixelId || "",
+          facebookPixelEnabled: data.facebookPixelEnabled || false
         };
         
         console.log("Setting form data from fetch:", newFormData);
@@ -85,10 +112,12 @@ export default function AdminSettingsPage() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -169,7 +198,16 @@ export default function AdminSettingsPage() {
           thursdayHours: updatedSettings.thursdayHours || "",
           fridayHours: updatedSettings.fridayHours || "",
           saturdayHours: updatedSettings.saturdayHours || "",
-          sundayHours: updatedSettings.sundayHours || ""
+          sundayHours: updatedSettings.sundayHours || "",
+          // Google Tag Manager
+          gtmContainerId: updatedSettings.gtmContainerId || "",
+          gtmEnabled: updatedSettings.gtmEnabled || false,
+          // Google Analytics 4
+          ga4MeasurementId: updatedSettings.ga4MeasurementId || "",
+          ga4Enabled: updatedSettings.ga4Enabled || false,
+          // Facebook Pixel
+          facebookPixelId: updatedSettings.facebookPixelId || "",
+          facebookPixelEnabled: updatedSettings.facebookPixelEnabled || false
         };
         
         console.log("Setting new form data:", newFormData);
@@ -341,6 +379,137 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
+          {/* Analytics & Tracking Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Analytics & Tracking</h3>
+            
+            {/* Google Tag Manager */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="gtmEnabled"
+                  name="gtmEnabled"
+                  checked={formData.gtmEnabled}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="gtmEnabled" className="ml-2 block text-sm font-medium text-gray-900">
+                  Enable Google Tag Manager
+                </label>
+              </div>
+              
+              <div className={`${formData.gtmEnabled ? '' : 'opacity-50 pointer-events-none'}`}>
+                <label htmlFor="gtmContainerId" className="block text-sm font-medium text-gray-700 mb-2">
+                  GTM Container ID
+                </label>
+                <input
+                  type="text"
+                  id="gtmContainerId"
+                  name="gtmContainerId"
+                  value={formData.gtmContainerId}
+                  onChange={handleInputChange}
+                  placeholder="GTM-XXXXXXX"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Find your Container ID in Google Tag Manager (format: GTM-XXXXXXX)
+                </p>
+              </div>
+            </div>
+
+            {/* Google Analytics 4 */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="ga4Enabled"
+                  name="ga4Enabled"
+                  checked={formData.ga4Enabled}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="ga4Enabled" className="ml-2 block text-sm font-medium text-gray-900">
+                  Enable Google Analytics 4 (Direct)
+                </label>
+              </div>
+              
+              <div className={`${formData.ga4Enabled ? '' : 'opacity-50 pointer-events-none'}`}>
+                <label htmlFor="ga4MeasurementId" className="block text-sm font-medium text-gray-700 mb-2">
+                  GA4 Measurement ID
+                </label>
+                <input
+                  type="text"
+                  id="ga4MeasurementId"
+                  name="ga4MeasurementId"
+                  value={formData.ga4MeasurementId}
+                  onChange={handleInputChange}
+                  placeholder="G-XXXXXXXXXX"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Find your Measurement ID in Google Analytics (format: G-XXXXXXXXXX)
+                </p>
+              </div>
+            </div>
+
+            {/* Facebook Pixel */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="facebookPixelEnabled"
+                  name="facebookPixelEnabled"
+                  checked={formData.facebookPixelEnabled}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="facebookPixelEnabled" className="ml-2 block text-sm font-medium text-gray-900">
+                  Enable Facebook Pixel
+                </label>
+              </div>
+              
+              <div className={`${formData.facebookPixelEnabled ? '' : 'opacity-50 pointer-events-none'}`}>
+                <label htmlFor="facebookPixelId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Facebook Pixel ID
+                </label>
+                <input
+                  type="text"
+                  id="facebookPixelId"
+                  name="facebookPixelId"
+                  value={formData.facebookPixelId}
+                  onChange={handleInputChange}
+                  placeholder="123456789012345"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Find your Pixel ID in Facebook Business Manager
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-sm font-medium text-blue-800">Analytics Integration Tips</h4>
+                  <div className="mt-2 text-sm text-blue-700">
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Use Google Tag Manager for centralized tracking management</li>
+                      <li>GA4 Direct is useful if you only need Google Analytics without other tags</li>
+                      <li>Facebook Pixel helps track conversions for Facebook/Instagram ads</li>
+                      <li>Changes take effect immediately after saving</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Office Hours</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,7 +530,7 @@ export default function AdminSettingsPage() {
                     type="text"
                     id={key}
                     name={key}
-                    value={formData[key as keyof typeof formData]}
+                    value={String(formData[key as keyof typeof formData])}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., 9:00 AM - 6:00 PM or Closed"

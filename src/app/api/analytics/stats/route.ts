@@ -19,19 +19,19 @@ export async function GET() {
       {
         id: 1,
         number: totalSoldProperties || 0,
-        label: "Land Plots Sold",
+        label: "Properties Sold",
         suffix: "+",
-        icon: "🌿",
-        description: "Successfully transferred land parcels"
+        icon: "🏠",
+        description: "Successfully completed property transactions"
       },
       {
         id: 2,
-        number: Math.round((totalArea._sum.area || 0) / 1000000 * 10) / 10,
+        number: Math.round((Number(totalArea._sum.area) || 0) / 1000000 * 10) / 10,
         label: "Million Sq Ft Sold",
         prefix: "",
         suffix: "M+",
         icon: "📏",
-        description: "Total land area transferred"
+        description: "Total property area sold"
       },
       {
         id: 3,
@@ -39,7 +39,7 @@ export async function GET() {
         label: "Years Experience",
         suffix: "+",
         icon: "⏰",
-        description: "In land development market"
+        description: "In real estate market"
       },
       {
         id: 4,
@@ -47,15 +47,15 @@ export async function GET() {
         label: "Client Satisfaction",
         suffix: "%",
         icon: "⭐",
-        description: "Happy landowners rating"
+        description: "Happy property owners rating"
       },
       {
         id: 5,
         number: totalProperties - totalSoldProperties || 0,
-        label: "Available Plots",
+        label: "Available Properties",
         suffix: "+",
         icon: "🏗️",
-        description: "Ready for development"
+        description: "Ready for purchase"
       },
       {
         id: 6,

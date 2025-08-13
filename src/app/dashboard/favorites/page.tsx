@@ -23,53 +23,69 @@ export default function FavoritesPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading favorites from API
     const loadFavorites = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       
-      // Mock data for demonstration
-      const mockFavorites: Property[] = [
-        {
-          id: "1",
-          title: "Modern Downtown Apartment",
-          price: "$450,000",
-          location: "Downtown, City Center",
-          type: "Apartment",
-          bedrooms: 2,
-          bathrooms: 2,
-          area: "1,200 sqft",
-          image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400",
-          addedDate: "2024-01-15"
-        },
-        {
-          id: "2",
-          title: "Luxury Villa with Pool",
-          price: "$850,000",
-          location: "Suburbs, Green Valley",
-          type: "Villa",
-          bedrooms: 4,
-          bathrooms: 3,
-          area: "3,500 sqft",
-          image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400",
-          addedDate: "2024-01-10"
+      try {
+        const response = await fetch('/api/favorites');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch favorites');
         }
-      ];
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setFavorites(mockFavorites);
-      setIsLoading(false);
+        
+        const favoritesData = await response.json();
+        
+        // Transform the data to match the expected format
+        const formattedFavorites: Property[] = favoritesData.map((fav: any) => ({
+          id: fav.id,
+          title: fav.title,
+          price: `₹${fav.price.toLocaleString()}`,
+          location: fav.location,
+          type: fav.type,
+          bedrooms: fav.bedrooms || 0,
+          bathrooms: fav.bathrooms || 0,
+          area: `${fav.area?.toLocaleString() || 'N/A'} sqft`,
+          image: fav.image,
+          addedDate: fav.addedDate
+        }));
+        
+        setFavorites(formattedFavorites);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+        
+        // Fallback to empty array on error
+        setFavorites([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    if (user) {
-      loadFavorites();
-    } else {
-      setIsLoading(false);
-    }
+    loadFavorites();
   }, [user]);
 
-  const removeFavorite = (propertyId: string) => {
-    setFavorites(prev => prev.filter(property => property.id !== propertyId));
+  const removeFavorite = async (propertyId: string) => {
+    try {
+      const response = await fetch('/api/favorites', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ propertyId }),
+      });
+
+      if (response.ok) {
+        setFavorites(prev => prev.filter(property => property.id !== propertyId));
+      } else {
+        console.error('Failed to remove favorite');
+      }
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
   };
 
   if (!user) {
@@ -163,7 +179,7 @@ export default function FavoritesPage() {
                     {property.title}
                   </h3>
                   <p className="text-2xl font-bold text-blue-600 mb-2">
-                    {property.price}
+                    ₹{Number(property.price).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-600 mb-3">
                     {property.location}
@@ -171,7 +187,7 @@ export default function FavoritesPage() {
                   <div className="flex justify-between text-sm text-gray-500 mb-4">
                     <span>{property.bedrooms} bed</span>
                     <span>{property.bathrooms} bath</span>
-                    <span>{property.area}</span>
+                    <span>{Number(property.area)} sqft</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-400">
