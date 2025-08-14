@@ -7,9 +7,8 @@ export class SQLProtection {
     if (typeof value === 'string') {
       // Remove potentially dangerous SQL keywords and characters
       return value
-        .replace(/[';--]/g, '') // Remove semicolons and SQL comments
+        .replace(/[';]|--/g, '') // Remove semicolons and SQL comments
         .replace(/\b(union|select|insert|update|delete|drop|create|alter|exec|execute|script)\b/gi, '') // Remove SQL keywords
-        .trim();
     }
     return value;
   }
@@ -36,13 +35,27 @@ export class SQLProtection {
     }
 
     return {
-      contains: sanitizedTerm,
-      mode: 'insensitive'
+      contains: sanitizedTerm
     };
   }
 
-  // Safe numeric range filter
-  static createNumericRangeFilter(min?: number, max?: number): Prisma.IntFilter | Prisma.FloatFilter | undefined {
+  // Safe INT range filter
+  static createIntRangeFilter(min?: number, max?: number): Prisma.IntFilter | undefined {
+    const filter: any = {};
+    
+    if (typeof min === 'number' && !isNaN(min) && min >= 0) {
+      filter.gte = Math.floor(min);
+    }
+    
+    if (typeof max === 'number' && !isNaN(max) && max >= 0) {
+      filter.lte = Math.floor(max);
+    }
+    
+    return Object.keys(filter).length > 0 ? filter : undefined;
+  }
+
+  // Safe DECIMAL range filter
+  static createDecimalRangeFilter(min?: number, max?: number): Prisma.DecimalFilter | undefined {
     const filter: any = {};
     
     if (typeof min === 'number' && !isNaN(min) && min >= 0) {
@@ -86,13 +99,13 @@ export class SQLProtection {
     }
 
     // Price range filter
-    const priceFilter = this.createNumericRangeFilter(searchParams.minPrice, searchParams.maxPrice);
+    const priceFilter = this.createDecimalRangeFilter(searchParams.minPrice, searchParams.maxPrice);
     if (priceFilter) {
       where.price = priceFilter;
     }
 
     // Bedroom range filter
-    const bedroomFilter = this.createNumericRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
+    const bedroomFilter = this.createIntRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
     if (bedroomFilter) {
       where.bedrooms = bedroomFilter;
     }

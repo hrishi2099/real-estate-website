@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -11,48 +12,53 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
+  id               String     @id @default(cuid())
+  email            String     @unique
   name             String
   phone            String?
   password         String
-  role             Role      @default(USER)
+  role             Role       @default(USER)
   status           UserStatus @default(ACTIVE)
-  joinDate         DateTime  @default(now())
+  joinDate         DateTime   @default(now())
   lastLogin        DateTime?
-  emailVerified    Boolean   @default(false)
+  emailVerified    Boolean    @default(false)
   resetToken       String?
   resetTokenExpiry DateTime?
-  
+
   // Sales Manager specific fields
-  territory        String?   // Geographic territory for sales manager
-  commission       Decimal?  @db.Decimal(5, 2) // Commission percentage
-  managerId        String?   // Reference to supervising admin
-  
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  territory  String? // Geographic territory for sales manager
+  commission Decimal? @db.Decimal(5, 2) // Commission percentage
+  managerId  String? // Reference to supervising admin
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  properties       Property[]
-  inquiries        Inquiry[]
-  favorites        Favorite[]
-  analytics        PropertyAnalytics[]
-  auditLogs        AuditLog[]
-  leadScore        LeadScore?
-  leadActivities   LeadActivity[]
-  
+  properties     Property[]
+  inquiries      Inquiry[]
+  favorites      Favorite[]
+  analytics      PropertyAnalytics[]
+  auditLogs      AuditLog[]
+  leadScore      LeadScore?
+  leadActivities LeadActivity[]
+
   // Sales Manager relations
-  manager          User?    @relation("ManagerSubordinate", fields: [managerId], references: [id])
-  subordinates     User[]   @relation("ManagerSubordinate")
-  assignedLeads    LeadAssignment[]
-  leadAssignments  LeadAssignment[] @relation("LeadAssignments")
-  calendarEvents   CalendarEvent[]
-  leadCalendarEvents CalendarEvent[] @relation("CalendarLead")
-  
+  manager            User?            @relation("ManagerSubordinate", fields: [managerId], references: [id])
+  subordinates       User[]           @relation("ManagerSubordinate")
+  assignedLeads      LeadAssignment[]
+  leadAssignments    LeadAssignment[] @relation("LeadAssignments")
+  calendarEvents     CalendarEvent[]
+  leadCalendarEvents CalendarEvent[]  @relation("CalendarLead")
+
   // RCS Messaging relations
-  createdMessages  RCSMessage[]
-  messageRecipients RCSRecipient[]
-  messageTemplates MessageTemplate[]
+  createdMessages    RCSMessage[]
+  messageRecipients  RCSRecipient[]
+  messageTemplates   MessageTemplate[]
+  Campaign           Campaign[]
+  ABTest             ABTest[]
+  MessageInteraction MessageInteraction[]
+  SmartSegment       SmartSegment[]
+  MessageAutomation  MessageAutomation[]
 
   @@map("users")
 }
@@ -79,13 +85,13 @@ model Property {
   updatedAt   DateTime       @updatedAt
 
   // Relations
-  owner       User?              @relation(fields: [ownerId], references: [id])
-  images      PropertyImage[]
-  inquiries   Inquiry[]
-  favorites   Favorite[]
-  analytics   PropertyAnalytics[]
+  owner          User?               @relation(fields: [ownerId], references: [id])
+  images         PropertyImage[]
+  inquiries      Inquiry[]
+  favorites      Favorite[]
+  analytics      PropertyAnalytics[]
   leadActivities LeadActivity[]
-  calendarEvents CalendarEvent[] @relation("CalendarProperty")
+  calendarEvents CalendarEvent[]     @relation("CalendarProperty")
 
   @@map("properties")
 }
@@ -99,7 +105,7 @@ model PropertyImage {
   createdAt  DateTime @default(now())
 
   // Relations
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("property_images")
 }
@@ -117,8 +123,8 @@ model Inquiry {
   updatedAt  DateTime      @updatedAt
 
   // Relations
-  user       User?     @relation(fields: [userId], references: [id])
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("inquiries")
 }
@@ -130,45 +136,45 @@ model Favorite {
   createdAt  DateTime @default(now())
 
   // Relations
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
   @@map("favorites")
 }
 
 model PropertyAnalytics {
-  id         String        @id @default(cuid())
+  id         String         @id @default(cuid())
   event      AnalyticsEvent
   propertyId String
   userId     String?
   userAgent  String?
   ipAddress  String?
-  createdAt  DateTime      @default(now())
+  createdAt  DateTime       @default(now())
 
   // Relations
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  user       User?    @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id])
 
   @@map("property_analytics")
 }
 
 model ContactInquiry {
-  id        String              @id @default(cuid())
+  id        String               @id @default(cuid())
   name      String
   email     String
   phone     String?
   subject   String
-  message   String              @db.Text
+  message   String               @db.Text
   status    ContactInquiryStatus @default(NEW)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
 
   @@map("contact_inquiries")
 }
 
 model OfficeSettings {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   companyName    String?
   address        String?
   phone          String?
@@ -182,154 +188,153 @@ model OfficeSettings {
   fridayHours    String?
   saturdayHours  String?
   sundayHours    String?
-  
+
   // Google Tag Manager Integration
-  gtmContainerId String?  // GTM-XXXXXXX format
+  gtmContainerId String? // GTM-XXXXXXX format
   gtmEnabled     Boolean? @default(false)
-  
+
   // Google Analytics 4
   ga4MeasurementId String? // G-XXXXXXXXXX format
   ga4Enabled       Boolean? @default(false)
-  
+
   // Facebook Pixel
-  facebookPixelId String?
+  facebookPixelId      String?
   facebookPixelEnabled Boolean? @default(false)
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("office_settings")
 }
 
-
 model AuditLog {
-  id         String   @id @default(cuid())
-  action     String
-  tableName  String
-  recordId   String?
-  oldValues  String?  @db.Text
-  newValues  String?  @db.Text
-  userId     String?
-  userEmail  String?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  action    String
+  tableName String
+  recordId  String?
+  oldValues String?  @db.Text
+  newValues String?  @db.Text
+  userId    String?
+  userEmail String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
   // Relations
-  user       User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
 }
 
 model LeadScore {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  score                 Int      @default(0)
-  grade                 LeadGrade @default(COLD)
-  
+  id     String    @id @default(cuid())
+  userId String    @unique
+  score  Int       @default(0)
+  grade  LeadGrade @default(COLD)
+
   // Engagement metrics
-  propertyViews         Int      @default(0)
-  inquiriesMade         Int      @default(0)
-  contactFormSubmissions Int     @default(0)
-  favoritesSaved        Int      @default(0)
-  
+  propertyViews          Int @default(0)
+  inquiriesMade          Int @default(0)
+  contactFormSubmissions Int @default(0)
+  favoritesSaved         Int @default(0)
+
   // Behavior patterns
-  avgSessionDuration    Int?     // in minutes
-  returnVisits          Int      @default(0)
-  priceRangeSearches    String?  @db.Text // JSON array of price ranges
-  locationSearches      String?  @db.Text // JSON array of locations
-  propertyTypeInterests String?  @db.Text // JSON array of property types
-  
+  avgSessionDuration    Int? // in minutes
+  returnVisits          Int     @default(0)
+  priceRangeSearches    String? @db.Text // JSON array of price ranges
+  locationSearches      String? @db.Text // JSON array of locations
+  propertyTypeInterests String? @db.Text // JSON array of property types
+
   // Temporal factors
-  lastActivity          DateTime?
-  daysActive            Int      @default(0)
-  
+  lastActivity DateTime?
+  daysActive   Int       @default(0)
+
   // Calculated factors
   budgetEstimate        Decimal? @db.Decimal(12, 2)
   seriousBuyerIndicator Boolean  @default(false)
-  
+
   // Timestamps
-  lastCalculated        DateTime @default(now())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  lastCalculated DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("lead_scores")
 }
 
 model LeadActivity {
-  id           String              @id @default(cuid())
+  id           String           @id @default(cuid())
   userId       String
   activityType LeadActivityType
   propertyId   String?
-  metadata     String?             @db.Text // JSON for additional data
-  score        Int                 @default(0) // Points earned from this activity
-  createdAt    DateTime            @default(now())
+  metadata     String?          @db.Text // JSON for additional data
+  score        Int              @default(0) // Points earned from this activity
+  createdAt    DateTime         @default(now())
 
   // Relations
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property     Property?           @relation(fields: [propertyId], references: [id])
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id])
 
   @@map("lead_activities")
 }
 
 model LeadAssignment {
-  id              String               @id @default(cuid())
-  leadId          String               // Reference to User (lead)
-  salesManagerId  String               // Reference to User (sales manager)
-  assignedAt      DateTime             @default(now())
-  status          LeadAssignmentStatus @default(ACTIVE)
-  notes           String?              @db.Text
+  id                String               @id @default(cuid())
+  leadId            String // Reference to User (lead)
+  salesManagerId    String // Reference to User (sales manager)
+  assignedAt        DateTime             @default(now())
+  status            LeadAssignmentStatus @default(ACTIVE)
+  notes             String?              @db.Text
   expectedCloseDate DateTime?
-  priority        LeadPriority         @default(MEDIUM)
-  
+  priority          LeadPriority         @default(MEDIUM)
+
   // Relations
-  lead            User                 @relation("LeadAssignments", fields: [leadId], references: [id], onDelete: Cascade)
-  salesManager    User                 @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
-  pipelineStages  PipelineStage[]
-  
+  lead           User            @relation("LeadAssignments", fields: [leadId], references: [id], onDelete: Cascade)
+  salesManager   User            @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+  pipelineStages PipelineStage[]
+
   @@unique([leadId, salesManagerId])
   @@map("lead_assignments")
 }
 
 model PipelineStage {
-  id              String            @id @default(cuid())
-  assignmentId    String
-  stage           SalesStage
-  enteredAt       DateTime          @default(now())
-  exitedAt        DateTime?
-  durationHours   Int?              // Time spent in this stage (hours)
-  notes           String?           @db.Text
-  probability     Int?              // Probability of closing (0-100%)
-  estimatedValue  Decimal?          @db.Decimal(12, 2) // Expected deal value
-  nextAction      String?           // Next planned action
-  nextActionDate  DateTime?         // When next action should happen
-  createdBy       String?           // Sales manager who created this stage
-  
+  id             String     @id @default(cuid())
+  assignmentId   String
+  stage          SalesStage
+  enteredAt      DateTime   @default(now())
+  exitedAt       DateTime?
+  durationHours  Int? // Time spent in this stage (hours)
+  notes          String?    @db.Text
+  probability    Int? // Probability of closing (0-100%)
+  estimatedValue Decimal?   @db.Decimal(12, 2) // Expected deal value
+  nextAction     String? // Next planned action
+  nextActionDate DateTime? // When next action should happen
+  createdBy      String? // Sales manager who created this stage
+
   // Relations
-  assignment      LeadAssignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignment      LeadAssignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   stageActivities PipelineActivity[]
-  
+
   @@map("pipeline_stages")
 }
 
 model PipelineActivity {
-  id            String            @id @default(cuid())
-  stageId       String
-  activityType  PipelineActivityType
-  description   String            @db.Text
-  outcome       String?           @db.Text
-  scheduledAt   DateTime?
-  completedAt   DateTime?
-  createdBy     String            // Sales manager ID
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  
+  id           String               @id @default(cuid())
+  stageId      String
+  activityType PipelineActivityType
+  description  String               @db.Text
+  outcome      String?              @db.Text
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+  createdBy    String // Sales manager ID
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
   // Relations
-  stage         PipelineStage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  
+  stage PipelineStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
   @@map("pipeline_activities")
 }
 
@@ -384,9 +389,9 @@ enum ContactInquiryStatus {
 }
 
 enum LeadGrade {
-  COLD      // 0-30 points
-  WARM      // 31-60 points  
-  HOT       // 61-80 points
+  COLD // 0-30 points
+  WARM // 31-60 points  
+  HOT // 61-80 points
   QUALIFIED // 81-100 points
 }
 
@@ -417,17 +422,17 @@ enum LeadPriority {
 }
 
 enum SalesStage {
-  NEW_LEAD           // Just assigned to sales manager
-  CONTACTED          // Initial contact made
-  QUALIFIED          // Lead has been qualified (budget, authority, need, timeline)
-  PROPOSAL_SENT      // Proposal or quote sent to lead
-  NEGOTIATION        // In negotiation phase
-  PROPERTY_VIEWING   // Scheduled or completed property viewings
-  APPLICATION        // Application submitted/being processed
-  CLOSING            // Final steps, contracts being signed
-  WON                // Deal successfully closed
-  LOST               // Deal lost/lead went cold
-  ON_HOLD           // Temporarily paused
+  NEW_LEAD // Just assigned to sales manager
+  CONTACTED // Initial contact made
+  QUALIFIED // Lead has been qualified (budget, authority, need, timeline)
+  PROPOSAL_SENT // Proposal or quote sent to lead
+  NEGOTIATION // In negotiation phase
+  PROPERTY_VIEWING // Scheduled or completed property viewings
+  APPLICATION // Application submitted/being processed
+  CLOSING // Final steps, contracts being signed
+  WON // Deal successfully closed
+  LOST // Deal lost/lead went cold
+  ON_HOLD // Temporarily paused
 }
 
 enum PipelineActivityType {
@@ -451,23 +456,23 @@ enum PipelineActivityType {
 }
 
 model CalendarEvent {
-  id              String            @id @default(cuid())
-  title           String
-  description     String?           @db.Text
-  startTime       DateTime
-  endTime         DateTime
-  eventType       CalendarEventType @default(OTHER)
-  status          EventStatus       @default(SCHEDULED)
-  salesManagerId  String
-  leadId          String?
-  propertyId      String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id             String            @id @default(cuid())
+  title          String
+  description    String?           @db.Text
+  startTime      DateTime
+  endTime        DateTime
+  eventType      CalendarEventType @default(OTHER)
+  status         EventStatus       @default(SCHEDULED)
+  salesManagerId String
+  leadId         String?
+  propertyId     String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
   // Relations
-  salesManager    User              @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
-  lead            User?             @relation("CalendarLead", fields: [leadId], references: [id], onDelete: SetNull)
-  property        Property?         @relation("CalendarProperty", fields: [propertyId], references: [id], onDelete: SetNull)
+  salesManager User      @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+  lead         User?     @relation("CalendarLead", fields: [leadId], references: [id], onDelete: SetNull)
+  property     Property? @relation("CalendarProperty", fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@map("calendar_events")
 }
@@ -488,106 +493,106 @@ enum EventStatus {
 }
 
 model RCSMessage {
-  id              String            @id @default(cuid())
-  title           String
-  content         String            @db.Text
-  richContent     String?           @db.Text // JSON for rich media content
-  messageType     RCSMessageType    @default(TEXT)
-  templateId      String?           // Reference to message template
-  scheduledAt     DateTime?         // For scheduled messages
-  sentAt          DateTime?         // When message was actually sent
-  status          MessageStatus     @default(DRAFT)
-  targetAudience  MessageAudience   @default(ALL_USERS)
-  createdById     String
-  
+  id             String          @id @default(cuid())
+  title          String
+  content        String          @db.Text
+  richContent    String?         @db.Text // JSON for rich media content
+  messageType    RCSMessageType  @default(TEXT)
+  templateId     String? // Reference to message template
+  scheduledAt    DateTime? // For scheduled messages
+  sentAt         DateTime? // When message was actually sent
+  status         MessageStatus   @default(DRAFT)
+  targetAudience MessageAudience @default(ALL_USERS)
+  createdById    String
+
   // Advanced Features
-  personalizationData String?        @db.Text // JSON for personalization variables
-  aiGenerated     Boolean           @default(false) // AI-generated content
-  aiPrompt        String?           @db.Text // Original AI prompt used
-  priority        MessagePriority   @default(NORMAL)
-  campaignId      String?           // Link to marketing campaigns
-  abTestGroup     String?           // A/B testing group identifier
-  abTestVariant   String?           // A/B testing variant (A, B, C, etc.)
-  conversionGoal  String?           // What action we want users to take
-  
+  personalizationData String?         @db.Text // JSON for personalization variables
+  aiGenerated         Boolean         @default(false) // AI-generated content
+  aiPrompt            String?         @db.Text // Original AI prompt used
+  priority            MessagePriority @default(NORMAL)
+  campaignId          String? // Link to marketing campaigns
+  abTestGroup         String? // A/B testing group identifier
+  abTestVariant       String? // A/B testing variant (A, B, C, etc.)
+  conversionGoal      String? // What action we want users to take
+
   // Geolocation targeting
-  geoTargeting    String?           @db.Text // JSON for geographic targeting
-  timezone        String?           // Timezone for scheduling
-  
+  geoTargeting String? @db.Text // JSON for geographic targeting
+  timezone     String? // Timezone for scheduling
+
   // Performance tracking
-  expectedCTR     Decimal?          @db.Decimal(5, 2) // Expected click-through rate
-  actualCTR       Decimal?          @db.Decimal(5, 2) // Actual click-through rate
-  engagementScore Decimal?          @db.Decimal(5, 2) // Overall engagement score
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  expectedCTR     Decimal? @db.Decimal(5, 2) // Expected click-through rate
+  actualCTR       Decimal? @db.Decimal(5, 2) // Actual click-through rate
+  engagementScore Decimal? @db.Decimal(5, 2) // Overall engagement score
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  createdBy       User              @relation(fields: [createdById], references: [id])
+  createdBy       User                    @relation(fields: [createdById], references: [id])
   recipients      RCSRecipient[]
   deliveryReports MessageDeliveryReport[]
-  campaign        Campaign?         @relation(fields: [campaignId], references: [id])
-  abTest          ABTest?           @relation(fields: [abTestGroup], references: [id])
+  campaign        Campaign?               @relation(fields: [campaignId], references: [id])
+  abTest          ABTest?                 @relation(fields: [abTestGroup], references: [id])
   interactions    MessageInteraction[]
 
   @@map("rcs_messages")
 }
 
 model RCSRecipient {
-  id            String         @id @default(cuid())
-  messageId     String
-  userId        String
-  status        RecipientStatus @default(PENDING)
-  sentAt        DateTime?
-  deliveredAt   DateTime?
-  readAt        DateTime?
-  clickedAt     DateTime?
-  errorMessage  String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String          @id @default(cuid())
+  messageId    String
+  userId       String
+  status       RecipientStatus @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  readAt       DateTime?
+  clickedAt    DateTime?
+  errorMessage String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   // Relations
-  message       RCSMessage     @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([messageId, userId])
   @@map("rcs_recipients")
 }
 
 model MessageTemplate {
-  id          String            @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String?
-  content     String            @db.Text
-  richContent String?           @db.Text // JSON for rich media content
-  messageType RCSMessageType    @default(TEXT)
-  category    TemplateCategory  @default(GENERAL)
-  isActive    Boolean           @default(true)
+  content     String           @db.Text
+  richContent String?          @db.Text // JSON for rich media content
+  messageType RCSMessageType   @default(TEXT)
+  category    TemplateCategory @default(GENERAL)
+  isActive    Boolean          @default(true)
   createdById String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   // Relations
-  createdBy   User              @relation(fields: [createdById], references: [id])
+  createdBy User @relation(fields: [createdById], references: [id])
 
   @@map("message_templates")
 }
 
 model MessageDeliveryReport {
-  id            String          @id @default(cuid())
-  messageId     String
-  totalSent     Int             @default(0)
-  totalDelivered Int            @default(0)
-  totalRead     Int             @default(0)
-  totalClicked  Int             @default(0)
-  totalFailed   Int             @default(0)
-  deliveryRate  Decimal         @db.Decimal(5, 2) @default(0)
-  openRate      Decimal         @db.Decimal(5, 2) @default(0)
-  clickRate     Decimal         @db.Decimal(5, 2) @default(0)
-  generatedAt   DateTime        @default(now())
+  id             String   @id @default(cuid())
+  messageId      String
+  totalSent      Int      @default(0)
+  totalDelivered Int      @default(0)
+  totalRead      Int      @default(0)
+  totalClicked   Int      @default(0)
+  totalFailed    Int      @default(0)
+  deliveryRate   Decimal  @default(0) @db.Decimal(5, 2)
+  openRate       Decimal  @default(0) @db.Decimal(5, 2)
+  clickRate      Decimal  @default(0) @db.Decimal(5, 2)
+  generatedAt    DateTime @default(now())
 
   // Relations
-  message       RCSMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@map("message_delivery_reports")
 }
@@ -650,103 +655,103 @@ enum MessagePriority {
 }
 
 model Campaign {
-  id              String           @id @default(cuid())
-  name            String
-  description     String?          @db.Text
-  startDate       DateTime
-  endDate         DateTime?
-  status          CampaignStatus   @default(ACTIVE)
-  budget          Decimal?         @db.Decimal(10, 2)
-  targetMetrics   String?          @db.Text // JSON for KPIs
-  createdById     String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  description   String?        @db.Text
+  startDate     DateTime
+  endDate       DateTime?
+  status        CampaignStatus @default(ACTIVE)
+  budget        Decimal?       @db.Decimal(10, 2)
+  targetMetrics String?        @db.Text // JSON for KPIs
+  createdById   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   // Relations
-  createdBy       User             @relation(fields: [createdById], references: [id])
-  messages        RCSMessage[]
-  abTests         ABTest[]
+  createdBy User         @relation(fields: [createdById], references: [id])
+  messages  RCSMessage[]
+  abTests   ABTest[]
 
   @@map("campaigns")
 }
 
 model ABTest {
-  id              String           @id @default(cuid())
+  id              String       @id @default(cuid())
   name            String
-  description     String?          @db.Text
-  variants        String           @db.Text // JSON array of variants
-  trafficSplit    String           @db.Text // JSON for traffic distribution
+  description     String?      @db.Text
+  variants        String       @db.Text // JSON array of variants
+  trafficSplit    String       @db.Text // JSON for traffic distribution
   startDate       DateTime
   endDate         DateTime?
-  status          ABTestStatus     @default(RUNNING)
-  winnerVariant   String?          // Winning variant
-  confidenceLevel Decimal?         @db.Decimal(5, 2)
+  status          ABTestStatus @default(RUNNING)
+  winnerVariant   String? // Winning variant
+  confidenceLevel Decimal?     @db.Decimal(5, 2)
   createdById     String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   // Relations
-  createdBy       User             @relation(fields: [createdById], references: [id])
-  messages        RCSMessage[]
-  campaign        Campaign?        @relation(fields: [campaignId], references: [id])
-  campaignId      String?
+  createdBy  User         @relation(fields: [createdById], references: [id])
+  messages   RCSMessage[]
+  campaign   Campaign?    @relation(fields: [campaignId], references: [id])
+  campaignId String?
 
   @@map("ab_tests")
 }
 
 model MessageInteraction {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   messageId       String
   userId          String
   interactionType InteractionType
-  data            String?          @db.Text // JSON for interaction data
-  timestamp       DateTime         @default(now())
-  deviceInfo      String?          @db.Text // JSON for device information
-  location        String?          // Geographic location
+  data            String?         @db.Text // JSON for interaction data
+  timestamp       DateTime        @default(now())
+  deviceInfo      String?         @db.Text // JSON for device information
+  location        String? // Geographic location
 
   // Relations
-  message         RCSMessage       @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("message_interactions")
 }
 
 model SmartSegment {
-  id              String           @id @default(cuid())
+  id              String    @id @default(cuid())
   name            String
-  description     String?          @db.Text
-  criteria        String           @db.Text // JSON for segmentation criteria
-  estimatedSize   Int?             // Estimated number of users
-  actualSize      Int?             // Actual number of users when executed
-  refreshSchedule String?          // Cron expression for auto-refresh
+  description     String?   @db.Text
+  criteria        String    @db.Text // JSON for segmentation criteria
+  estimatedSize   Int? // Estimated number of users
+  actualSize      Int? // Actual number of users when executed
+  refreshSchedule String? // Cron expression for auto-refresh
   lastRefreshed   DateTime?
   createdById     String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
-  createdBy       User             @relation(fields: [createdById], references: [id])
+  createdBy User @relation(fields: [createdById], references: [id])
 
   @@map("smart_segments")
 }
 
 model MessageAutomation {
-  id              String           @id @default(cuid())
+  id              String            @id @default(cuid())
   name            String
-  description     String?          @db.Text
+  description     String?           @db.Text
   trigger         AutomationTrigger
-  triggerData     String           @db.Text // JSON for trigger configuration
-  messageTemplate String           @db.Text // Message template with variables
-  conditions      String?          @db.Text // JSON for additional conditions
-  isActive        Boolean          @default(true)
-  executionCount  Int              @default(0)
+  triggerData     String            @db.Text // JSON for trigger configuration
+  messageTemplate String            @db.Text // Message template with variables
+  conditions      String?           @db.Text // JSON for additional conditions
+  isActive        Boolean           @default(true)
+  executionCount  Int               @default(0)
   lastExecuted    DateTime?
   createdById     String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   // Relations
-  createdBy       User             @relation(fields: [createdById], references: [id])
+  createdBy User @relation(fields: [createdById], references: [id])
 
   @@map("message_automations")
 }
@@ -791,4 +796,3 @@ enum AutomationTrigger {
   ANNIVERSARY
   CUSTOM_EVENT
 }
-
