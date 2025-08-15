@@ -88,13 +88,7 @@ class RateLimiter {
       remaining: this.options.maxRequests - record.count,
     };
   }
-<<<<<<< HEAD
 
-  public get maxRequests(): number {
-    return this.options.maxRequests;
-  }
-=======
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
 }
 
 // Predefined rate limiters for different endpoints
@@ -137,11 +131,7 @@ export function createRateLimitMiddleware(limiter: RateLimiter) {
           headers: {
             'Content-Type': 'application/json',
             'Retry-After': retryAfter.toString(),
-<<<<<<< HEAD
-            'X-RateLimit-Limit': limiter.maxRequests.toString(),
-=======
             'X-RateLimit-Limit': limiter.options.maxRequests.toString(),
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': Math.ceil(result.resetTime! / 1000).toString(),
           },
@@ -152,11 +142,7 @@ export function createRateLimitMiddleware(limiter: RateLimiter) {
     // Add rate limit headers to successful responses
     return {
       headers: {
-<<<<<<< HEAD
-        'X-RateLimit-Limit': limiter.maxRequests.toString(),
-=======
         'X-RateLimit-Limit': limiter.options.maxRequests.toString(),
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
         'X-RateLimit-Remaining': result.remaining!.toString(),
         'X-RateLimit-Reset': Math.ceil(result.resetTime! / 1000).toString(),
       },
