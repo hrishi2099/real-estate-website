@@ -41,7 +41,7 @@ export class SQLProtection {
   }
 
   // Safe numeric range filter
-  static createNumericRangeFilter(min?: number, max?: number): Prisma.IntFilter | Prisma.FloatFilter | undefined {
+  static createNumericRangeFilter(min?: number, max?: number): Prisma.IntFilter | Prisma.DecimalFilter | undefined {
     const filter: any = {};
     
     if (typeof min === 'number' && !isNaN(min) && min >= 0) {
