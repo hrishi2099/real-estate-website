@@ -131,7 +131,7 @@ export function createRateLimitMiddleware(limiter: RateLimiter) {
           headers: {
             'Content-Type': 'application/json',
             'Retry-After': retryAfter.toString(),
-            'X-RateLimit-Limit': limiter.options.maxRequests.toString(),
+            'X-RateLimit-Limit': limiter.maxRequests.toString(),
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': Math.ceil(result.resetTime! / 1000).toString(),
           },
@@ -142,7 +142,7 @@ export function createRateLimitMiddleware(limiter: RateLimiter) {
     // Add rate limit headers to successful responses
     return {
       headers: {
-        'X-RateLimit-Limit': limiter.options.maxRequests.toString(),
+        'X-RateLimit-Limit': limiter.maxRequests.toString(),
         'X-RateLimit-Remaining': result.remaining!.toString(),
         'X-RateLimit-Reset': Math.ceil(result.resetTime! / 1000).toString(),
       },
