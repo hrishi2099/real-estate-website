@@ -40,8 +40,23 @@ export class SQLProtection {
     };
   }
 
-  // Safe numeric range filter
-  static createNumericRangeFilter(min?: number, max?: number): Prisma.IntFilter | Prisma.DecimalFilter | undefined {
+  // Safe integer range filter
+  static createIntRangeFilter(min?: number, max?: number): Prisma.IntFilter | undefined {
+    const filter: any = {};
+    
+    if (typeof min === 'number' && !isNaN(min) && min >= 0) {
+      filter.gte = Math.floor(min);
+    }
+    
+    if (typeof max === 'number' && !isNaN(max) && max >= 0) {
+      filter.lte = Math.floor(max);
+    }
+    
+    return Object.keys(filter).length > 0 ? filter : undefined;
+  }
+
+  // Safe decimal range filter
+  static createDecimalRangeFilter(min?: number, max?: number): Prisma.DecimalFilter | undefined {
     const filter: any = {};
     
     if (typeof min === 'number' && !isNaN(min) && min >= 0) {
@@ -85,13 +100,13 @@ export class SQLProtection {
     }
 
     // Price range filter
-    const priceFilter = this.createNumericRangeFilter(searchParams.minPrice, searchParams.maxPrice);
+    const priceFilter = this.createDecimalRangeFilter(searchParams.minPrice, searchParams.maxPrice);
     if (priceFilter) {
       where.price = priceFilter;
     }
 
     // Bedroom range filter
-    const bedroomFilter = this.createNumericRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
+    const bedroomFilter = this.createIntRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
     if (bedroomFilter) {
       where.bedrooms = bedroomFilter;
     }
