@@ -7,14 +7,9 @@ export class SQLProtection {
     if (typeof value === 'string') {
       // Remove potentially dangerous SQL keywords and characters
       return value
-<<<<<<< HEAD
         .replace(/[';]|--/g, '') // Remove semicolons and SQL comments
         .replace(/\b(union|select|insert|update|delete|drop|create|alter|exec|execute|script)\b/gi, '') // Remove SQL keywords
-=======
-        .replace(/[';--]/g, '') // Remove semicolons and SQL comments
-        .replace(/\b(union|select|insert|update|delete|drop|create|alter|exec|execute|script)\b/gi, '') // Remove SQL keywords
         .trim();
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
     }
     return value;
   }
@@ -41,29 +36,6 @@ export class SQLProtection {
     }
 
     return {
-<<<<<<< HEAD
-      contains: sanitizedTerm
-    };
-  }
-
-  // Safe INT range filter
-  static createIntRangeFilter(min?: number, max?: number): Prisma.IntFilter | undefined {
-    const filter: any = {};
-    
-    if (typeof min === 'number' && !isNaN(min) && min >= 0) {
-      filter.gte = Math.floor(min);
-    }
-    
-    if (typeof max === 'number' && !isNaN(max) && max >= 0) {
-      filter.lte = Math.floor(max);
-    }
-    
-    return Object.keys(filter).length > 0 ? filter : undefined;
-  }
-
-  // Safe DECIMAL range filter
-  static createDecimalRangeFilter(min?: number, max?: number): Prisma.DecimalFilter | undefined {
-=======
       contains: sanitizedTerm,
       mode: 'insensitive'
     };
@@ -71,7 +43,6 @@ export class SQLProtection {
 
   // Safe numeric range filter
   static createNumericRangeFilter(min?: number, max?: number): Prisma.IntFilter | Prisma.FloatFilter | undefined {
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
     const filter: any = {};
     
     if (typeof min === 'number' && !isNaN(min) && min >= 0) {
@@ -115,21 +86,13 @@ export class SQLProtection {
     }
 
     // Price range filter
-<<<<<<< HEAD
-    const priceFilter = this.createDecimalRangeFilter(searchParams.minPrice, searchParams.maxPrice);
-=======
     const priceFilter = this.createNumericRangeFilter(searchParams.minPrice, searchParams.maxPrice);
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
     if (priceFilter) {
       where.price = priceFilter;
     }
 
     // Bedroom range filter
-<<<<<<< HEAD
-    const bedroomFilter = this.createIntRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
-=======
     const bedroomFilter = this.createNumericRangeFilter(searchParams.minBedrooms, searchParams.maxBedrooms);
->>>>>>> a39292c552ade54da3e8cf4b38c762ba6ec31b0f
     if (bedroomFilter) {
       where.bedrooms = bedroomFilter;
     }
