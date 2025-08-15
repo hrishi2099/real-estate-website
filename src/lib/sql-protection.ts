@@ -36,8 +36,7 @@ export class SQLProtection {
     }
 
     return {
-      contains: sanitizedTerm,
-      mode: 'insensitive'
+      contains: sanitizedTerm
     };
   }
 
