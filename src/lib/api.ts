@@ -1,3 +1,5 @@
+import { getCSRFToken } from './csrf-client';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (
   typeof window !== 'undefined' ? window.location.origin : ''
 );
@@ -15,11 +17,29 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}/api${endpoint}`;
     
+    // Prepare headers
+    const headers: Record<string, string> = {
+      ...options.headers as Record<string, string>,
+    };
+    
+    // Only set Content-Type if not already set (for FormData uploads)
+    if (!headers['Content-Type'] && !(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    // Add CSRF token for state-changing requests
+    if (options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase())) {
+      try {
+        const csrfToken = await getCSRFToken();
+        headers['X-CSRF-Token'] = csrfToken;
+      } catch (error) {
+        console.error('Failed to get CSRF token:', error);
+        // Continue without CSRF token - let the server handle the error
+      }
+    }
+    
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       credentials: 'include', // Include cookies
       ...options,
     };
@@ -385,10 +405,19 @@ class ApiClient {
       formData.append('files', file);
     });
 
+    // For file uploads, we need to handle CSRF manually since we can't set Content-Type
+    const headers: Record<string, string> = {};
+    try {
+      const csrfToken = await getCSRFToken();
+      headers['X-CSRF-Token'] = csrfToken;
+    } catch (error) {
+      console.error('Failed to get CSRF token for upload:', error);
+    }
+
     return this.request('/upload', {
       method: 'POST',
       body: formData,
-      headers: {}, // Remove Content-Type to let browser set it for FormData
+      headers, // Let browser set Content-Type for FormData
     });
   }
 
