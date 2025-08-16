@@ -78,8 +78,10 @@ export default function EditProperty() {
     try {
       setLoading(true);
       const response = await api.getProperty(propertyId);
-      if (response?.data) {
-        const propertyData = response.data as Property;
+      console.log('API Response:', response); // Debug log
+      if (response?.data?.property) {
+        const propertyData = response.data.property as Property;
+        console.log('Property Data:', propertyData); // Debug log
         setProperty(propertyData);
         
         // Populate form data
@@ -99,6 +101,7 @@ export default function EditProperty() {
           isFeatured: propertyData.isFeatured || false
         });
       } else {
+        console.log('Property not found in response:', response); // Debug log
         alert('Property not found');
         router.push('/admin/properties');
       }
