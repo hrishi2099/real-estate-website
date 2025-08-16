@@ -18,12 +18,112 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+  
+  /* Fix text colors in dark mode */
+  .text-gray-500 {
+    color: #9ca3af !important; /* Lighter gray for dark mode */
+  }
+  
+  .text-gray-400 {
+    color: #d1d5db !important; /* Much lighter gray for dark mode */
+  }
+  
+  .text-gray-300 {
+    color: #e5e7eb !important; /* Even lighter for dark mode */
+  }
+  
+  .text-gray-600 {
+    color: #9ca3af !important; /* Lighter than normal for dark mode */
+  }
+  
+  .text-gray-700 {
+    color: #d1d5db !important; /* Much lighter for dark mode */
+  }
+  
+  .text-gray-800 {
+    color: #f3f4f6 !important; /* Very light for dark mode */
+  }
+  
+  .text-gray-900 {
+    color: #ffffff !important; /* White for dark mode */
+  }
+  
+  /* Fix background colors in dark mode */
+  .bg-white {
+    background-color: #1f2937 !important; /* Dark gray background */
+  }
+  
+  .bg-gray-50 {
+    background-color: #111827 !important; /* Darker background */
+  }
+  
+  .bg-gray-100 {
+    background-color: #374151 !important; /* Medium dark background */
+  }
+  
+  /* Fix borders in dark mode */
+  .border-gray-200 {
+    border-color: #4b5563 !important;
+  }
+  
+  .border-gray-300 {
+    border-color: #6b7280 !important;
+  }
+  
+  /* Fix shadow in dark mode */
+  .shadow, .shadow-lg, .shadow-sm {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Force light mode option */
+.force-light-mode {
+  --background: #ffffff !important;
+  --foreground: #171717 !important;
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.force-light-mode .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.force-light-mode .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.force-light-mode .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.force-light-mode .text-gray-700 {
+  color: #374151 !important;
+}
+
+.force-light-mode .text-gray-800 {
+  color: #1f2937 !important;
+}
+
+.force-light-mode .text-gray-900 {
+  color: #111827 !important;
+}
+
+.force-light-mode .bg-white {
+  background-color: #ffffff !important;
+}
+
+.force-light-mode .bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.force-light-mode .bg-gray-100 {
+  background-color: #f3f4f6 !important;
 }
 
 /* Mobile-first improvements */
@@ -73,17 +173,19 @@ body {
     outline-offset: 2px;
   }
 
-  /* Fix faded text on mobile - improve contrast */
-  .text-gray-500 {
-    color: #4b5563 !important; /* Darker than default gray-500 */
-  }
-  
-  .text-gray-400 {
-    color: #6b7280 !important; /* Darker than default gray-400 */
-  }
-  
-  .text-gray-300 {
-    color: #9ca3af !important; /* Darker than default gray-300 */
+  /* Fix faded text on mobile - improve contrast (light mode only) */
+  @media (prefers-color-scheme: light) {
+    .text-gray-500 {
+      color: #4b5563 !important; /* Darker than default gray-500 */
+    }
+    
+    .text-gray-400 {
+      color: #6b7280 !important; /* Darker than default gray-400 */
+    }
+    
+    .text-gray-300 {
+      color: #9ca3af !important; /* Darker than default gray-300 */
+    }
   }
 
   /* Ensure minimum contrast for all text */
