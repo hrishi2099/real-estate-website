@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authLimiter, apiLimiter, strictLimiter, uploadLimiter, createRateLimitMiddleware } from './lib/rate-limiter';
-import { validateCSRF } from './lib/csrf';
 
 // Security headers
 const securityHeaders = {
@@ -51,27 +50,7 @@ export function middleware(request: NextRequest) {
     return rateLimitResult;
   }
   
-  // CSRF protection for state-changing API requests
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/csrf')) {
-    // Skip CSRF validation in development for debugging purposes
-    const skipCSRF = process.env.NODE_ENV === 'development' && 
-                     process.env.SKIP_CSRF_IN_DEV === 'true';
-    
-    if (!skipCSRF && !validateCSRF(request)) {
-      return new NextResponse(
-        JSON.stringify({
-          error: 'CSRF validation failed',
-          message: 'Invalid or missing CSRF token'
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    }
-  }
+  // CSRF protection removed for compatibility
   
   // Create response with security headers
   const response = NextResponse.next();
@@ -111,7 +90,7 @@ export function middleware(request: NextRequest) {
     );
     response.headers.set(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, X-CSRF-Token'
+      'Content-Type, Authorization, X-Requested-With'
     );
     
     // Handle preflight requests
