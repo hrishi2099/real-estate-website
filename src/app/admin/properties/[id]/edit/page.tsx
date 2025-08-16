@@ -192,20 +192,34 @@ export default function EditProperty() {
 
     setSaving(true);
     try {
-      const propertyData = {
+      // Only include fields that have values or need to be updated
+      const propertyData: any = {
         title: formData.title.trim(),
-        description: formData.description.trim() || undefined,
         price: Number(formData.price),
         location: formData.location.trim(),
-        latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
-        longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
         type: formData.type,
         bedrooms: Number(formData.bedrooms),
         bathrooms: Number(formData.bathrooms),
-        area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
         features: formData.features,
         isFeatured: formData.isFeatured
       };
+
+      // Only include optional fields if they have values
+      if (formData.description && formData.description.trim()) {
+        propertyData.description = formData.description.trim();
+      }
+      
+      if (formData.latitude && formData.latitude.trim()) {
+        propertyData.latitude = Number(formData.latitude);
+      }
+      
+      if (formData.longitude && formData.longitude.trim()) {
+        propertyData.longitude = Number(formData.longitude);
+      }
+      
+      if (formData.area && formData.area.trim()) {
+        propertyData.area = Number(formData.area);
+      }
 
       const response = await api.updateProperty(propertyId, propertyData);
       if (response?.data) {
