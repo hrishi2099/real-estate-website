@@ -72,4 +72,34 @@ body {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
   }
+
+  /* Fix faded text on mobile - improve contrast */
+  .text-gray-500 {
+    color: #4b5563 !important; /* Darker than default gray-500 */
+  }
+  
+  .text-gray-400 {
+    color: #6b7280 !important; /* Darker than default gray-400 */
+  }
+  
+  .text-gray-300 {
+    color: #9ca3af !important; /* Darker than default gray-300 */
+  }
+
+  /* Ensure minimum contrast for all text */
+  p, span, div, a, label, li {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Improve link visibility on mobile */
+  a:not(.btn):not(.button) {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  /* Enhance readability for small text */
+  .text-sm, .text-xs {
+    font-weight: 500;
+  }
 }

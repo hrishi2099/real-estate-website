@@ -82,22 +82,22 @@ export default function Header() {
           </div>
           
           <nav className="hidden md:flex space-x-10" data-section="main-navigation">
-            <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               Home
             </Link>
-            <Link href="/properties" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/properties" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               Properties
             </Link>
-            <Link href="/search" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/search" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               Search
             </Link>
-            <Link href="/gallery" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/gallery" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               Gallery
             </Link>
-            <Link href="/about" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/about" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               About
             </Link>
-            <Link href="/contact" className="text-base font-medium text-gray-500 hover:text-gray-900">
+            <Link href="/contact" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
               Contact
             </Link>
           </nav>
@@ -172,7 +172,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               type="button"
-              className="bg-white rounded-md p-3 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 touch-manipulation"
+              className="bg-white rounded-md p-3 inline-flex items-center justify-center text-gray-600 hover:text-gray-700 hover:bg-gray-100 touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
@@ -247,7 +247,7 @@ export default function Header() {
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">{user?.name}</div>
-                      <div className="text-sm font-medium text-gray-500">{user?.email}</div>
+                      <div className="text-sm font-medium text-gray-600">{user?.email}</div>
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">

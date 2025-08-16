@@ -89,7 +89,7 @@ export default function FeaturedProperties() {
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Premium Land Plots
           </p>
-          <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+          <p className="mt-4 max-w-2xl text-xl text-gray-600 sm:text-gray-500 lg:mx-auto">
             Explore our handpicked selection of premium properties and investment opportunities.
           </p>
         </div>
@@ -120,10 +120,10 @@ export default function FeaturedProperties() {
                       {formatPrice(property.price)}
                     </p>
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-600 sm:text-gray-500">
                     📍 {property.location}
                   </p>
-                  <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                  <div className="mt-4 flex items-center justify-between text-sm text-gray-600 sm:text-gray-500">
                     <span>📐 {property.area?.toLocaleString() || 'N/A'} sqft</span>
                   </div>
                   <div className="mt-6">
@@ -142,7 +142,7 @@ export default function FeaturedProperties() {
 
         {properties.length === 0 && !loading && (
           <div className="mt-10 text-center">
-            <p className="text-gray-500">No featured properties available at the moment.</p>
+            <p className="text-gray-600 sm:text-gray-500">No featured properties available at the moment.</p>
           </div>
         )}
 
