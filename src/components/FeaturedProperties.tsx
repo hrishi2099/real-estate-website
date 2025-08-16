@@ -25,16 +25,32 @@ export default function FeaturedProperties() {
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
       try {
-        const response = await fetch('/api/properties?featured=true&limit=3');
-        if (response.ok) {
-          const data: PropertyResponse = await response.json();
-          console.log('Featured properties API response:', data); // Debug log
-          setProperties(data.properties);
+        // First try to get featured properties
+        const featuredResponse = await fetch('/api/properties?featured=true&limit=3');
+        if (featuredResponse.ok) {
+          const featuredData: PropertyResponse = await featuredResponse.json();
+          console.log('Featured properties API response:', featuredData); // Debug log
+          
+          if (featuredData.properties && featuredData.properties.length > 0) {
+            setProperties(featuredData.properties);
+            return;
+          }
         } else {
-          console.error('Featured properties API error:', response.status, response.statusText);
+          console.error('Featured properties API error:', featuredResponse.status, featuredResponse.statusText);
+        }
+        
+        // If no featured properties, fall back to regular properties
+        console.log('No featured properties found, falling back to regular properties');
+        const regularResponse = await fetch('/api/properties?limit=3');
+        if (regularResponse.ok) {
+          const regularData: PropertyResponse = await regularResponse.json();
+          console.log('Regular properties API response:', regularData); // Debug log
+          setProperties(regularData.properties || []);
+        } else {
+          console.error('Regular properties API error:', regularResponse.status, regularResponse.statusText);
         }
       } catch (error) {
-        console.error('Error fetching featured properties:', error);
+        console.error('Error fetching properties:', error);
       } finally {
         setLoading(false);
       }
@@ -88,7 +104,9 @@ export default function FeaturedProperties() {
     <div className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center">
-          <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Featured</h2>
+          <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">
+            {properties.length > 0 ? 'Featured' : 'Properties'}
+          </h2>
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Premium Land Plots
           </p>
@@ -146,6 +164,13 @@ export default function FeaturedProperties() {
         {properties.length === 0 && !loading && (
           <div className="mt-10 text-center">
             <p className="text-gray-600 sm:text-gray-500">No featured properties available at the moment.</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Check browser console for debug information, or visit{' '}
+              <a href="/api/debug/properties" className="text-blue-600 hover:underline" target="_blank">
+                /api/debug/properties
+              </a>{' '}
+              to see property data.
+            </p>
           </div>
         )}
 
