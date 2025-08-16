@@ -53,7 +53,11 @@ export function middleware(request: NextRequest) {
   
   // CSRF protection for state-changing API requests
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/csrf')) {
-    if (!validateCSRF(request)) {
+    // Skip CSRF validation in development for debugging purposes
+    const skipCSRF = process.env.NODE_ENV === 'development' && 
+                     process.env.SKIP_CSRF_IN_DEV === 'true';
+    
+    if (!skipCSRF && !validateCSRF(request)) {
       return new NextResponse(
         JSON.stringify({
           error: 'CSRF validation failed',
@@ -88,13 +92,16 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/')) {
     // Only allow specific origins in production
     const allowedOrigins = process.env.NODE_ENV === 'production' 
-      ? [process.env.NEXT_PUBLIC_SITE_URL]
+      ? [process.env.NEXT_PUBLIC_SITE_URL, process.env.NEXTAUTH_URL].filter(Boolean)
       : ['http://localhost:3000', 'http://localhost:3001'];
     
     const origin = request.headers.get('origin');
     
     if (origin && allowedOrigins.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin);
+    } else if (process.env.NODE_ENV === 'production' && allowedOrigins.length > 0) {
+      // In production, if no origin matches, use the first allowed origin
+      response.headers.set('Access-Control-Allow-Origin', allowedOrigins[0]);
     }
     
     response.headers.set('Access-Control-Allow-Credentials', 'true');
