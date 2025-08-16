@@ -82,10 +82,23 @@ export async function GET(request: NextRequest) {
         prisma.property.count({ where })
       ])
 
-      const propertiesWithDetails = properties.map(property => ({
-        ...property,
-        features: property.features ? property.features.split(',').map(f => f.trim()) : [],
-      }))
+      const propertiesWithDetails = properties.map(property => {
+        // Parse features safely - handle both JSON and comma-separated formats
+        let parsedFeatures = [];
+        if (property.features) {
+          try {
+            parsedFeatures = JSON.parse(property.features);
+          } catch (parseError) {
+            // If it's not valid JSON, treat it as comma-separated string
+            parsedFeatures = property.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+          }
+        }
+        
+        return {
+          ...property,
+          features: parsedFeatures,
+        };
+      })
 
       return NextResponse.json({
         properties: propertiesWithDetails,
@@ -141,7 +154,7 @@ export async function POST(request: NextRequest) {
     const property = await prisma.property.create({
       data: {
         ...data,
-        features: data.features ? data.features.join(', ') : null,
+        features: data.features ? JSON.stringify(data.features) : null,
         status: data.status || 'ACTIVE',
         ownerId: userPayload.userId,
       },
@@ -153,11 +166,21 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Parse features safely for response
+    let parsedFeatures = [];
+    if (property.features) {
+      try {
+        parsedFeatures = JSON.parse(property.features);
+      } catch (parseError) {
+        parsedFeatures = property.features.split(', ').map(f => f.trim()).filter(f => f.length > 0);
+      }
+    }
+
     return NextResponse.json({
       message: 'Property created successfully',
       property: {
         ...property,
-        features: property.features ? property.features.split(', ') : [],
+        features: parsedFeatures,
       }
     })
   } catch (error) {

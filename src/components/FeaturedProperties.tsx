@@ -28,7 +28,10 @@ export default function FeaturedProperties() {
         const response = await fetch('/api/properties?featured=true&limit=3');
         if (response.ok) {
           const data: PropertyResponse = await response.json();
+          console.log('Featured properties API response:', data); // Debug log
           setProperties(data.properties);
+        } else {
+          console.error('Featured properties API error:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('Error fetching featured properties:', error);
