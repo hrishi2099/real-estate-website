@@ -13,6 +13,7 @@ const createPropertySchema = z.object({
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'VILLA', 'CONDO', 'TOWNHOUSE', 'COMMERCIAL', 'LAND']),
+  status: z.enum(['ACTIVE', 'SOLD', 'PENDING', 'INACTIVE']).optional(),
   isFeatured: z.boolean().optional(),
   bedrooms: z.number().int().min(0).optional(),
   bathrooms: z.number().min(0).optional(),
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...data,
         features: data.features ? data.features.join(', ') : null,
+        status: data.status || 'ACTIVE',
         ownerId: userPayload.userId,
       },
       include: {

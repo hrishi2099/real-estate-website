@@ -60,9 +60,19 @@ export default function NewProperty() {
     const newErrors: Record<string, string> = {};
     
     if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.price || Number(formData.price) <= 0) newErrors.price = 'Price must be greater than 0';
+    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+      newErrors.price = 'Price must be a valid number greater than 0';
+    }
     if (!formData.location.trim()) newErrors.location = 'Location is required';
-    if (!formData.area || Number(formData.area) <= 0) newErrors.area = 'Area must be greater than 0';
+    if (formData.area && (isNaN(Number(formData.area)) || Number(formData.area) <= 0)) {
+      newErrors.area = 'Area must be a valid number greater than 0';
+    }
+    if (formData.latitude && (isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
+      newErrors.latitude = 'Latitude must be between -90 and 90';
+    }
+    if (formData.longitude && (isNaN(Number(formData.longitude)) || Number(formData.longitude) < -180 || Number(formData.longitude) > 180)) {
+      newErrors.longitude = 'Longitude must be between -180 and 180';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,13 +105,27 @@ export default function NewProperty() {
 
       const response = await api.createProperty(propertyData);
       if (response?.data) {
+        alert('Property created successfully!');
         router.push('/admin/properties');
       } else {
-        alert('Failed to create property');
+        const errorMessage = response?.error || 'Failed to create property. Please check all fields and try again.';
+        alert(errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating property:', error);
-      alert('Failed to create property');
+      
+      // Check if it's a validation error
+      if (error?.response?.data?.details) {
+        const validationErrors = error.response.data.details;
+        const errorMessages = validationErrors.map((err: any) => `${err.path?.join('.')}: ${err.message}`);
+        alert(`Validation Error:\n${errorMessages.join('\n')}`);
+      } else if (error?.response?.data?.error) {
+        alert(`Error: ${error.response.data.error}`);
+      } else if (error?.message) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert('Failed to create property. Please check your internet connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -152,9 +176,12 @@ export default function NewProperty() {
                 value={formData.price}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.price ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="₹45,00,000"
               />
+              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
             </div>
 
             <div>
@@ -167,9 +194,12 @@ export default function NewProperty() {
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.location ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Downtown, City Center"
               />
+              {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
             </div>
 
             <div>
@@ -228,9 +258,12 @@ export default function NewProperty() {
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.area ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="1,200"
               />
+              {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
             </div>
 
             <div>
