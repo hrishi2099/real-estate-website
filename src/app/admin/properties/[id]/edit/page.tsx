@@ -79,27 +79,35 @@ export default function EditProperty() {
       setLoading(true);
       const response = await api.getProperty(propertyId);
       console.log('API Response:', response); // Debug log
-      if (response?.data?.property) {
-        const propertyData = response.data.property as Property;
+      if (response?.data) {
+        // Handle both possible response structures
+        const propertyData = (response.data as any).property || response.data as Property;
         console.log('Property Data:', propertyData); // Debug log
-        setProperty(propertyData);
         
-        // Populate form data
-        setFormData({
-          title: propertyData.title || '',
-          description: propertyData.description || '',
-          price: propertyData.price?.toString() || '',
-          location: propertyData.location || '',
-          latitude: propertyData.latitude?.toString() || '',
-          longitude: propertyData.longitude?.toString() || '',
-          type: propertyData.type || 'APARTMENT',
-          status: propertyData.status || 'ACTIVE',
-          bedrooms: propertyData.bedrooms || 1,
-          bathrooms: propertyData.bathrooms || 1,
-          area: propertyData.area?.toString() || '',
-          features: propertyData.features || [],
-          isFeatured: propertyData.isFeatured || false
-        });
+        if (propertyData && propertyData.id) {
+          setProperty(propertyData);
+        
+          // Populate form data
+          setFormData({
+            title: propertyData.title || '',
+            description: propertyData.description || '',
+            price: propertyData.price?.toString() || '',
+            location: propertyData.location || '',
+            latitude: propertyData.latitude?.toString() || '',
+            longitude: propertyData.longitude?.toString() || '',
+            type: propertyData.type || 'APARTMENT',
+            status: propertyData.status || 'ACTIVE',
+            bedrooms: propertyData.bedrooms || 1,
+            bathrooms: propertyData.bathrooms || 1,
+            area: propertyData.area?.toString() || '',
+            features: propertyData.features || [],
+            isFeatured: propertyData.isFeatured || false
+          });
+        } else {
+          console.log('Property data not found or invalid:', propertyData);
+          alert('Property not found');
+          router.push('/admin/properties');
+        }
       } else {
         console.log('Property not found in response:', response); // Debug log
         alert('Property not found');
