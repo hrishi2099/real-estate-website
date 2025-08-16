@@ -92,7 +92,7 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/')) {
     // Only allow specific origins in production
     const allowedOrigins = process.env.NODE_ENV === 'production' 
-      ? [process.env.NEXT_PUBLIC_SITE_URL, process.env.NEXTAUTH_URL].filter(Boolean)
+      ? [process.env.NEXT_PUBLIC_SITE_URL, process.env.NEXTAUTH_URL].filter(Boolean) as string[]
       : ['http://localhost:3000', 'http://localhost:3001'];
     
     const origin = request.headers.get('origin');
