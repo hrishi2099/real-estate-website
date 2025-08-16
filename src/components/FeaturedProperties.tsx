@@ -16,38 +16,67 @@ interface Property {
 
 interface PropertyResponse {
   properties: Property[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  mockData?: boolean;
 }
 
 export default function FeaturedProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFeatured, setIsFeatured] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
       try {
         // First try to get featured properties
+        console.log('Fetching featured properties...');
         const featuredResponse = await fetch('/api/properties?featured=true&limit=3');
+        console.log('Featured properties response status:', featuredResponse.status);
+        
         if (featuredResponse.ok) {
           const featuredData: PropertyResponse = await featuredResponse.json();
-          console.log('Featured properties API response:', featuredData); // Debug log
+          console.log('Featured properties API response:', featuredData);
           
           if (featuredData.properties && featuredData.properties.length > 0) {
+            console.log(`Found ${featuredData.properties.length} featured properties`);
             setProperties(featuredData.properties);
+            setIsFeatured(true);
             return;
+          } else {
+            console.log('No featured properties found in response');
           }
         } else {
-          console.error('Featured properties API error:', featuredResponse.status, featuredResponse.statusText);
+          const errorText = await featuredResponse.text();
+          console.error('Featured properties API error:', featuredResponse.status, featuredResponse.statusText, errorText);
         }
         
         // If no featured properties, fall back to regular properties
         console.log('No featured properties found, falling back to regular properties');
         const regularResponse = await fetch('/api/properties?limit=3');
+        console.log('Regular properties response status:', regularResponse.status);
+        
         if (regularResponse.ok) {
           const regularData: PropertyResponse = await regularResponse.json();
-          console.log('Regular properties API response:', regularData); // Debug log
-          setProperties(regularData.properties || []);
+          console.log('Regular properties API response:', regularData);
+          
+          if (regularData.properties && regularData.properties.length > 0) {
+            console.log(`Found ${regularData.properties.length} regular properties as fallback`);
+            setProperties(regularData.properties);
+            setIsFeatured(false);
+          } else {
+            console.log('No properties found at all');
+            setProperties([]);
+            setIsFeatured(false);
+          }
         } else {
-          console.error('Regular properties API error:', regularResponse.status, regularResponse.statusText);
+          const errorText = await regularResponse.text();
+          console.error('Regular properties API error:', regularResponse.status, regularResponse.statusText, errorText);
+          setProperties([]);
         }
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -105,7 +134,7 @@ export default function FeaturedProperties() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center">
           <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">
-            {properties.length > 0 ? 'Featured' : 'Properties'}
+            {isFeatured ? 'Featured' : 'Latest Properties'}
           </h2>
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Premium Land Plots

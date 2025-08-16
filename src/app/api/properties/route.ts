@@ -112,11 +112,40 @@ export async function GET(request: NextRequest) {
     } catch (dbError) {
       console.log('Database unavailable, using mock data for properties list');
       
-      // Fallback to mock data
+      // Fallback to mock data with filtering
       const mockData = getMockProperties();
+      let filteredProperties = mockData.properties;
+      
+      // Apply featured filter to mock data
+      if (featured === 'true') {
+        filteredProperties = mockData.properties.filter(p => p.isFeatured === true);
+      }
+      
+      // Apply other filters to mock data
+      if (type) {
+        filteredProperties = filteredProperties.filter(p => p.type === type);
+      }
+      if (status) {
+        filteredProperties = filteredProperties.filter(p => p.status === status);
+      }
+      if (location) {
+        filteredProperties = filteredProperties.filter(p => 
+          p.location.toLowerCase().includes(location.toLowerCase())
+        );
+      }
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const paginatedProperties = filteredProperties.slice(startIndex, startIndex + limit);
       
       return NextResponse.json({
-        ...mockData,
+        properties: paginatedProperties,
+        pagination: {
+          page,
+          limit,
+          total: filteredProperties.length,
+          totalPages: Math.ceil(filteredProperties.length / limit),
+        },
         mockData: true
       })
     }
