@@ -4,6 +4,9 @@ import { leadDistributionEngine, DistributionRule } from "@/lib/lead-distributio
 
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
+    console.log('Distribute leads request body:', body); // Debug log
+    
     const {
       rule,
       leadIds,
@@ -11,7 +14,11 @@ export async function POST(request: NextRequest) {
       priority = 'MEDIUM',
       notes,
       expectedCloseDate,
-    } = await request.json();
+    } = body;
+    
+    // Extract salesManagerIds from rule if they're nested there
+    const actualSalesManagerIds = salesManagerIds || rule?.salesManagerIds;
+    const actualLeadIds = leadIds || rule?.leadIds;
 
     if (!rule || !rule.type) {
       return NextResponse.json(
@@ -23,6 +30,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!actualSalesManagerIds || actualSalesManagerIds.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "At least one sales manager must be selected",
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log('Using salesManagerIds:', actualSalesManagerIds);
+    console.log('Using leadIds:', actualLeadIds);
+
     // Use the advanced distribution engine
     const distributionResult = await leadDistributionEngine.distributeLeads(
       {
@@ -33,8 +53,8 @@ export async function POST(request: NextRequest) {
         prioritizeHighScorers: rule.prioritizeHighScorers,
         respectWorkingHours: rule.respectWorkingHours,
       },
-      leadIds,
-      salesManagerIds
+      actualLeadIds,
+      actualSalesManagerIds
     );
 
     if (distributionResult.assignments.length === 0) {

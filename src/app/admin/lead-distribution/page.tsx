@@ -134,24 +134,30 @@ export default function LeadDistribution() {
       setError(null);
       setSuccess(null);
 
+      const requestBody = {
+        rule: {
+          type: distributionRule,
+          salesManagerIds: selectedSalesManagers,
+          leadIds: distributionRule === 'manual' ? selectedLeads : undefined,
+        },
+        priority,
+        notes: notes || undefined,
+        expectedCloseDate: expectedCloseDate || undefined,
+      };
+      
+      console.log('Lead distribution request:', requestBody);
+
       const response = await fetch('/api/admin/leads/distribute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          rule: {
-            type: distributionRule,
-            salesManagerIds: selectedSalesManagers,
-            leadIds: distributionRule === 'manual' ? selectedLeads : undefined,
-          },
-          priority,
-          notes: notes || undefined,
-          expectedCloseDate: expectedCloseDate || undefined,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('Lead distribution response status:', response.status);
       const data = await response.json();
+      console.log('Lead distribution response:', data);
 
       if (data.success) {
         setSuccess(data.message);
