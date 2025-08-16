@@ -59,19 +59,47 @@ export default function NewProperty() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
+    // Required fields
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    }
+    
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
       newErrors.price = 'Price must be a valid number greater than 0';
     }
-    if (!formData.location.trim()) newErrors.location = 'Location is required';
-    if (formData.area && (isNaN(Number(formData.area)) || Number(formData.area) <= 0)) {
-      newErrors.area = 'Area must be a valid number greater than 0';
+    
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required';
     }
-    if (formData.latitude && (isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
-      newErrors.latitude = 'Latitude must be between -90 and 90';
+    
+    // Optional but validated fields
+    if (formData.area && formData.area.trim()) {
+      if (isNaN(Number(formData.area)) || Number(formData.area) <= 0) {
+        newErrors.area = 'Area must be a valid number greater than 0';
+      }
     }
-    if (formData.longitude && (isNaN(Number(formData.longitude)) || Number(formData.longitude) < -180 || Number(formData.longitude) > 180)) {
-      newErrors.longitude = 'Longitude must be between -180 and 180';
+    
+    if (formData.latitude && formData.latitude.trim()) {
+      const lat = Number(formData.latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        newErrors.latitude = 'Latitude must be between -90 and 90';
+      }
+    }
+    
+    if (formData.longitude && formData.longitude.trim()) {
+      const lng = Number(formData.longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        newErrors.longitude = 'Longitude must be between -180 and 180';
+      }
+    }
+    
+    // Bedrooms and bathrooms validation
+    if (isNaN(Number(formData.bedrooms)) || Number(formData.bedrooms) < 0) {
+      newErrors.bedrooms = 'Bedrooms must be a valid number 0 or greater';
+    }
+    
+    if (isNaN(Number(formData.bathrooms)) || Number(formData.bathrooms) < 0) {
+      newErrors.bathrooms = 'Bathrooms must be a valid number 0 or greater';
     }
     
     setErrors(newErrors);
@@ -88,16 +116,16 @@ export default function NewProperty() {
     setLoading(true);
     try {
       const propertyData = {
-        title: formData.title,
-        description: formData.description || undefined,
+        title: formData.title.trim(),
+        description: formData.description.trim() || undefined,
         price: Number(formData.price),
-        location: formData.location,
-        latitude: formData.latitude ? Number(formData.latitude) : undefined,
-        longitude: formData.longitude ? Number(formData.longitude) : undefined,
+        location: formData.location.trim(),
+        latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
         type: formData.type as 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND',
-        bedrooms: formData.bedrooms,
-        bathrooms: formData.bathrooms,
-        area: Number(formData.area),
+        bedrooms: Number(formData.bedrooms),
+        bathrooms: Number(formData.bathrooms),
+        area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
         features: formData.features,
         status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
         isFeatured: false
@@ -230,8 +258,11 @@ export default function NewProperty() {
                 value={formData.bedrooms}
                 onChange={handleInputChange}
                 min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.bedrooms ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {errors.bedrooms && <p className="text-red-500 text-sm mt-1">{errors.bedrooms}</p>}
             </div>
 
             <div>
@@ -245,8 +276,11 @@ export default function NewProperty() {
                 onChange={handleInputChange}
                 min="0"
                 step="0.5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.bathrooms ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {errors.bathrooms && <p className="text-red-500 text-sm mt-1">{errors.bathrooms}</p>}
             </div>
 
             <div>
@@ -278,9 +312,12 @@ export default function NewProperty() {
                 step="any"
                 min="-90"
                 max="90"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.latitude ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="19.076"
               />
+              {errors.latitude && <p className="text-red-500 text-sm mt-1">{errors.latitude}</p>}
               <p className="text-xs text-gray-500 mt-1">GPS latitude coordinate (-90 to 90)</p>
             </div>
 
@@ -296,9 +333,12 @@ export default function NewProperty() {
                 step="any"
                 min="-180"
                 max="180"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.longitude ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="72.878"
               />
+              {errors.longitude && <p className="text-red-500 text-sm mt-1">{errors.longitude}</p>}
               <p className="text-xs text-gray-500 mt-1">GPS longitude coordinate (-180 to 180)</p>
             </div>
           </div>
