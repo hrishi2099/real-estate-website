@@ -89,22 +89,33 @@ class RateLimiter {
     };
   }
 
+  // Method to clear rate limit for a specific key (for debugging)
+  public clearLimit(req: NextRequest): void {
+    const key = this.options.keyGenerator!(req);
+    delete this.store[key];
+  }
+
+  // Method to clear all rate limits (for debugging)
+  public clearAllLimits(): void {
+    this.store = {};
+  }
+
 }
 
 // Predefined rate limiters for different endpoints
 export const authLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 5, // 5 login attempts per 15 minutes
+  maxRequests: 20, // 20 login attempts per 15 minutes (increased from 5)
 });
 
 export const apiLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 100, // 100 requests per 15 minutes
+  maxRequests: 200, // 200 requests per 15 minutes (increased from 100)
 });
 
 export const strictLimiter = new RateLimiter({
   windowMs: 60 * 1000, // 1 minute
-  maxRequests: 10, // 10 requests per minute for sensitive operations
+  maxRequests: 30, // 30 requests per minute for sensitive operations (increased from 10)
 });
 
 export const uploadLimiter = new RateLimiter({
