@@ -31,9 +31,7 @@ interface PropertyDetailsProps {
 }
 
 export default function PropertyDetails({ property }: PropertyDetailsProps) {
-  const [showBidModal, setShowBidModal] = useState(false);
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
-  const [bidAmount, setBidAmount] = useState("");
   const [enquiryForm, setEnquiryForm] = useState({
     name: "",
     email: "",
@@ -84,18 +82,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     return `₹${price.toLocaleString()}`;
   };
 
-  const handleBidSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implementation for bid submission
-    console.log('Bid submitted:', { propertyId: property.id, amount: bidAmount });
-    
-    // Track bid submission
-    trackPropertyInquiry(property.id, property.title, 'bid');
-    
-    setShowBidModal(false);
-    setBidAmount("");
-    alert('Bid submitted successfully!');
-  };
 
   const handleEnquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,12 +218,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
               <div className="space-y-3 mb-6">
                 <button
-                  onClick={() => setShowBidModal(true)}
-                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                >
-                  Place Bid
-                </button>
-                <button
                   onClick={() => setShowEnquiryModal(true)}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                 >
@@ -313,47 +293,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         </div>
       )}
 
-      {/* Bid Modal */}
-      {showBidModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Place Your Bid</h3>
-            <form onSubmit={handleBidSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bid Amount (₹)
-                </label>
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your bid amount"
-                />
-                <p className="text-xs text-gray-600 mt-1">
-                  Current asking price: {formatPrice(property.price)}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowBidModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  Submit Bid
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Enquiry Modal */}
       {showEnquiryModal && (
