@@ -53,7 +53,7 @@ const createTransporter = () => {
     return null;
   }
   
-  return nodemailer.createTransporter(emailConfig);
+  return nodemailer.createTransport(emailConfig);
 };
 
 export interface EmailOptions {
