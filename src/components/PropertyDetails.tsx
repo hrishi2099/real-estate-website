@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
 import StructuredData from "./StructuredData";
 import { trackPropertyView, trackPropertyInquiry } from "./Analytics";
+import { getCachedLocalityScores } from "../lib/locality-scoring";
 
 interface PropertyDetailsProps {
   property: {
@@ -72,9 +73,20 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
   // Calculate derived values
   const pricePerSqft = property.area ? Math.round(property.price / property.area) : null;
-  const walkScore = Math.floor(Math.random() * 40) + 60;
-  const localityScore = Math.floor(Math.random() * 30) + 70;
-  const amenitiesScore = Math.floor(Math.random() * 25) + 75;
+  
+  // Calculate locality scores using custom algorithm
+  const localityScores = getCachedLocalityScores({
+    id: property.id,
+    location: property.location,
+    latitude: property.latitude,
+    longitude: property.longitude,
+    price: property.price,
+    area: property.area,
+    type: property.type,
+    yearBuilt: property.yearBuilt
+  });
+  
+  const { localityScore, walkScore, amenitiesScore } = localityScores;
 
   const formatPrice = (price: number) => {
     if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)} Cr`;
