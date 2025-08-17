@@ -258,7 +258,9 @@ export function getCachedLocalityScores(property: PropertyData): LocalityScores 
   // Clear cache if it gets too large (prevent memory leaks)
   if (scoreCache.size > 1000) {
     const firstKey = scoreCache.keys().next().value;
-    scoreCache.delete(firstKey);
+    if (firstKey !== undefined) {
+      scoreCache.delete(firstKey);
+    }
   }
   
   return scores;
