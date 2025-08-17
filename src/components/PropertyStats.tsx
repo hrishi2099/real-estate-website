@@ -196,33 +196,33 @@ export default function PropertyStats() {
   }, []);
 
   return (
-    <div id="property-stats" className="py-16 bg-blue-600">
+    <div id="property-stats" className="py-8 sm:py-12 lg:py-16 bg-blue-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
             Leading Real Estate Solutions
           </h2>
-          <p className="mt-4 text-xl text-blue-100">
+          <p className="mt-2 sm:mt-4 text-base sm:text-lg lg:text-xl text-blue-100">
             Trusted by property buyers and investors across the region
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {loading ? (
             // Loading skeleton
             [1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="text-center p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 animate-pulse">
-                <div className="text-4xl mb-4">⏳</div>
-                <div className="h-12 bg-white/20 rounded mb-2"></div>
-                <div className="h-6 bg-white/20 rounded mb-2"></div>
-                <div className="h-4 bg-white/20 rounded"></div>
+              <div key={i} className="text-center p-3 sm:p-4 lg:p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 animate-pulse">
+                <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-4">⏳</div>
+                <div className="h-8 sm:h-10 lg:h-12 bg-white/20 rounded mb-2"></div>
+                <div className="h-4 sm:h-5 lg:h-6 bg-white/20 rounded mb-2"></div>
+                <div className="h-3 sm:h-4 bg-white/20 rounded"></div>
               </div>
             ))
           ) : (
             stats.map((stat, index) => (
               <div
                 key={stat.id}
-                className={`text-center p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-500 hover:scale-105 hover:bg-white/20 ${
+                className={`text-center p-3 sm:p-4 lg:p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-500 hover:scale-105 hover:bg-white/20 ${
                   isVisible 
                     ? 'translate-y-0 opacity-100' 
                     : 'translate-y-8 opacity-0'
@@ -231,8 +231,8 @@ export default function PropertyStats() {
                   transitionDelay: `${index * 100}ms`
                 }}
               >
-                <div className="text-4xl mb-4">{stat.icon}</div>
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-4">{stat.icon}</div>
+                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 sm:mb-2">
                   {isVisible && isHydrated ? (
                     <CountUp 
                       end={stat.number} 
@@ -244,10 +244,10 @@ export default function PropertyStats() {
                     <span>{stat.prefix || ""}0{stat.suffix}</span>
                   )}
                 </div>
-                <div className="text-lg font-semibold text-blue-100 mb-2">
+                <div className="text-xs sm:text-sm lg:text-lg font-semibold text-blue-100 mb-1 sm:mb-2">
                   {stat.label}
                 </div>
-                <div className="text-sm text-blue-200">
+                <div className="text-xs sm:text-sm text-blue-200 hidden sm:block">
                   {stat.description}
                 </div>
               </div>
@@ -255,25 +255,25 @@ export default function PropertyStats() {
           )}
         </div>
 
-        <div className="mt-12 text-center">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-            <h3 className="text-2xl font-bold text-white mb-4">
+        <div className="mt-8 sm:mt-12 text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/20">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">
               Ready to Join Our Success Stories?
             </h3>
-            <p className="text-blue-100 mb-6">
+            <p className="text-sm sm:text-base text-blue-100 mb-4 sm:mb-6 leading-relaxed">
               Let our proven track record work for you. Whether buying, selling, or investing in property, 
               we&apos;ll help you achieve your real estate goals.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Link
                 href="/properties"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2.5 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors touch-manipulation"
               >
                 Browse Properties
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center px-6 py-3 border-2 border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-blue-600 transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-white text-sm sm:text-base font-medium rounded-md text-white hover:bg-white hover:text-blue-600 transition-colors touch-manipulation"
               >
                 Contact Our Team
               </Link>
