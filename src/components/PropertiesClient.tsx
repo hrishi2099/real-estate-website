@@ -207,11 +207,11 @@ export default function PropertiesClient() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="bg-white overflow-hidden shadow-lg rounded-lg animate-pulse">
-                <div className="h-64 bg-gray-300"></div>
-                <div className="p-6">
+                <div className="h-48 sm:h-56 lg:h-64 bg-gray-300"></div>
+                <div className="p-4 sm:p-6">
                   <div className="h-4 bg-gray-300 rounded mb-2"></div>
                   <div className="h-6 bg-gray-300 rounded mb-4"></div>
                   <div className="h-8 bg-gray-300 rounded"></div>
@@ -221,45 +221,52 @@ export default function PropertiesClient() {
           </div>
         ) : (
           <main>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {properties.map((property, index) => (
-                <article key={property.id} className="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                  <div className="relative h-48 sm:h-64">
+                <article key={property.id} className="bg-white overflow-hidden shadow-md hover:shadow-xl transition-shadow rounded-lg">
+                  <div className="relative h-48 sm:h-56 lg:h-64">
                     <Image
                       src={getPropertyImage(property)}
                       alt={`${property.title} - ${property.type} in ${property.location}`}
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-wrap gap-1 sm:gap-1.5">
+                      <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {property.type}
                       </span>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         {property.status}
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 sm:p-6">
-                    <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2">
-                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-0">
+                  <div className="p-3 sm:p-4 lg:p-6">
+                    <header className="mb-2 sm:mb-3">
+                      <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-1 line-clamp-2">
                         {property.title}
                       </h2>
-                      <p className="text-xl sm:text-2xl font-bold text-blue-600 flex-shrink-0">
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                         {formatPrice(property.price)}
                       </p>
                     </header>
-                    <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
-                      📍 {property.location}
+                    <p className="text-gray-600 mb-2 sm:mb-3 text-xs sm:text-sm lg:text-base flex items-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="truncate">{property.location}</span>
                     </p>
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4 sm:mb-6">
+                    <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
                       <span className="flex items-center">
-                        📐 {Number(property.area)?.toLocaleString() || 'N/A'} sqft
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                        {Number(property.area)?.toLocaleString() || 'N/A'} sqft
                       </span>
                     </div>
                     <Link
                       href={`/properties/${property.id}`}
-                      className="w-full flex justify-center items-center px-4 py-3 sm:py-2 border border-transparent text-base sm:text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors touch-manipulation"
+                      className="w-full flex justify-center items-center px-3 py-2 sm:px-4 sm:py-2.5 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors touch-manipulation"
                       onClick={() => trackPropertyListInteraction('click', property.id, index)}
                       aria-label={`View details for ${property.title}`}
                     >

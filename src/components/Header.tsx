@@ -58,12 +58,12 @@ export default function Header() {
   return (
     <header className="bg-white shadow-lg relative z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-6">
+        <div className="flex justify-between items-center py-4 sm:py-6">
           <div className="flex justify-start lg:w-0 lg:flex-1">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               {/* Logo Image - Dynamic from office settings */}
               {officeSettings?.logoUrl && (
-                <div className="relative h-8 w-32">
+                <div className="relative h-6 w-24 sm:h-8 sm:w-32">
                   <Image
                     src={officeSettings.logoUrl}
                     alt={`${officeSettings?.companyName || "Company"} Logo`}
@@ -75,7 +75,7 @@ export default function Header() {
                 </div>
               )}
               {/* Company Name - Dynamic from office settings */}
-              <span className="text-lg sm:text-xl font-bold text-blue-600">
+              <span className="text-base sm:text-lg lg:text-xl font-bold text-blue-600 truncate">
                 {officeSettings?.companyName || "Real Estate"}
               </span>
             </Link>
@@ -109,13 +109,13 @@ export default function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
                 >
-                  <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                    <span className="text-white text-xs sm:text-sm font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="text-sm font-medium">{user?.name}</span>
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-xs sm:text-sm font-medium hidden lg:block">{user?.name}</span>
+                  <svg className="h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -153,18 +153,18 @@ export default function Header() {
                 )}
               </div>
             ) : showAuthUI ? (
-              <div className="flex items-center space-x-4">
-                <Link href="/login" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <Link href="/login" className="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium">
                   Sign in
                 </Link>
-                <Link href="/signup" className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">
+                <Link href="/signup" className="whitespace-nowrap inline-flex items-center justify-center px-2 sm:px-4 py-1.5 sm:py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-base font-medium text-white bg-blue-600 hover:bg-blue-700">
                   Sign up
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
-                <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="w-12 h-6 sm:w-16 sm:h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-16 h-6 sm:w-20 sm:h-8 bg-gray-200 rounded animate-pulse"></div>
               </div>
             )}
           </div>
@@ -172,18 +172,18 @@ export default function Header() {
           <div className="md:hidden">
             <button
               type="button"
-              className="bg-white rounded-md p-3 inline-flex items-center justify-center text-gray-600 hover:text-gray-700 hover:bg-gray-100 touch-manipulation"
+              className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-600 hover:text-gray-700 hover:bg-gray-100 touch-manipulation min-w-[44px] min-h-[44px]"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
             >
               <span className="sr-only">{isMenuOpen ? 'Close' : 'Open'} menu</span>
               {isMenuOpen ? (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}

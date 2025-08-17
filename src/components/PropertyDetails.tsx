@@ -135,107 +135,107 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
   return (
     <>
       <StructuredData property={property} />
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Property Overview */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Main Details */}
           <div className="lg:col-span-2">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                <span className="bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   Property
                 </span>
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   {property.status}
                 </span>
-                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-purple-100 text-purple-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   {property.type}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{property.title}</h1>
-              <p className="text-gray-600 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 leading-tight">{property.title}</h1>
+              <p className="text-gray-600 flex items-start sm:items-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 mt-0.5 sm:mt-0 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {property.location}
+                <span className="text-sm sm:text-base">{property.location}</span>
               </p>
             </div>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">{formatPrice(property.price)}</div>
-                <div className="text-sm text-gray-600">Total Price</div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 break-words">{formatPrice(property.price)}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Total Price</div>
               </div>
               {pricePerSqft && (
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">₹{pricePerSqft.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Per Sq Ft</div>
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">₹{pricePerSqft.toLocaleString()}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Per Sq Ft</div>
                 </div>
               )}
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600">{property.area?.toLocaleString() || 'N/A'}</div>
-                <div className="text-sm text-gray-600">Sq Ft</div>
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600">{property.area?.toLocaleString() || 'N/A'}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Sq Ft</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-orange-600">{walkScore}</div>
-                <div className="text-sm text-gray-600">Walk Score</div>
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">{walkScore}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Walk Score</div>
               </div>
             </div>
 
             {/* Locality Scores */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Locality Assessment</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Locality Assessment</h3>
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-xl font-bold text-blue-600">{localityScore}</span>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-base sm:text-xl font-bold text-blue-600">{localityScore}</span>
                   </div>
-                  <div className="text-sm font-medium text-gray-900">Locality Score</div>
-                  <div className="text-xs text-gray-600">Overall rating</div>
+                  <div className="text-xs sm:text-sm font-medium text-gray-900">Locality Score</div>
+                  <div className="text-xs text-gray-600 hidden sm:block">Overall rating</div>
                 </div>
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-xl font-bold text-green-600">{walkScore}</span>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
+                    <span className="text-base sm:text-xl font-bold text-green-600">{walkScore}</span>
                   </div>
-                  <div className="text-sm font-medium text-gray-900">Walkability</div>
-                  <div className="text-xs text-gray-600">Transit & amenities</div>
+                  <div className="text-xs sm:text-sm font-medium text-gray-900">Walkability</div>
+                  <div className="text-xs text-gray-600 hidden sm:block">Transit & amenities</div>
                 </div>
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-2 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-xl font-bold text-purple-600">{amenitiesScore}</span>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 bg-purple-100 rounded-full flex items-center justify-center">
+                    <span className="text-base sm:text-xl font-bold text-purple-600">{amenitiesScore}</span>
                   </div>
-                  <div className="text-sm font-medium text-gray-900">Amenities</div>
-                  <div className="text-xs text-gray-600">Nearby facilities</div>
+                  <div className="text-xs sm:text-sm font-medium text-gray-900">Amenities</div>
+                  <div className="text-xs text-gray-600 hidden sm:block">Nearby facilities</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Action Panel */}
-          <div className="lg:col-span-1">
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6 sticky top-6">
-              <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
+          <div className="lg:col-span-1 order-first lg:order-last">
+            <div className="bg-white border border-gray-200 lg:border-2 rounded-lg p-4 sm:p-6 lg:sticky lg:top-6">
+              <div className="text-center mb-4 lg:mb-6">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1 lg:mb-2">
                   {formatPrice(property.price)}
                 </div>
                 {pricePerSqft && (
-                  <div className="text-gray-600">
+                  <div className="text-sm sm:text-base text-gray-600">
                     ₹{pricePerSqft.toLocaleString()} per sq ft
                   </div>
                 )}
               </div>
 
-              <div className="space-y-3 mb-6">
+              <div className="flex lg:flex-col space-x-3 lg:space-x-0 lg:space-y-3 mb-4 lg:mb-6">
                 <button
                   onClick={() => setShowEnquiryModal(true)}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  className="flex-1 lg:w-full bg-blue-600 text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base font-semibold hover:bg-blue-700 transition-colors touch-manipulation"
                 >
                   Send Enquiry
                 </button>
-                <button className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                <button className="flex-1 lg:w-full bg-gray-200 text-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-300 transition-colors touch-manipulation">
                   Add to Wishlist
                 </button>
               </div>
@@ -247,15 +247,15 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
       {/* Property Features */}
       {property.features && property.features.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Property Features</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Property Features</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {property.features.map((feature, index) => (
-              <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div key={index} className="flex items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 mr-2 sm:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-gray-700">{feature}</span>
+                <span className="text-sm sm:text-base text-gray-700">{feature}</span>
               </div>
             ))}
           </div>
@@ -264,23 +264,23 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
       {/* Interactive Map */}
       {property.latitude && property.longitude && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Location & Property Boundaries</h3>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Location & Property Boundaries</h3>
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <PropertyMap
               latitude={property.latitude}
               longitude={property.longitude}
               propertyTitle={property.title}
-              className="h-96 w-full"
+              className="h-64 sm:h-80 lg:h-96 w-full"
             />
           </div>
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-semibold text-blue-900 mb-2">Map Features</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg">
+            <h4 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">Map Features</h4>
+            <ul className="text-xs sm:text-sm text-blue-800 space-y-1">
               <li>• Switch between Street, Satellite, and Terrain views</li>
               <li>• Toggle property boundaries on/off</li>
               <li>• Interactive map with zoom and pan controls</li>
-              <li>• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
+              <li className="hidden sm:block">• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
             </ul>
           </div>
         </div>
@@ -289,8 +289,8 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
       {/* Enquiry Modal */}
       {showEnquiryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Send Enquiry</h3>
             <form onSubmit={handleEnquirySubmit}>
               <div className="space-y-4 mb-4">
@@ -301,7 +301,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                     value={enquiryForm.name}
                     onChange={(e) => setEnquiryForm(prev => ({ ...prev, name: e.target.value }))}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
                 <div>
@@ -311,7 +311,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                     value={enquiryForm.email}
                     onChange={(e) => setEnquiryForm(prev => ({ ...prev, email: e.target.value }))}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
                 <div>
@@ -320,7 +320,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                     type="tel"
                     value={enquiryForm.phone}
                     onChange={(e) => setEnquiryForm(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
                 <div>
@@ -329,22 +329,22 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                     value={enquiryForm.message}
                     onChange={(e) => setEnquiryForm(prev => ({ ...prev, message: e.target.value }))}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"
                     placeholder="I am interested in this property..."
                   />
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => setShowEnquiryModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 touch-manipulation text-base font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 touch-manipulation text-base font-medium"
                 >
                   Send Enquiry
                 </button>
