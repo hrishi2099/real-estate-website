@@ -134,38 +134,42 @@ export default function PropertiesManagement() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Property Management</h1>
-        <div className="flex gap-3">
-          <ExportButton
-            data={filteredProperties.map(property => ({
-              id: property.id,
-              title: property.title,
-              price: Number(property.price),
-              location: property.location,
-              type: property.type,
-              status: property.status,
-              bedrooms: property.bedrooms,
-              bathrooms: property.bathrooms,
-              area: property.area ? Number(property.area) : undefined,
-              createdAt: property.createdAt
-            }))}
-            type="properties"
-            filters={{
-              status: filter === 'all' ? undefined : filter,
-              search: searchQuery
-            }}
-          />
-          <button
-            onClick={() => setShowExportModal(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            📊 Advanced Export
-          </button>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Property Management</h1>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex gap-2">
+            <ExportButton
+              data={filteredProperties.map(property => ({
+                id: property.id,
+                title: property.title,
+                price: Number(property.price),
+                location: property.location,
+                type: property.type,
+                status: property.status,
+                bedrooms: property.bedrooms,
+                bathrooms: property.bathrooms,
+                area: property.area ? Number(property.area) : undefined,
+                createdAt: property.createdAt
+              }))}
+              type="properties"
+              filters={{
+                status: filter === 'all' ? undefined : filter,
+                search: searchQuery
+              }}
+              className="flex-1 sm:flex-none"
+            />
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="flex-1 sm:flex-none bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm touch-manipulation"
+            >
+              <span className="hidden sm:inline">📊 Advanced Export</span>
+              <span className="sm:hidden">📊 Export</span>
+            </button>
+          </div>
           <a
             href="/admin/properties/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm touch-manipulation text-center"
           >
             + Add New Property
           </a>
@@ -178,31 +182,33 @@ export default function PropertiesManagement() {
           <span className="ml-2 text-gray-600">Loading properties...</span>
         </div>
       ) : (
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
         {/* Search Bar */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <SearchBar 
             placeholder="Search properties by title, location, or type..."
             onSearch={handleSearch}
             defaultValue={searchQuery}
-            className="max-w-md"
+            className="w-full sm:max-w-md"
           />
         </div>
 
-        <div className="flex flex-wrap gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium touch-manipulation ${
               filter === 'all' 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All Properties ({filteredProperties.length})
+            <span className="hidden sm:inline">All Properties</span>
+            <span className="sm:hidden">All</span>
+            <span className="block sm:inline"> ({filteredProperties.length})</span>
           </button>
           <button
             onClick={() => setFilter('ACTIVE')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium touch-manipulation ${
               filter === 'ACTIVE' 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -212,7 +218,7 @@ export default function PropertiesManagement() {
           </button>
           <button
             onClick={() => setFilter('SOLD')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium touch-manipulation ${
               filter === 'SOLD' 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -222,7 +228,7 @@ export default function PropertiesManagement() {
           </button>
           <button
             onClick={() => setFilter('PENDING')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium touch-manipulation ${
               filter === 'PENDING' 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -232,7 +238,8 @@ export default function PropertiesManagement() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -296,6 +303,54 @@ export default function PropertiesManagement() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {paginatedProperties.map((property) => (
+            <div key={property.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <div className="flex items-start space-x-3">
+                <div className="h-16 w-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{property.title}</h3>
+                      <p className="text-sm text-gray-500 truncate">{property.location}</p>
+                      <p className="text-lg font-semibold text-gray-900 mt-1">₹{Number(property.price).toLocaleString()}</p>
+                    </div>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(property.status)} ml-2`}>
+                      {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                    <div>
+                      <span>{property.type}</span>
+                      <span className="mx-1">•</span>
+                      <span>{property.bedrooms}B/{property.bathrooms}B</span>
+                      <span className="mx-1">•</span>
+                      <span>{Number(property.area)} sqft</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 flex space-x-3">
+                    <a
+                      href={`/admin/properties/${property.id}/edit`}
+                      className="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm touch-manipulation"
+                    >
+                      Edit
+                    </a>
+                    <button 
+                      onClick={() => openDeleteDialog(property)}
+                      className="flex-1 bg-red-600 text-white py-2 px-3 rounded-lg hover:bg-red-700 transition-colors text-sm touch-manipulation"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {filteredProperties.length === 0 && (

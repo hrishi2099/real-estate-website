@@ -83,13 +83,13 @@ export default function Analytics() {
 
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-        <div className="flex items-center space-x-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={loadAnalytics}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm touch-manipulation"
             disabled={loading}
           >
             {loading ? "Loading..." : "Refresh"}
@@ -97,7 +97,7 @@ export default function Analytics() {
           <select
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value as '7d' | '30d' | '90d' | '1y')}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
             disabled={loading}
           >
             <option value="7d">Last 7 Days</option>
@@ -115,115 +115,115 @@ export default function Analytics() {
         </div>
       ) : analyticsData ? (
         <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">👁️</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Views</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.totalViews.toLocaleString()}</p>
-              <p className="text-sm text-green-600">+12% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">👁️</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Views</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.totalViews.toLocaleString()}</p>
+              <p className="text-xs sm:text-sm text-green-600">+12% from last period</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">👥</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Unique Visitors</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.uniqueVisitors.toLocaleString()}</p>
-              <p className="text-sm text-green-600">+8% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">👥</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Unique Visitors</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.uniqueVisitors.toLocaleString()}</p>
+              <p className="text-xs sm:text-sm text-green-600">+8% from last period</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">📧</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Inquiries</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.inquiries}</p>
-              <p className="text-sm text-green-600">+15% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">📧</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Inquiries</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.inquiries}</p>
+              <p className="text-xs sm:text-sm text-green-600">+15% from last period</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">✅</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Conversions</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.conversions}</p>
-              <p className="text-sm text-green-600">+22% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">✅</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Conversions</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.conversions}</p>
+              <p className="text-xs sm:text-sm text-green-600">+22% from last period</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">💰</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.revenue}</p>
-              <p className="text-sm text-green-600">+18% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">💰</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Revenue</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.revenue}</p>
+              <p className="text-xs sm:text-sm text-green-600">+18% from last period</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <div className="text-3xl mr-3">⏱️</div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Avg. Time on Site</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.avgTimeOnSite}</p>
-              <p className="text-sm text-green-600">+5% from last period</p>
+            <div className="text-2xl sm:text-3xl mr-2 sm:mr-3">⏱️</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Avg. Time on Site</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{analyticsData.avgTimeOnSite}</p>
+              <p className="text-xs sm:text-sm text-green-600">+5% from last period</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Top Performing Properties</h3>
-          <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Top Performing Properties</h3>
+          <div className="space-y-3 sm:space-y-4">
             {topProperties.map((property, index) => (
               <div key={property.id} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium flex-shrink-0">
                     {index + 1}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{property.title}</p>
-                    <p className="text-sm text-gray-500">{property.price}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{property.title}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 truncate">{property.price}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{property.views} views</p>
-                  <p className="text-sm text-gray-500">{property.inquiries} inquiries</p>
+                <div className="text-right ml-2 flex-shrink-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900">{property.views} views</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{property.inquiries} inquiries</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Performance</h3>
-          <div className="space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Monthly Performance</h3>
+          <div className="space-y-3 sm:space-y-4">
             {monthlyData.map((month) => (
               <div key={month.month} className="flex items-center justify-between">
-                <div className="text-sm font-medium text-gray-900 w-12">{month.month}</div>
-                <div className="flex-1 mx-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="text-xs sm:text-sm font-medium text-gray-900 w-8 sm:w-12 flex-shrink-0">{month.month}</div>
+                <div className="flex-1 mx-2 sm:mx-4">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                      className="bg-blue-600 h-1.5 sm:h-2 rounded-full" 
                       style={{ width: `${(month.sales / 20) * 100}%` }}
                     ></div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{month.sales} sales</p>
-                  <p className="text-sm text-gray-500">{month.inquiries} inquiries</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900">{month.sales} sales</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{month.inquiries} inquiries</p>
                 </div>
               </div>
             ))}
@@ -231,39 +231,42 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Traffic Sources</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">45%</div>
-            <div className="text-sm text-gray-600">Direct Traffic</div>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Traffic Sources</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="text-center p-2 sm:p-0">
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">45%</div>
+            <div className="text-xs sm:text-sm text-gray-600">Direct Traffic</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">28%</div>
-            <div className="text-sm text-gray-600">Search Engines</div>
+          <div className="text-center p-2 sm:p-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">28%</div>
+            <div className="text-xs sm:text-sm text-gray-600">Search Engines</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">18%</div>
-            <div className="text-sm text-gray-600">Social Media</div>
+          <div className="text-center p-2 sm:p-0">
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">18%</div>
+            <div className="text-xs sm:text-sm text-gray-600">Social Media</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">9%</div>
-            <div className="text-sm text-gray-600">Referrals</div>
+          <div className="text-center p-2 sm:p-0">
+            <div className="text-lg sm:text-2xl font-bold text-orange-600">9%</div>
+            <div className="text-xs sm:text-sm text-gray-600">Referrals</div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Export Reports</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            📊 Export Analytics Data
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Export Reports</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <button className="px-3 sm:px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm touch-manipulation">
+            <span className="hidden sm:inline">📊 Export Analytics Data</span>
+            <span className="sm:hidden">📊 Analytics</span>
           </button>
-          <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-            📈 Sales Report
+          <button className="px-3 sm:px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm touch-manipulation">
+            <span className="hidden sm:inline">📈 Sales Report</span>
+            <span className="sm:hidden">📈 Sales</span>
           </button>
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-            👥 User Activity Report
+          <button className="px-3 sm:px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm touch-manipulation">
+            <span className="hidden sm:inline">👥 User Activity Report</span>
+            <span className="sm:hidden">👥 Users</span>
           </button>
         </div>
       </div>

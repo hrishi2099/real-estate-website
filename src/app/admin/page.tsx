@@ -97,9 +97,9 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-sm text-gray-600">Welcome back, {user?.name}</p>
       </div>
 
@@ -110,63 +110,65 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {statsDisplay.map((stat) => (
-          <div key={stat.name} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="text-2xl mr-3">{stat.icon}</div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+          <div key={stat.name} className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center">
+              <div className="text-xl sm:text-2xl mb-1 sm:mb-0 sm:mr-3">{stat.icon}</div>
+              <div className="flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">{stat.name}</p>
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Recent Activity</h3>
+          <div className="space-y-3 sm:space-y-4">
+            {recentActivity.length > 0 ? recentActivity.map((activity) => (
               <div key={activity.id} className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
                   <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                  <p className="text-sm text-gray-600">{activity.details}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{activity.action}</p>
+                  <p className="text-sm text-gray-600 truncate">{activity.details}</p>
                   <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-sm text-gray-500 italic">No recent activity</p>
+            )}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-          <div className="space-y-3">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Quick Actions</h3>
+          <div className="space-y-2 sm:space-y-3">
             <a
               href="/admin/properties/new"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+              className="block w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors touch-manipulation"
             >
               + Add New Property
             </a>
             <a
               href="/admin/properties"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="block w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
             >
               🏠 Manage Properties
             </a>
             <a
               href="/admin/users"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="block w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
             >
               📊 View User Analytics
             </a>
             <a
               href="/admin/analytics"
-              className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="block w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
             >
               📈 Sales Reports
             </a>
@@ -174,19 +176,19 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">System Status</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">System Status</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
             <span className="text-sm text-gray-600">Database: Online</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
             <span className="text-sm text-gray-600">API: Operational</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full flex-shrink-0"></div>
             <span className="text-sm text-gray-600">Storage: 78% Used</span>
           </div>
         </div>

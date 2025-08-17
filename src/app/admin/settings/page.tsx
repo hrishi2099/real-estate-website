@@ -250,13 +250,13 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Office Settings</h1>
-        <p className="text-gray-600">Manage your office information and branding</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Office Settings</h1>
+        <p className="text-sm sm:text-base text-gray-600">Manage your office information and branding</p>
         
-        {/* Debug info */}
-        <div className="mt-4 p-4 bg-gray-100 rounded text-sm">
+        {/* Debug info - Hidden on mobile for cleaner view */}
+        <div className="mt-4 p-3 sm:p-4 bg-gray-100 rounded text-xs sm:text-sm hidden md:block">
           <strong>Debug Info:</strong>
           <br />Settings ID: {settings?.id || 'No settings'}
           <br />Form Address: &quot;{formData.address}&quot;
@@ -264,7 +264,7 @@ export default function AdminSettingsPage() {
           <br />
           <button 
             onClick={() => fetchSettings()} 
-            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs touch-manipulation"
           >
             Refresh Data
           </button>
@@ -272,8 +272,8 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="bg-white shadow rounded-lg">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2">
                 Company Name
@@ -284,11 +284,11 @@ export default function AdminSettingsPage() {
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 placeholder="Enter company name"
                 key={`companyName-${settings?.id || 'new'}`}
               />
-              <small className="text-gray-500">Current: {formData.companyName || 'Not set'}</small>
+              <small className="text-xs sm:text-sm text-gray-500">Current: {formData.companyName || 'Not set'}</small>
             </div>
 
             <div>
@@ -301,7 +301,7 @@ export default function AdminSettingsPage() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
               />
             </div>
 
@@ -315,7 +315,7 @@ export default function AdminSettingsPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
               />
             </div>
 
@@ -329,7 +329,7 @@ export default function AdminSettingsPage() {
                 name="website"
                 value={formData.website}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
               />
             </div>
           </div>
@@ -344,36 +344,36 @@ export default function AdminSettingsPage() {
               rows={3}
               value={formData.address}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
               placeholder="Enter office address"
               key={`address-${settings?.id || 'new'}`}
             />
-            <small className="text-gray-500">Current: {formData.address || 'Not set'}</small>
+            <small className="text-xs sm:text-sm text-gray-500">Current: {formData.address || 'Not set'}</small>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Company Logo
             </label>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {formData.logoUrl && (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 sm:space-x-4">
                   <img
                     src={formData.logoUrl}
                     alt="Current logo"
-                    className="h-16 w-auto object-contain border border-gray-200 rounded"
+                    className="h-12 sm:h-16 w-auto object-contain border border-gray-200 rounded"
                     key={`logo-${formData.logoUrl}`}
                   />
-                  <span className="text-sm text-gray-600">Current logo</span>
+                  <span className="text-xs sm:text-sm text-gray-600">Current logo</span>
                 </div>
               )}
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-gray-500 file:mr-3 sm:file:mr-4 file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
-              <p className="text-sm text-gray-500">
+              <p className="text-xs sm:text-sm text-gray-500">
                 Upload a new logo (PNG, JPG, or SVG recommended)
               </p>
             </div>
@@ -381,11 +381,11 @@ export default function AdminSettingsPage() {
 
           {/* Analytics & Tracking Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Analytics & Tracking</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Analytics & Tracking</h3>
             
             {/* Google Tag Manager */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <div className="flex items-center mb-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+              <div className="flex items-center mb-3 sm:mb-4">
                 <input
                   type="checkbox"
                   id="gtmEnabled"
@@ -410,7 +410,7 @@ export default function AdminSettingsPage() {
                   value={formData.gtmContainerId}
                   onChange={handleInputChange}
                   placeholder="GTM-XXXXXXX"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Find your Container ID in Google Tag Manager (format: GTM-XXXXXXX)
@@ -419,8 +419,8 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Google Analytics 4 */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <div className="flex items-center mb-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+              <div className="flex items-center mb-3 sm:mb-4">
                 <input
                   type="checkbox"
                   id="ga4Enabled"
@@ -445,7 +445,7 @@ export default function AdminSettingsPage() {
                   value={formData.ga4MeasurementId}
                   onChange={handleInputChange}
                   placeholder="G-XXXXXXXXXX"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Find your Measurement ID in Google Analytics (format: G-XXXXXXXXXX)
@@ -454,8 +454,8 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Facebook Pixel */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <div className="flex items-center mb-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+              <div className="flex items-center mb-3 sm:mb-4">
                 <input
                   type="checkbox"
                   id="facebookPixelEnabled"
@@ -480,7 +480,7 @@ export default function AdminSettingsPage() {
                   value={formData.facebookPixelId}
                   onChange={handleInputChange}
                   placeholder="123456789012345"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Find your Pixel ID in Facebook Business Manager
@@ -488,17 +488,17 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <div className="ml-3">
-                  <h4 className="text-sm font-medium text-blue-800">Analytics Integration Tips</h4>
-                  <div className="mt-2 text-sm text-blue-700">
-                    <ul className="list-disc list-inside space-y-1">
+                <div className="ml-2 sm:ml-3">
+                  <h4 className="text-xs sm:text-sm font-medium text-blue-800">Analytics Integration Tips</h4>
+                  <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-700">
+                    <ul className="list-disc list-inside space-y-0.5 sm:space-y-1">
                       <li>Use Google Tag Manager for centralized tracking management</li>
                       <li>GA4 Direct is useful if you only need Google Analytics without other tags</li>
                       <li>Facebook Pixel helps track conversions for Facebook/Instagram ads</li>
@@ -511,8 +511,8 @@ export default function AdminSettingsPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Office Hours</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Office Hours</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {[
                 { day: 'Monday', key: 'mondayHours' },
                 { day: 'Tuesday', key: 'tuesdayHours' },
@@ -532,7 +532,7 @@ export default function AdminSettingsPage() {
                     name={key}
                     value={String(formData[key as keyof typeof formData])}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     placeholder="e.g., 9:00 AM - 6:00 PM or Closed"
                   />
                 </div>
@@ -541,8 +541,8 @@ export default function AdminSettingsPage() {
           </div>
 
           {message && (
-            <div className={`p-4 rounded-md ${message.includes("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
-              {message}
+            <div className={`p-3 sm:p-4 rounded-md ${message.includes("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+              <p className="text-sm sm:text-base">{message}</p>
             </div>
           )}
 
@@ -550,7 +550,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium touch-manipulation"
             >
               {saving ? "Saving..." : "Save Settings"}
             </button>
