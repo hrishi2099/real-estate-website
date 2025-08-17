@@ -228,25 +228,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                 </button>
               </div>
 
-              {/* Owner Details */}
-              {property.owner && (
-                <div className="border-t pt-4">
-                  <div className="flex items-center mb-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-blue-600 font-semibold text-sm">
-                        {property.owner.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">{property.owner.name}</div>
-                      <div className="text-sm text-gray-600">Property Owner</div>
-                    </div>
-                  </div>
-                  <button className="w-full text-blue-600 border border-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors text-sm">
-                    Contact Owner
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
