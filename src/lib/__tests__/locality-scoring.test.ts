@@ -38,8 +38,8 @@ describe('Locality Scoring Algorithm', () => {
     
     const normalProperty = {
       ...mockProperty,
-      location: 'Thane, Mumbai', // Less premium
-      price: 15000000 // 1.5 Cr
+      location: 'Patna', // Less premium city
+      price: 8000000 // 80L
     };
     
     const premiumScores = calculateLocalityScores(premiumProperty);
@@ -77,9 +77,24 @@ describe('Locality Scoring Algorithm', () => {
   });
 
   test('should give different scores for different property types', () => {
-    const apartment = { ...mockProperty, type: 'apartment' };
-    const villa = { ...mockProperty, type: 'villa' };
-    const commercial = { ...mockProperty, type: 'commercial' };
+    const apartment = { 
+      ...mockProperty, 
+      type: 'apartment',
+      location: 'Patna', // Use lower base city to avoid hitting max scores
+      price: 8000000
+    };
+    const villa = { 
+      ...mockProperty, 
+      type: 'villa',
+      location: 'Patna',
+      price: 8000000
+    };
+    const commercial = { 
+      ...mockProperty, 
+      type: 'commercial',
+      location: 'Patna',
+      price: 8000000
+    };
     
     const apartmentScores = calculateLocalityScores(apartment);
     const villaScores = calculateLocalityScores(villa);

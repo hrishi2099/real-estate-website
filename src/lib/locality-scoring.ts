@@ -20,8 +20,15 @@ interface LocalityScores {
   amenitiesScore: number;
 }
 
+// City scoring data type
+interface CityData {
+  base: number;
+  walkability: number;
+  amenities: number;
+}
+
 // Location-based scoring weights for major Indian cities
-const CITY_SCORING_DATA = {
+const CITY_SCORING_DATA: Record<string, CityData> = {
   // Metro cities get higher base scores
   'mumbai': { base: 85, walkability: 80, amenities: 90 },
   'delhi': { base: 82, walkability: 75, amenities: 88 },
