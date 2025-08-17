@@ -11,6 +11,7 @@ export default function AdminLayout({
 }) {
   const { isAdmin, isAuthenticated, isLoading, isHydrated } = useAuth();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (isHydrated && !isLoading) {
@@ -36,8 +37,6 @@ export default function AdminLayout({
   if (!isAuthenticated || !isAdmin) {
     return null;
   }
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
     {
