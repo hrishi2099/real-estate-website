@@ -12,11 +12,19 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true },
+      select: { id: true, role: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Sales managers should use the /sales dashboard, not the user dashboard.
+    if (user.role === 'SALES_MANAGER') {
+      return NextResponse.json(
+        { error: 'Access denied for this role. Please use the Sales Dashboard.' },
+        { status: 403 }
+      );
     }
 
     const stats = await AnalyticsService.getDashboardStats(user.id);
