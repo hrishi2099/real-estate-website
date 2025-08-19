@@ -1,93 +1,78 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getUserFromRequest } from '@/lib/auth'
-import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
-import { ContactInquiryStatus } from '@prisma/client'
+import { NextResponse, NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth-middleware';
+import { ContactInquiryStatus, Priority, Prisma } from '@prisma/client';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const rateLimitResponse = rateLimit(rateLimitConfigs.admin)(request);
-  if (rateLimitResponse) {
-    return rateLimitResponse;
-  }
-
+/**
+ * GET a single contact inquiry by ID
+ */
+export const GET = requireAdmin(async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
   try {
-    const userPayload = getUserFromRequest(request)
+    const inquiry = await prisma.contactInquiry.findUnique({
+      where: { id: params.id },
+      include: {
+        salesManager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
 
-    if (!userPayload) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
+    if (!inquiry) {
+      return NextResponse.json({ error: 'Contact inquiry not found' }, { status: 404 });
     }
 
-    if (userPayload.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
-    }
+    return NextResponse.json(inquiry);
+  } catch (error) {
+    console.error('Error fetching contact inquiry:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+});
 
-    const { status, salesManagerId, priority, responseDeadline, notes } = await request.json()
+/**
+ * PATCH (update) a single contact inquiry by ID
+ */
+export const PATCH = requireAdmin(async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const { id } = params;
+    const body = await req.json();
+    const { status, salesManagerId, priority, responseDeadline, notes } = body;
 
-    // Validate status if provided
+    // --- Validation ---
     if (status && !Object.values(ContactInquiryStatus).includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status. Must be one of: NEW, REVIEWED, RESPONDED, CLOSED' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid status. Must be one of: NEW, REVIEWED, RESPONDED, CLOSED' }, { status: 400 });
+    }
+    if (salesManagerId && !(await prisma.user.findFirst({ where: { id: salesManagerId, role: 'SALES_MANAGER' } }))) {
+      return NextResponse.json({ error: 'Invalid sales manager ID' }, { status: 400 });
+    }
+    if (priority && !Object.values(Priority).includes(priority)) {
+      return NextResponse.json({ error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' }, { status: 400 });
     }
 
-    // Validate sales manager if provided
-    if (salesManagerId) {
-      const salesManager = await prisma.user.findFirst({
-        where: { 
-          id: salesManagerId,
-          OR: [
-            { role: 'ADMIN' },
-            { role: 'USER' } // Assuming sales managers might have USER role with specific territory
-          ]
-        }
-      })
-
-      if (!salesManager) {
-        return NextResponse.json(
-          { error: 'Invalid sales manager' },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Validate priority if provided
-    if (priority && !['LOW', 'MEDIUM', 'HIGH'].includes(priority)) {
-      return NextResponse.json(
-        { error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' },
-        { status: 400 }
-      )
-    }
-
-    // Build update data
-    const updateData: any = {
-      updatedAt: new Date()
-    }
-
-    if (status) updateData.status = status as ContactInquiryStatus
+    // --- Build update data object ---
+    const updateData: Prisma.ContactInquiryUpdateInput = {
+      updatedAt: new Date(),
+    };
+    if (status) updateData.status = status;
     if (salesManagerId !== undefined) {
-      updateData.salesManagerId = salesManagerId
-      if (salesManagerId) {
-        updateData.assignedAt = new Date()
-      } else {
-        updateData.assignedAt = null
-      }
+      updateData.salesManager = salesManagerId ? { connect: { id: salesManagerId } } : { disconnect: true };
+      updateData.assignedAt = salesManagerId ? new Date() : null;
     }
-    if (priority) updateData.priority = priority
-    if (responseDeadline) updateData.responseDeadline = new Date(responseDeadline)
-    if (notes !== undefined) updateData.notes = notes
+    if (priority) updateData.priority = priority;
+    if (responseDeadline) updateData.responseDeadline = new Date(responseDeadline);
+    if (notes !== undefined) updateData.notes = notes;
 
-    const contactInquiry = await prisma.contactInquiry.update({
+    // --- Perform update ---
+    const updatedInquiry = await prisma.contactInquiry.update({
       where: { id },
       data: updateData,
       include: {
@@ -96,79 +81,42 @@ export async function PATCH(
             id: true,
             name: true,
             email: true,
-            territory: true
-          }
-        }
-      }
-    })
+            territory: true,
+          },
+        },
+      },
+    });
 
-    return NextResponse.json({
-      success: true,
-      contactInquiry
-    })
-  } catch (error: unknown) {
-    console.error('Update contact inquiry error:', error)
-    
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
-      return NextResponse.json(
-        { error: 'Contact inquiry not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const rateLimitResponse = rateLimit(rateLimitConfigs.admin)(request);
-  if (rateLimitResponse) {
-    return rateLimitResponse;
-  }
-
-  try {
-    const userPayload = getUserFromRequest(request)
-
-    if (!userPayload) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
-    }
-
-    if (userPayload.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
-    }
-
-    const contactInquiry = await prisma.contactInquiry.findUnique({
-      where: { id }
-    })
-
-    if (!contactInquiry) {
-      return NextResponse.json(
-        { error: 'Contact inquiry not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({
-      contactInquiry
-    })
+    return NextResponse.json(updatedInquiry);
   } catch (error) {
-    console.error('Get contact inquiry error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error updating contact inquiry:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Contact inquiry not found' }, { status: 404 });
+    }
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
+
+/**
+ * DELETE a single contact inquiry by ID
+ */
+export const DELETE = requireAdmin(async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const { id } = params;
+
+    await prisma.contactInquiry.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: 'Contact inquiry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting contact inquiry:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Contact inquiry not found' }, { status: 404 });
+    }
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+});
