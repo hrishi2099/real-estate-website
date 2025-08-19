@@ -38,6 +38,16 @@ export async function GET(request: NextRequest) {
     const [contactInquiries, total] = await Promise.all([
       prisma.contactInquiry.findMany({
         where,
+        include: {
+          salesManager: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              territory: true
+            }
+          }
+        },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,

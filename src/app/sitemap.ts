@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next'
 import { getProperties } from '@/lib/properties';
-import { Count } from '@prisma/client/runtime/library';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

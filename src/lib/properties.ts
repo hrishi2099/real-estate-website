@@ -20,6 +20,10 @@ export async function getProperties(limit: number = 1000) {
     return properties;
   } catch (error) {
     console.error('Error fetching properties:', error);
+    // During a production build, it's better to fail loudly if the database is unreachable.
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    }
     return [];
   }
 }

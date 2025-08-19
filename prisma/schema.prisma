@@ -43,12 +43,13 @@ model User {
   leadActivities LeadActivity[]
 
   // Sales Manager relations
-  manager            User?            @relation("ManagerSubordinate", fields: [managerId], references: [id])
-  subordinates       User[]           @relation("ManagerSubordinate")
-  assignedLeads      LeadAssignment[]
-  leadAssignments    LeadAssignment[] @relation("LeadAssignments")
-  calendarEvents     CalendarEvent[]
-  leadCalendarEvents CalendarEvent[]  @relation("CalendarLead")
+  manager                User?            @relation("ManagerSubordinate", fields: [managerId], references: [id])
+  subordinates           User[]           @relation("ManagerSubordinate")
+  assignedLeads          LeadAssignment[]
+  leadAssignments        LeadAssignment[] @relation("LeadAssignments")
+  calendarEvents         CalendarEvent[]
+  leadCalendarEvents     CalendarEvent[]  @relation("CalendarLead")
+  assignedContactInquiries ContactInquiry[] @relation("ContactInquirySalesManager")
 
   // RCS Messaging relations
   createdMessages    RCSMessage[]
@@ -160,15 +161,23 @@ model PropertyAnalytics {
 }
 
 model ContactInquiry {
-  id        String               @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String
-  message   String               @db.Text
-  status    ContactInquiryStatus @default(NEW)
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  id               String               @id @default(cuid())
+  name             String
+  email            String
+  phone            String?
+  subject          String
+  message          String               @db.Text
+  status           ContactInquiryStatus @default(NEW)
+  salesManagerId   String?              // Assigned sales manager
+  assignedAt       DateTime?            // When it was assigned
+  priority         String?              @default("MEDIUM") // LOW, MEDIUM, HIGH
+  responseDeadline DateTime?            // Expected response deadline
+  notes            String?              @db.Text // Internal notes
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  // Relations
+  salesManager User? @relation("ContactInquirySalesManager", fields: [salesManagerId], references: [id])
 
   @@map("contact_inquiries")
 }

@@ -31,20 +31,74 @@ export async function PATCH(
       )
     }
 
-    const { status } = await request.json()
+    const { status, salesManagerId, priority, responseDeadline, notes } = await request.json()
 
-    if (!status || !Object.values(ContactInquiryStatus).includes(status)) {
+    // Validate status if provided
+    if (status && !Object.values(ContactInquiryStatus).includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status. Must be one of: NEW, REVIEWED, RESPONDED, CLOSED' },
         { status: 400 }
       )
     }
 
+    // Validate sales manager if provided
+    if (salesManagerId) {
+      const salesManager = await prisma.user.findFirst({
+        where: { 
+          id: salesManagerId,
+          OR: [
+            { role: 'ADMIN' },
+            { role: 'USER' } // Assuming sales managers might have USER role with specific territory
+          ]
+        }
+      })
+
+      if (!salesManager) {
+        return NextResponse.json(
+          { error: 'Invalid sales manager' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Validate priority if provided
+    if (priority && !['LOW', 'MEDIUM', 'HIGH'].includes(priority)) {
+      return NextResponse.json(
+        { error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' },
+        { status: 400 }
+      )
+    }
+
+    // Build update data
+    const updateData: any = {
+      updatedAt: new Date()
+    }
+
+    if (status) updateData.status = status as ContactInquiryStatus
+    if (salesManagerId !== undefined) {
+      updateData.salesManagerId = salesManagerId
+      if (salesManagerId) {
+        updateData.assignedAt = new Date()
+      } else {
+        updateData.assignedAt = null
+      }
+    }
+    if (priority) updateData.priority = priority
+    if (responseDeadline) updateData.responseDeadline = new Date(responseDeadline)
+    if (notes !== undefined) updateData.notes = notes
+
     const contactInquiry = await prisma.contactInquiry.update({
       where: { id },
-      data: { 
-        status: status as ContactInquiryStatus,
-        updatedAt: new Date()
+      data: updateData,
+      include: {
+        salesManager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            territory: true
+          }
+        }
       }
     })
 

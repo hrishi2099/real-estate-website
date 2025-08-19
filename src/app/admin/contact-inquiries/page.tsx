@@ -10,8 +10,26 @@ interface ContactInquiry {
   subject: string;
   message: string;
   status: 'NEW' | 'REVIEWED' | 'RESPONDED' | 'CLOSED';
+  salesManagerId?: string;
+  assignedAt?: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  responseDeadline?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
+  salesManager?: {
+    id: string;
+    name: string;
+    email: string;
+    territory?: string;
+  };
+}
+
+interface SalesManager {
+  id: string;
+  name: string;
+  email: string;
+  territory?: string;
 }
 
 export default function ContactInquiriesManagement() {
@@ -20,11 +38,16 @@ export default function ContactInquiriesManagement() {
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
+  const [selectedInquiries, setSelectedInquiries] = useState<string[]>([]);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [distributing, setDistributing] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'NEW' | 'REVIEWED' | 'RESPONDED' | 'CLOSED'>('all');
 
   useEffect(() => {
     loadInquiries();
+    loadSalesManagers();
   }, []);
 
   const loadInquiries = async () => {
@@ -69,6 +92,87 @@ export default function ContactInquiriesManagement() {
       alert('Failed to update inquiry status. Please try again.');
     } finally {
       setUpdatingStatus(null);
+    }
+  };
+
+  const loadSalesManagers = async () => {
+    try {
+      const response = await fetch('/api/admin/sales-managers');
+      if (response.ok) {
+        const data = await response.json();
+        setSalesManagers(data.data || []);
+      }
+    } catch (err) {
+      console.error('Error loading sales managers:', err);
+    }
+  };
+
+  const autoDistribute = async () => {
+    try {
+      setDistributing(true);
+      const response = await fetch('/api/admin/contact-inquiries/assign', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to auto-distribute inquiries');
+      }
+
+      const data = await response.json();
+      alert(`Successfully distributed ${data.distributedCount} inquiries to sales managers.`);
+      await loadInquiries();
+    } catch (err) {
+      console.error('Error auto-distributing inquiries:', err);
+      alert('Failed to auto-distribute inquiries. Please try again.');
+    } finally {
+      setDistributing(false);
+    }
+  };
+
+  const assignToSalesManager = async (inquiryIds: string[], salesManagerId: string) => {
+    try {
+      const response = await fetch('/api/admin/contact-inquiries/assign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inquiryIds,
+          salesManagerId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to assign inquiries');
+      }
+
+      const data = await response.json();
+      alert(`Successfully assigned ${data.updatedCount} inquiries.`);
+      setSelectedInquiries([]);
+      setShowAssignModal(false);
+      await loadInquiries();
+    } catch (err) {
+      console.error('Error assigning inquiries:', err);
+      alert('Failed to assign inquiries. Please try again.');
+    }
+  };
+
+  const handleSelectInquiry = (inquiryId: string) => {
+    setSelectedInquiries(prev => 
+      prev.includes(inquiryId) 
+        ? prev.filter(id => id !== inquiryId)
+        : [...prev, inquiryId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedInquiries.length === filteredInquiries.length) {
+      setSelectedInquiries([]);
+    } else {
+      setSelectedInquiries(filteredInquiries.map(inquiry => inquiry.id));
     }
   };
 
@@ -120,6 +224,15 @@ export default function ContactInquiriesManagement() {
     }
   };
 
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case 'HIGH': return 'bg-red-100 text-red-800';
+      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
+      case 'LOW': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -167,7 +280,7 @@ export default function ContactInquiriesManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Contact Inquiries</h1>
-        <div className="flex space-x-3">
+        <div className="flex flex-wrap gap-3">
           <button 
             onClick={loadInquiries}
             disabled={loading}
@@ -178,6 +291,30 @@ export default function ContactInquiriesManagement() {
             </svg>
             {loading ? 'Refreshing...' : 'Refresh'}
           </button>
+          
+          <button 
+            onClick={autoDistribute}
+            disabled={distributing}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            {distributing ? 'Distributing...' : 'Auto Distribute'}
+          </button>
+
+          {selectedInquiries.length > 0 && (
+            <button 
+              onClick={() => setShowAssignModal(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Assign Selected ({selectedInquiries.length})
+            </button>
+          )}
+          
           <button 
             onClick={exportToExcel}
             disabled={exporting}
@@ -270,9 +407,19 @@ export default function ContactInquiriesManagement() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <input
+                    type="checkbox"
+                    checked={selectedInquiries.length === filteredInquiries.length && filteredInquiries.length > 0}
+                    onChange={handleSelectAll}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sales Manager</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -281,6 +428,14 @@ export default function ContactInquiriesManagement() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredInquiries.map((inquiry) => (
                 <tr key={inquiry.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedInquiries.includes(inquiry.id)}
+                      onChange={() => handleSelectInquiry(inquiry.id)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{inquiry.name}</div>
                     <div className="text-sm text-gray-500">{inquiry.email}</div>
@@ -292,6 +447,21 @@ export default function ContactInquiriesManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(inquiry.status)}`}>
                       {inquiry.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {inquiry.salesManager ? (
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{inquiry.salesManager.name}</div>
+                        <div className="text-sm text-gray-500">{inquiry.salesManager.territory || 'No territory'}</div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">Unassigned</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(inquiry.priority)}`}>
+                      {inquiry.priority || 'MEDIUM'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -337,6 +507,74 @@ export default function ContactInquiriesManagement() {
           )}
         </div>
       </div>
+
+      {/* Assignment Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Assign to Sales Manager</h3>
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  Assigning {selectedInquiries.length} inquiries to a sales manager.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Sales Manager
+                </label>
+                <select
+                  id="salesManagerSelect"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  defaultValue=""
+                >
+                  <option value="">Select a sales manager</option>
+                  {salesManagers.map((manager) => (
+                    <option key={manager.id} value={manager.id}>
+                      {manager.name} {manager.territory ? `(${manager.territory})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const selectElement = document.getElementById('salesManagerSelect') as HTMLSelectElement;
+                    const salesManagerId = selectElement.value;
+                    if (salesManagerId) {
+                      assignToSalesManager(selectedInquiries, salesManagerId);
+                    } else {
+                      alert('Please select a sales manager.');
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Assign
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
