@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
+interface ValidationError {
+  path: (string | number)[];
+  message: string;
+}
+
 export default function NewProperty() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -139,17 +144,20 @@ export default function NewProperty() {
         const errorMessage = response?.error || 'Failed to create property. Please check all fields and try again.';
         alert(errorMessage);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating property:', error);
       
       // Check if it's a validation error
-      if (error?.response?.data?.details) {
-        const validationErrors = error.response.data.details;
-        const errorMessages = validationErrors.map((err: any) => `${err.path?.join('.')}: ${err.message}`);
-        alert(`Validation Error:\n${errorMessages.join('\n')}`);
-      } else if (error?.response?.data?.error) {
-        alert(`Error: ${error.response.data.error}`);
-      } else if (error?.message) {
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const responseError = error as { response: { data: { details?: ValidationError[], error?: string } } };
+        if (responseError.response.data.details) {
+          const validationErrors = responseError.response.data.details;
+          const errorMessages = validationErrors.map((err: ValidationError) => `${err.path?.join('.')}: ${err.message}`);
+          alert(`Validation Error:\n${errorMessages.join('\n')}`);
+        } else if (responseError.response.data.error) {
+          alert(`Error: ${responseError.response.data.error}`);
+        }
+      } else if (error instanceof Error) {
         alert(`Error: ${error.message}`);
       } else {
         alert('Failed to create property. Please check your internet connection and try again.');
@@ -158,6 +166,7 @@ export default function NewProperty() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="space-y-6">

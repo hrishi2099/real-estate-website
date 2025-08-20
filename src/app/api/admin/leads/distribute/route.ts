@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { leadDistributionEngine, DistributionRule } from "@/lib/lead-distribution";
+import { leadDistributionEngine } from "@/lib/lead-distribution";
 
 export async function POST(request: NextRequest) {
   try {

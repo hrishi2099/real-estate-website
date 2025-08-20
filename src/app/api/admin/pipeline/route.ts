@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  assignedAt: {
+    gte: Date;
+  };
+  salesManagerId?: string;
+}
+
 // Get pipeline overview
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +20,7 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - parseInt(timeframe));
 
     // Base where clause
-    let whereClause: any = {
+    const whereClause: WhereClause = {
       assignedAt: {
         gte: startDate,
       },
@@ -23,11 +30,22 @@ export async function GET(request: NextRequest) {
       whereClause.salesManagerId = salesManagerId;
     }
 
+    type Stage = 'NEW_LEAD' | 'CONTACTED' | 'QUALIFIED' | 'PROPOSAL_SENT' | 'NEGOTIATION' | 'PROPERTY_VIEWING' | 'APPLICATION' | 'CLOSING' | 'WON';
+
+interface DealsByStage {
+  [key: string]: {
+    count: number;
+    avgDuration: number;
+    avgProbability: number;
+    avgValue: number;
+  };
+}
+
     // Get pipeline stages with assignments
     const pipelineStages = await prisma.pipelineStage.findMany({
       where: {
         assignment: whereClause,
-        ...(stage ? { stage: stage as any } : {}),
+        ...(stage ? { stage: stage as Stage } : {}),
       },
       include: {
         assignment: {
@@ -77,8 +95,8 @@ export async function GET(request: NextRequest) {
     });
 
     // Get conversion rates (stage progression)
-    const conversionRates = {};
-    const allStages = [
+    const conversionRates: Record<string, number> = {};
+    const allStages: Stage[] = [
       'NEW_LEAD', 'CONTACTED', 'QUALIFIED', 'PROPOSAL_SENT',
       'NEGOTIATION', 'PROPERTY_VIEWING', 'APPLICATION', 'CLOSING', 'WON'
     ];
@@ -89,24 +107,24 @@ export async function GET(request: NextRequest) {
       
       const currentStageCount = await prisma.pipelineStage.count({
         where: {
-          stage: currentStage as any,
+          stage: currentStage,
           assignment: whereClause,
         },
       });
 
       const nextStageCount = await prisma.pipelineStage.count({
         where: {
-          stage: nextStage as any,
+          stage: nextStage,
           assignment: whereClause,
         },
       });
 
-      (conversionRates as any)[`${currentStage}_to_${nextStage}`] = 
+      conversionRates[`${currentStage}_to_${nextStage}`] = 
         currentStageCount > 0 ? (nextStageCount / currentStageCount) * 100 : 0;
     }
 
     // Get deals by stage
-    const dealsByStage = stageStats.reduce((acc, stat) => {
+    const dealsByStage: DealsByStage = stageStats.reduce((acc, stat) => {
       acc[stat.stage] = {
         count: stat._count.id,
         avgDuration: Math.round(stat._avg.durationHours || 0),
@@ -114,7 +132,7 @@ export async function GET(request: NextRequest) {
         avgValue: stat._avg.estimatedValue ? Number(stat._avg.estimatedValue) : 0,
       };
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as DealsByStage);
 
     // Calculate pipeline velocity (average time from NEW_LEAD to WON)
     const wonDeals = await prisma.pipelineStage.findMany({
@@ -190,14 +208,14 @@ export async function GET(request: NextRequest) {
           nextActionDate: stage.nextActionDate,
           notes: stage.notes,
           lead: {
-            id: (stage as any).assignment.lead.id,
-            name: (stage as any).assignment.lead.name,
-            email: (stage as any).assignment.lead.email,
-            phone: (stage as any).assignment.lead.phone,
-            leadScore: (stage as any).assignment.lead.leadScore,
+            id: stage.assignment.lead.id,
+            name: stage.assignment.lead.name,
+            email: stage.assignment.lead.email,
+            phone: stage.assignment.lead.phone,
+            leadScore: stage.assignment.lead.leadScore,
           },
-          salesManager: (stage as any).assignment.salesManager,
-          activities: (stage as any).stageActivities.map((activity: any) => ({
+          salesManager: stage.assignment.salesManager,
+          activities: stage.stageActivities.map(activity => ({
             id: activity.id,
             activityType: activity.activityType,
             description: activity.description,

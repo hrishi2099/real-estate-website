@@ -157,7 +157,7 @@ export async function PUT(
       });
 
       // Update assignment status based on stage
-      let assignmentStatus = 'ACTIVE';
+      let assignmentStatus: AssignmentStatus = 'ACTIVE';
       if (stage === 'WON') {
         assignmentStatus = 'COMPLETED';
       } else if (stage === 'LOST') {
@@ -171,7 +171,7 @@ export async function PUT(
           id: (await params).assignmentId,
         },
         data: {
-          status: assignmentStatus as any,
+          status: assignmentStatus,
         },
       });
     } else {

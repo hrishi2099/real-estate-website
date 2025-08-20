@@ -3,11 +3,15 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+interface Checks {
+  [key: string]: any;
+}
+
+export async function GET() {
   const diagnostics = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    checks: {} as any
+    checks: {} as Checks
   };
 
   try {

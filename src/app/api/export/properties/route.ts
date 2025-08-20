@@ -6,22 +6,34 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const format = searchParams.get('format') || 'json';
     const status = searchParams.get('status');
     const type = searchParams.get('type');
     const location = searchParams.get('location');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
 
+    interface WhereClause {
+  status?: 'ACTIVE' | 'SOLD' | 'PENDING';
+  type?: 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
+  location?: {
+    contains: string;
+    mode: 'insensitive';
+  };
+  price?: {
+    gte?: number;
+    lte?: number;
+  };
+}
+
     // Build where clause
-    const where: any = {};
+    const where: WhereClause = {};
     
     if (status && status !== 'all') {
-      where.status = status as any;
+      where.status = status as 'ACTIVE' | 'SOLD' | 'PENDING';
     }
     
     if (type && type !== 'all') {
-      where.type = type as any;
+      where.type = type as 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
     }
     
     if (location) {

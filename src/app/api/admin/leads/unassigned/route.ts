@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  role: string;
+  status: string;
+  leadScore: {
+    isNot: null;
+    grade?: string;
+    score?: {
+      gte?: number;
+      lte?: number;
+    };
+  };
+  leadAssignments: {
+    none: {
+      status: string;
+    };
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,7 +28,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit");
 
     // Get users with lead scores who are not assigned to any sales manager
-    const whereClause: any = {
+    const whereClause: WhereClause = {
       role: "USER",
       status: "ACTIVE",
       leadScore: {

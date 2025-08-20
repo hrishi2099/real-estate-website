@@ -1,39 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { OfficeSettings } from "@prisma/client";
 
-interface OfficeSettings {
-  phone: string | null;
+interface WhatsAppButtonProps {
+  settings: Pick<OfficeSettings, 'phone'> | null;
 }
 
-export default function WhatsAppButton() {
-  const [phoneNumber, setPhoneNumber] = useState("+919860255151");
+export default function WhatsAppButton({ settings }: WhatsAppButtonProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
-    fetchOfficeSettings();
     setIsVisible(true);
   }, []);
 
-  const fetchOfficeSettings = async () => {
-    try {
-      const response = await fetch("/api/admin/settings");
-      if (response.ok) {
-        const settings: OfficeSettings = await response.json();
-        if (settings.phone) {
-          // Clean phone number for WhatsApp (remove spaces, hyphens, parentheses)
-          const cleanPhone = settings.phone.replace(/[\s\-\(\)]/g, '');
-          setPhoneNumber(cleanPhone);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching office settings:", error);
-    }
-  };
+  // Clean phone number for WhatsApp (remove spaces, hyphens, parentheses)
+  const phoneNumber = settings?.phone?.replace(/[\s\-()]/g, '') || "";
 
   const handleWhatsAppClick = () => {
+    if (!phoneNumber) return;
     const message = encodeURIComponent("Hi! I&apos;m interested in your real estate services. Could you please provide more information?");
     const whatsappUrl = `https://wa.me/${phoneNumber.replace('+', '')}?text=${message}`;
     if (typeof window !== 'undefined') {
@@ -41,7 +28,7 @@ export default function WhatsAppButton() {
     }
   };
 
-  if (!isVisible || !isHydrated) return null;
+  if (!isVisible || !isHydrated || !phoneNumber) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

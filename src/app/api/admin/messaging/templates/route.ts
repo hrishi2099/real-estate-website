@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Get all message templates
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const templates = await prisma.messageTemplate.findMany({
       include: {

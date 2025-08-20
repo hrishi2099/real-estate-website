@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api } from "@/lib/api";
 
 interface LeadScore {
   user: {
@@ -31,40 +30,38 @@ export default function LeadsManagement() {
   const [error, setError] = useState<string | null>(null);
   const [gradeFilter, setGradeFilter] = useState<string>("all");
   const [scoreBreakdown, setScoreBreakdown] = useState<ScoreBreakdown | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => {
+    const loadLeads = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const params = new URLSearchParams();
+        if (gradeFilter !== "all") {
+          params.append("grade", gradeFilter);
+        }
+        params.append("limit", "100");
+  
+        const response = await fetch(`/api/admin/leads?${params}`);
+        const data = await response.json();
+  
+        if (data.success) {
+          setLeads(data.data || []);
+        } else {
+          setError(data.error || "Failed to load leads");
+        }
+      } catch (err) {
+        setError("Failed to load leads");
+        console.error("Error loading leads:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadLeads();
   }, [gradeFilter]);
-
-  const loadLeads = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const params = new URLSearchParams();
-      if (gradeFilter !== "all") {
-        params.append("grade", gradeFilter);
-      }
-      params.append("limit", "100");
-
-      const response = await fetch(`/api/admin/leads?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setLeads(data.data || []);
-      } else {
-        setError(data.error || "Failed to load leads");
-      }
-    } catch (err) {
-      setError("Failed to load leads");
-      console.error("Error loading leads:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleViewBreakdown = async (userId: string) => {
     try {

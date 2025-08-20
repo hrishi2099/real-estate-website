@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
 import StructuredData from "./StructuredData";
-import { trackPropertyView, trackPropertyInquiry } from "./Analytics";
+import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
 
 interface PropertyDetailsProps {
@@ -42,33 +42,8 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
   // Track property view on component mount
   useEffect(() => {
-    const trackView = async () => {
-      try {
-        await fetch('/api/analytics/track', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            event: 'VIEW',
-            propertyId: property.id,
-            metadata: {
-              title: property.title,
-              price: property.price,
-              location: property.location,
-              type: property.type
-            }
-          }),
-        });
-        
-        // Also track with existing analytics system
-        trackPropertyView(property.id, property.title, property.price);
-      } catch (error) {
-        console.error('Error tracking property view:', error);
-      }
-    };
-
-    trackView();
+    // Track with the new universal tracking system
+    trackPropertyView(property.id, property.title, property.price);
   }, [property.id, property.title, property.price]);
 
   // Calculate derived values
@@ -99,24 +74,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     e.preventDefault();
     
     try {
-      // Track property inquiry with new analytics system
-      await fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          event: 'INQUIRY',
-          propertyId: property.id,
-          metadata: {
-            title: property.title,
-            contactName: enquiryForm.name,
-            contactEmail: enquiryForm.email,
-            message: enquiryForm.message
-          }
-        }),
-      });
-
       // Track with existing analytics system
       trackPropertyInquiry(property.id, property.title, 'enquiry');
       

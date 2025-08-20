@@ -229,9 +229,13 @@ export async function DELETE(
   }
 }
 
+interface User {
+  id: string;
+}
+
 // Helper function (same as in main route)
 async function generateRecipients(messageId: string, targetAudience: string) {
-  let users: any[] = [];
+  let users: User[] = [];
 
   switch (targetAudience) {
     case 'ALL_USERS':

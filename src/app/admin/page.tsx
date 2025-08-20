@@ -18,6 +18,26 @@ interface RecentActivity {
   time: string;
 }
 
+interface AnalyticsResponse {
+  overview?: {
+    totalProperties?: number;
+    totalUsers?: number;
+    pendingInquiries?: number;
+  };
+}
+
+interface ContactInquiry {
+  status: string;
+}
+
+interface Inquiry {
+  id: string;
+  property?: {
+    title?: string;
+  };
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -35,7 +55,7 @@ export default function AdminDashboard() {
       // Load analytics data for stats
       const analyticsResponse = await api.getAdminAnalytics();
       if (analyticsResponse?.data) {
-        const data = analyticsResponse.data as any;
+        const data: AnalyticsResponse = analyticsResponse.data;
         setStats({
           totalProperties: data.overview?.totalProperties || 0,
           activeUsers: data.overview?.totalUsers || 0,
@@ -49,12 +69,12 @@ export default function AdminDashboard() {
         const contactInquiriesResponse = await fetch('/api/admin/contact-inquiries');
         if (contactInquiriesResponse.ok) {
           const contactData = await contactInquiriesResponse.json();
-          const newContactInquiries = contactData.contactInquiries?.filter((ci: any) => ci.status === 'NEW').length || 0;
+          const newContactInquiries = contactData.contactInquiries?.filter((ci: ContactInquiry) => ci.status === 'NEW').length || 0;
           
           // Update stats to include both property inquiries and contact inquiries
           setStats(prevStats => prevStats ? {
             ...prevStats,
-            pendingInquiries: ((analyticsResponse?.data as any)?.overview?.pendingInquiries || 0) + newContactInquiries
+            pendingInquiries: ((analyticsResponse?.data as AnalyticsResponse)?.overview?.pendingInquiries || 0) + newContactInquiries
           } : prevStats);
         }
       } catch (error) {
@@ -64,10 +84,10 @@ export default function AdminDashboard() {
       // Load recent activity (using inquiries as recent activity)
       const inquiriesResponse = await api.getAdminInquiries();
       if (inquiriesResponse?.data) {
-        const inquiriesData = inquiriesResponse.data as any;
+        const inquiriesData: Inquiry[] = inquiriesResponse.data;
         const activities: RecentActivity[] = Array.isArray(inquiriesData) ? inquiriesData
           .slice(0, 4)
-          .map((inquiry: any) => ({
+          .map((inquiry: Inquiry) => ({
             id: inquiry.id,
             action: "Property inquiry",
             details: inquiry.property?.title || "Property inquiry",

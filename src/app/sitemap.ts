@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getProperties } from '@/lib/properties';
+import { getSitemapProperties } from '@/lib/properties';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
@@ -52,11 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let propertyPages: MetadataRoute.Sitemap = []
   try {
-    const properties = await getProperties(1000);
+    const properties = await getSitemapProperties();
 
     propertyPages = properties.map((property) => ({
       url: `${baseUrl}/properties/${property.id}`,
-      lastModified: new Date(property.updatedAt || property.createdAt || new Date()),
+      lastModified: property.updatedAt,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }))

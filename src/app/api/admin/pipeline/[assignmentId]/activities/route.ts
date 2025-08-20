@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  stageId?: string;
+}
+
 // Get activities for a specific assignment's current stage
 export async function GET(
   request: NextRequest,
@@ -11,7 +15,7 @@ export async function GET(
     const stageId = searchParams.get("stageId");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    let whereClause: any = {};
+    const whereClause: WhereClause = {};
 
     if (stageId) {
       whereClause.stageId = stageId;

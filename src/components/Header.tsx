@@ -2,42 +2,23 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
-import { trackNavigation } from "./Analytics";
+import type { OfficeSettings } from '@prisma/client';
+import { trackNavigation } from "@/lib/tracking";
 
-interface OfficeSettings {
-  id: string;
-  companyName: string | null;
-  logoUrl: string | null;
+interface HeaderProps {
+  settings: Pick<OfficeSettings, 'companyName' | 'logoUrl'> | null;
 }
 
-export default function Header() {
+export default function Header({ settings }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [officeSettings, setOfficeSettings] = useState<OfficeSettings | null>(null);
   const { user, isAuthenticated, isAdmin, isSalesManager, logout, isHydrated } = useAuth();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Prevent hydration mismatch by not rendering auth-dependent UI until hydrated
   const showAuthUI = isHydrated;
-
-  // Fetch office settings for logo and company name
-  useEffect(() => {
-    const fetchOfficeSettings = async () => {
-      try {
-        const response = await fetch("/api/admin/settings");
-        if (response.ok) {
-          const settings = await response.json();
-          setOfficeSettings(settings);
-        }
-      } catch (error) {
-        console.error("Error fetching office settings:", error);
-      }
-    };
-
-    fetchOfficeSettings();
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -62,42 +43,66 @@ export default function Header() {
           <div className="flex justify-start lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               {/* Logo Image - Dynamic from office settings */}
-              {officeSettings?.logoUrl && (
+              {settings?.logoUrl && (
                 <div className="relative h-6 w-24 sm:h-8 sm:w-32">
                   <Image
-                    src={officeSettings.logoUrl}
-                    alt={`${officeSettings?.companyName || "Company"} Logo`}
+                    src={settings.logoUrl}
+                    alt={`${settings?.companyName || "Company"} Logo`}
                     fill
                     className="object-contain"
                     priority
-                    key={`header-logo-${officeSettings.logoUrl}`}
+                    key={`header-logo-${settings.logoUrl}`}
                   />
                 </div>
               )}
               {/* Company Name - Dynamic from office settings */}
               <span className="text-base sm:text-lg lg:text-xl font-bold text-blue-600 truncate">
-                {officeSettings?.companyName || "Real Estate"}
+                {settings?.companyName || "Real Estate"}
               </span>
             </Link>
           </div>
           
           <nav className="hidden md:flex space-x-10" data-section="main-navigation">
-            <Link href="/" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('Home', '/', 'main-navigation')}
+            >
               Home
             </Link>
-            <Link href="/properties" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/properties" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('Properties', '/properties', 'main-navigation')}
+            >
               Properties
             </Link>
-            <Link href="/search" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/search" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('Search', '/search', 'main-navigation')}
+            >
               Search
             </Link>
-            <Link href="/gallery" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/gallery" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('Gallery', '/gallery', 'main-navigation')}
+            >
               Gallery
             </Link>
-            <Link href="/about" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/about" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('About', '/about', 'main-navigation')}
+            >
               About
             </Link>
-            <Link href="/contact" className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900">
+            <Link 
+              href="/contact" 
+              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
+              onClick={() => trackNavigation('Contact', '/contact', 'main-navigation')}
+            >
               Contact
             </Link>
           </nav>

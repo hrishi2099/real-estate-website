@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, generatePasswordResetEmail } from '@/lib/email'
+import { sendEmail } from '@/lib/email'
 import { sendEmailImproved, generatePasswordResetEmail as generatePasswordResetEmailImproved } from '@/lib/email-improved'
 import crypto from 'crypto'
 

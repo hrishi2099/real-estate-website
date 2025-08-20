@@ -3,7 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { trackSearch, trackFilterUsage, trackPropertyListInteraction } from "@/components/Analytics";
+import {
+  trackFilterUsage,
+  trackPropertyListInteraction,
+} from "@/lib/tracking";
 import ExportButton from "@/components/ExportButton";
 
 interface Property {

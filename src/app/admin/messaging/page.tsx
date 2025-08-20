@@ -271,7 +271,7 @@ export default function AdminRCSMessaging() {
     setShowTemplateModal(true);
   };
 
-  const useTemplate = (template: MessageTemplate) => {
+  const handleUseTemplate = (template: MessageTemplate) => {
     setSelectedMessage(null);
     setMessageForm({
       title: template.name,
@@ -535,7 +535,7 @@ export default function AdminRCSMessaging() {
 
                   <div className="flex lg:flex-col gap-2 lg:ml-6">
                     <button
-                      onClick={() => useTemplate(template)}
+                      onClick={() => handleUseTemplate(template)}
                       className="flex-1 lg:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-green-600 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 touch-manipulation"
                     >
                       <span className="hidden sm:inline">Use Template</span>

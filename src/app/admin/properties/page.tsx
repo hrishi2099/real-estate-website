@@ -15,11 +15,16 @@ interface Property {
   location: string;
   type: string;
   status: 'ACTIVE' | 'SOLD' | 'PENDING';
-  images: any[];
+  images: Image[];
   bedrooms: number;
   bathrooms: number;
   area: number;
   createdAt: string;
+}
+
+interface Image {
+  url: string;
+  alt: string;
 }
 
 export default function PropertiesManagement() {
@@ -46,7 +51,7 @@ export default function PropertiesManagement() {
       const response = await api.getProperties();
       if (response?.data) {
         // Handle both array and object responses
-        const data = response.data as any;
+        const data = response.data as { properties: Property[] } | Property[];
         const propertiesData = Array.isArray(data) 
           ? data 
           : data.properties || [];

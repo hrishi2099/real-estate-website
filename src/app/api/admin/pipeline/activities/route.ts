@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  createdAt: {
+    gte: Date;
+  };
+  stage?: {
+    assignmentId: string;
+  };
+  createdBy?: string;
+  activityType?: string;
+}
+
 // Get all pipeline activities with filters
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +25,7 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(timeframe));
 
-    let whereClause: any = {
+    const whereClause: WhereClause = {
       createdAt: {
         gte: startDate,
       },
@@ -163,7 +174,7 @@ export async function POST(request: NextRequest) {
     const activity = await prisma.pipelineActivity.create({
       data: {
         stageId: targetStageId,
-        activityType: activityType as any,
+        activityType: activityType as ActivityType,
         description,
         outcome,
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
@@ -224,9 +235,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
+type ActivityType = 'PHONE_CALL' | 'EMAIL_SENT' | 'MEETING_COMPLETED' | 'PROPERTY_SHOWING' | 'PROPOSAL_SENT' | 'APPLICATION_SUBMITTED' | 'CONTRACT_SENT' | 'CONTRACT_SIGNED' | 'DEAL_CLOSED' | 'DEAL_LOST';
+
+interface Stage {
+    id: string;
+    stage: string;
+    assignmentId: string;
+    enteredAt: Date;
+}
+
+type AssignmentStatus = 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+
 // Helper function to auto-update stage based on activity
 async function updateStageBasedOnActivity(
-  stage: any,
+  stage: Stage,
   activityType: string,
   salesManagerId: string
 ) {
@@ -279,14 +301,14 @@ async function updateStageBasedOnActivity(
       await prisma.pipelineStage.create({
         data: {
           assignmentId: stage.assignmentId,
-          stage: newStage as any,
+          stage: newStage,
           probability: getDefaultProbability(newStage),
           createdBy: salesManagerId,
         },
       });
 
       // Update assignment status if needed
-      let assignmentStatus = 'ACTIVE';
+      let assignmentStatus: AssignmentStatus = 'ACTIVE';
       if (newStage === 'WON') {
         assignmentStatus = 'COMPLETED';
       } else if (newStage === 'LOST') {
@@ -296,7 +318,7 @@ async function updateStageBasedOnActivity(
       if (assignmentStatus !== 'ACTIVE') {
         await prisma.leadAssignment.update({
           where: { id: stage.assignmentId },
-          data: { status: assignmentStatus as any },
+          data: { status: assignmentStatus },
         });
       }
     }

@@ -18,8 +18,33 @@ interface Property {
   bathrooms: number;
   area?: number;
   features: string[];
-  images: any[];
+  images: Image[];
   isFeatured: boolean;
+}
+
+interface Image {
+  url: string;
+  alt: string;
+}
+
+interface PropertyData {
+  title: string;
+  price: number;
+  location: string;
+  type: string;
+  bedrooms: number;
+  bathrooms: number;
+  features: string[];
+  isFeatured: boolean;
+  description?: string;
+  latitude?: number;
+  longitude?: number;
+  area?: number;
+}
+
+interface ValidationError {
+  path: (string | number)[];
+  message: string;
 }
 
 export default function EditProperty() {
@@ -71,56 +96,55 @@ export default function EditProperty() {
   ];
 
   useEffect(() => {
-    loadProperty();
-  }, [propertyId]);
-
-  const loadProperty = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getProperty(propertyId);
-      console.log('API Response:', response); // Debug log
-      if (response?.data) {
-        // Handle both possible response structures
-        const propertyData = (response.data as any).property || response.data as Property;
-        console.log('Property Data:', propertyData); // Debug log
-        
-        if (propertyData && propertyData.id) {
-          setProperty(propertyData);
-        
-          // Populate form data
-          setFormData({
-            title: propertyData.title || '',
-            description: propertyData.description || '',
-            price: propertyData.price?.toString() || '',
-            location: propertyData.location || '',
-            latitude: propertyData.latitude?.toString() || '',
-            longitude: propertyData.longitude?.toString() || '',
-            type: propertyData.type || 'APARTMENT',
-            status: propertyData.status || 'ACTIVE',
-            bedrooms: propertyData.bedrooms || 1,
-            bathrooms: propertyData.bathrooms || 1,
-            area: propertyData.area?.toString() || '',
-            features: propertyData.features || [],
-            isFeatured: propertyData.isFeatured || false
-          });
+    const loadProperty = async () => {
+      try {
+        setLoading(true);
+        const response = await api.getProperty(propertyId);
+        console.log('API Response:', response); // Debug log
+        if (response?.data) {
+          // Handle both possible response structures
+          const propertyData: Property = (response.data as any).property || response.data;
+          console.log('Property Data:', propertyData); // Debug log
+          
+          if (propertyData && propertyData.id) {
+            setProperty(propertyData);
+          
+            // Populate form data
+            setFormData({
+              title: propertyData.title || '',
+              description: propertyData.description || '',
+              price: propertyData.price?.toString() || '',
+              location: propertyData.location || '',
+              latitude: propertyData.latitude?.toString() || '',
+              longitude: propertyData.longitude?.toString() || '',
+              type: propertyData.type || 'APARTMENT',
+              status: propertyData.status || 'ACTIVE',
+              bedrooms: propertyData.bedrooms || 1,
+              bathrooms: propertyData.bathrooms || 1,
+              area: propertyData.area?.toString() || '',
+              features: propertyData.features || [],
+              isFeatured: propertyData.isFeatured || false
+            });
+          } else {
+            console.log('Property data not found or invalid:', propertyData);
+            alert('Property not found');
+            router.push('/admin/properties');
+          }
         } else {
-          console.log('Property data not found or invalid:', propertyData);
+          console.log('Property not found in response:', response); // Debug log
           alert('Property not found');
           router.push('/admin/properties');
         }
-      } else {
-        console.log('Property not found in response:', response); // Debug log
-        alert('Property not found');
+      } catch (error) {
+        console.error("Failed to load property:", error);
+        alert('Failed to load property');
         router.push('/admin/properties');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to load property:", error);
-      alert('Failed to load property');
-      router.push('/admin/properties');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    loadProperty();
+  }, [propertyId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -204,7 +228,7 @@ export default function EditProperty() {
     setSaving(true);
     try {
       // Only include fields that have values or need to be updated
-      const propertyData: any = {
+      const propertyData: PropertyData = {
         title: formData.title.trim(),
         price: Number(formData.price),
         location: formData.location.trim(),
@@ -244,8 +268,8 @@ export default function EditProperty() {
       console.error('Error updating property:', error);
       
       if (error?.response?.data?.details) {
-        const validationErrors = error.response.data.details;
-        const errorMessages = validationErrors.map((err: any) => `${err.path?.join('.')}: ${err.message}`);
+        const validationErrors: ValidationError[] = error.response.data.details;
+        const errorMessages = validationErrors.map((err: ValidationError) => `${err.path?.join('.')}: ${err.message}`);
         alert(`Validation Error:\n${errorMessages.join('\n')}`);
       } else if (error?.response?.data?.error) {
         alert(`Error: ${error.response.data.error}`);

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { pipelineTracker } from "@/lib/pipeline-tracker";
 
 // Initialize pipelines for existing lead assignments
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get all active assignments that don't have pipeline stages
     const assignmentsWithoutPipeline = await prisma.leadAssignment.findMany({

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/debug/properties - Debug endpoint to check properties
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get all properties with their featured status
     const properties = await prisma.property.findMany({

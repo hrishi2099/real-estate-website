@@ -23,15 +23,22 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - parseInt(timeframe));
 
     // Get sales manager's pipeline stages
+    type Stage = 'NEW_LEAD' | 'CONTACTED' | 'QUALIFIED' | 'PROPOSAL_SENT' | 'NEGOTIATION' | 'PROPERTY_VIEWING' | 'APPLICATION' | 'CLOSING' | 'WON';
+
+interface DealsByStage {
+  [key: string]: {
+    count: number;
+    avgDuration: number;
+    avgProbability: number;
+    avgValue: number;
+  };
+}
+
+    // Get pipeline stages with assignments
     const pipelineStages = await prisma.pipelineStage.findMany({
       where: {
-        assignment: {
-          salesManagerId,
-          assignedAt: {
-            gte: startDate,
-          },
-        },
-        ...(stage ? { stage: stage as any } : {}),
+        assignment: whereClause,
+        ...(stage ? { stage: stage as Stage } : {}),
       },
       include: {
         assignment: {
@@ -41,13 +48,21 @@ export async function GET(request: NextRequest) {
                 leadScore: true,
               },
             },
+            salesManager: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                territory: true,
+              },
+            },
           },
         },
         stageActivities: {
           orderBy: {
             createdAt: 'desc',
           },
-          take: 3, // Recent activities
+          take: 5, // Recent activities
         },
       },
       orderBy: [
@@ -55,8 +70,8 @@ export async function GET(request: NextRequest) {
       ],
     });
 
-    // Get sales manager's performance metrics
-    const performanceMetrics = await prisma.pipelineStage.groupBy({
+    // Calculate stage statistics
+    const stageStats = await prisma.pipelineStage.groupBy({
       by: ['stage'],
       _count: {
         id: true,
@@ -67,172 +82,47 @@ export async function GET(request: NextRequest) {
         estimatedValue: true,
       },
       where: {
-        assignment: {
-          salesManagerId,
-          assignedAt: {
-            gte: startDate,
-          },
-        },
-      },
-    });
-
-    // Get upcoming actions
-    const upcomingActions = await prisma.pipelineStage.findMany({
-      where: {
-        assignment: {
-          salesManagerId,
-        },
-        nextActionDate: {
-          gte: new Date(),
-          lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next 7 days
-        },
+        assignment: whereClause,
         exitedAt: null, // Only active stages
       },
-      include: {
-        assignment: {
-          include: {
-            lead: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        nextActionDate: 'asc',
-      },
     });
 
-    // Calculate win rate and conversion metrics
-    const totalDeals = await prisma.pipelineStage.count({
-      where: {
-        assignment: {
-          salesManagerId,
-          assignedAt: {
-            gte: startDate,
-          },
-        },
-        stage: {
-          in: ['WON', 'LOST'],
-        },
-      },
-    });
+    // Get conversion rates (stage progression)
+    const conversionRates: Record<string, number> = {};
+    const allStages: Stage[] = [
+      'NEW_LEAD', 'CONTACTED', 'QUALIFIED', 'PROPOSAL_SENT',
+      'NEGOTIATION', 'PROPERTY_VIEWING', 'APPLICATION', 'CLOSING', 'WON'
+    ];
 
-    const wonDeals = await prisma.pipelineStage.count({
-      where: {
-        assignment: {
-          salesManagerId,
-          assignedAt: {
-            gte: startDate,
-          },
+    for (let i = 0; i < allStages.length - 1; i++) {
+      const currentStage = allStages[i];
+      const nextStage = allStages[i + 1];
+      
+      const currentStageCount = await prisma.pipelineStage.count({
+        where: {
+          stage: currentStage,
+          assignment: whereClause,
         },
-        stage: 'WON',
-      },
-    });
+      });
 
-    const winRate = totalDeals > 0 ? (wonDeals / totalDeals) * 100 : 0;
-
-    // Revenue metrics
-    const revenueMetrics = await prisma.pipelineStage.aggregate({
-      where: {
-        assignment: {
-          salesManagerId,
-          assignedAt: {
-            gte: startDate,
-          },
+      const nextStageCount = await prisma.pipelineStage.count({
+        where: {
+          stage: nextStage,
+          assignment: whereClause,
         },
-        stage: 'WON',
-      },
-      _sum: {
-        estimatedValue: true,
-      },
-      _count: {
-        id: true,
-      },
-    });
+      });
 
-    const pipelineValue = await prisma.pipelineStage.aggregate({
-      where: {
-        assignment: {
-          salesManagerId,
-        },
-        exitedAt: null, // Only active deals
-        estimatedValue: {
-          not: null,
-        },
-      },
-      _sum: {
-        estimatedValue: true,
-      },
-    });
+      conversionRates[`${currentStage}_to_${nextStage}`] = 
+        currentStageCount > 0 ? (nextStageCount / currentStageCount) * 100 : 0;
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        stages: pipelineStages.map(stage => ({
-          id: stage.id,
-          stage: stage.stage,
-          enteredAt: stage.enteredAt,
-          exitedAt: stage.exitedAt,
-          durationHours: stage.durationHours,
-          probability: stage.probability,
-          estimatedValue: stage.estimatedValue,
-          nextAction: stage.nextAction,
-          nextActionDate: stage.nextActionDate,
-          notes: stage.notes,
-          lead: stage.assignment.lead,
-          recentActivities: stage.stageActivities.map(activity => ({
-            id: activity.id,
-            activityType: activity.activityType,
-            description: activity.description,
-            createdAt: activity.createdAt,
-          })),
-        })),
-        performance: {
-          stageMetrics: performanceMetrics.reduce((acc, metric) => {
-            acc[metric.stage] = {
-              count: metric._count.id,
-              avgDuration: Math.round(metric._avg.durationHours || 0),
-              avgProbability: Math.round(metric._avg.probability || 0),
-              avgValue: metric._avg.estimatedValue ? Number(metric._avg.estimatedValue) : 0,
-            };
-            return acc;
-          }, {} as Record<string, any>),
-          winRate: Math.round(winRate * 100) / 100,
-          totalDeals,
-          wonDeals,
-          revenue: {
-            closed: Number(revenueMetrics._sum.estimatedValue || 0),
-            pipeline: Number(pipelineValue._sum.estimatedValue || 0),
-            avgDealSize: revenueMetrics._count.id > 0 
-              ? Number(revenueMetrics._sum.estimatedValue || 0) / revenueMetrics._count.id 
-              : 0,
-          },
-        },
-        upcomingActions: upcomingActions.map(stage => ({
-          id: stage.id,
-          stage: stage.stage,
-          nextAction: stage.nextAction,
-          nextActionDate: stage.nextActionDate,
-          lead: stage.assignment.lead,
-          probability: stage.probability,
-          estimatedValue: stage.estimatedValue,
-        })),
-      },
-    });
-
-  } catch (error) {
-    console.error("Error fetching sales pipeline:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch sales pipeline",
-      },
-      { status: 500 }
-    );
-  }
-}
+    // Get deals by stage
+    const dealsByStage: DealsByStage = stageStats.reduce((acc, stat) => {
+      acc[stat.stage] = {
+        count: stat._count.id,
+        avgDuration: Math.round(stat._avg.durationHours || 0),
+        avgProbability: Math.round(stat._avg.probability || 0),
+        avgValue: stat._avg.estimatedValue ? Number(stat._avg.estimatedValue) : 0,
+      };
+      return acc;
+    }, {} as DealsByStage);

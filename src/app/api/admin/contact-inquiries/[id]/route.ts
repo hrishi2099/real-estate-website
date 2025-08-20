@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
-import { ContactInquiryStatus, Priority, Prisma } from '@prisma/client';
+import { ContactInquiryStatus, Prisma } from '@prisma/client';
 
 /**
  * GET a single contact inquiry by ID
@@ -19,6 +19,7 @@ export const GET = requireAdmin(async (
             id: true,
             name: true,
             email: true,
+            territory: true,
           },
         },
       },
@@ -28,7 +29,7 @@ export const GET = requireAdmin(async (
       return NextResponse.json({ error: 'Contact inquiry not found' }, { status: 404 });
     }
 
-    return NextResponse.json(inquiry);
+    return NextResponse.json({ contactInquiry: inquiry });
   } catch (error) {
     console.error('Error fetching contact inquiry:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -51,10 +52,15 @@ export const PATCH = requireAdmin(async (
     if (status && !Object.values(ContactInquiryStatus).includes(status)) {
       return NextResponse.json({ error: 'Invalid status. Must be one of: NEW, REVIEWED, RESPONDED, CLOSED' }, { status: 400 });
     }
-    if (salesManagerId && !(await prisma.user.findFirst({ where: { id: salesManagerId, role: 'SALES_MANAGER' } }))) {
-      return NextResponse.json({ error: 'Invalid sales manager ID' }, { status: 400 });
+    if (salesManagerId) {
+      const manager = await prisma.user.findFirst({
+        where: { id: salesManagerId, OR: [{ role: 'SALES_MANAGER' }, { role: 'ADMIN' }] },
+      });
+      if (!manager) {
+        return NextResponse.json({ error: 'Invalid sales manager ID' }, { status: 400 });
+      }
     }
-    if (priority && !Object.values(Priority).includes(priority)) {
+    if (priority && !['LOW', 'MEDIUM', 'HIGH'].includes(priority)) {
       return NextResponse.json({ error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' }, { status: 400 });
     }
 
@@ -87,7 +93,7 @@ export const PATCH = requireAdmin(async (
       },
     });
 
-    return NextResponse.json(updatedInquiry);
+    return NextResponse.json({ success: true, contactInquiry: updatedInquiry });
   } catch (error) {
     console.error('Error updating contact inquiry:', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
@@ -111,7 +117,7 @@ export const DELETE = requireAdmin(async (
       where: { id },
     });
 
-    return NextResponse.json({ message: 'Contact inquiry deleted successfully' });
+    return NextResponse.json({ success: true, message: 'Contact inquiry deleted successfully' });
   } catch (error) {
     console.error('Error deleting contact inquiry:', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {

@@ -1,8 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
 interface Property {
   id: string;
@@ -14,79 +11,12 @@ interface Property {
   images: { id: string; url: string; isPrimary: boolean }[];
 }
 
-interface PropertyResponse {
+interface FeaturedPropertiesProps {
   properties: Property[];
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  mockData?: boolean;
+  isFeatured: boolean;
 }
 
-export default function FeaturedProperties() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isFeatured, setIsFeatured] = useState(true);
-
-  useEffect(() => {
-    const fetchFeaturedProperties = async () => {
-      try {
-        // First try to get featured properties
-        console.log('Fetching featured properties...');
-        const featuredResponse = await fetch('/api/properties?featured=true&limit=3');
-        console.log('Featured properties response status:', featuredResponse.status);
-        
-        if (featuredResponse.ok) {
-          const featuredData: PropertyResponse = await featuredResponse.json();
-          console.log('Featured properties API response:', featuredData);
-          
-          if (featuredData.properties && featuredData.properties.length > 0) {
-            console.log(`Found ${featuredData.properties.length} featured properties`);
-            setProperties(featuredData.properties);
-            setIsFeatured(true);
-            return;
-          } else {
-            console.log('No featured properties found in response');
-          }
-        } else {
-          const errorText = await featuredResponse.text();
-          console.error('Featured properties API error:', featuredResponse.status, featuredResponse.statusText, errorText);
-        }
-        
-        // If no featured properties, fall back to regular properties
-        console.log('No featured properties found, falling back to regular properties');
-        const regularResponse = await fetch('/api/properties?limit=3');
-        console.log('Regular properties response status:', regularResponse.status);
-        
-        if (regularResponse.ok) {
-          const regularData: PropertyResponse = await regularResponse.json();
-          console.log('Regular properties API response:', regularData);
-          
-          if (regularData.properties && regularData.properties.length > 0) {
-            console.log(`Found ${regularData.properties.length} regular properties as fallback`);
-            setProperties(regularData.properties);
-            setIsFeatured(false);
-          } else {
-            console.log('No properties found at all');
-            setProperties([]);
-            setIsFeatured(false);
-          }
-        } else {
-          const errorText = await regularResponse.text();
-          console.error('Regular properties API error:', regularResponse.status, regularResponse.statusText, errorText);
-          setProperties([]);
-        }
-      } catch (error) {
-        console.error('Error fetching properties:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedProperties();
-  }, []);
+export default function FeaturedProperties({ properties, isFeatured }: FeaturedPropertiesProps) {
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -101,33 +31,6 @@ export default function FeaturedProperties() {
     const primaryImage = property.images?.find(img => img.isPrimary);
     return primaryImage?.url || property.images?.[0]?.url || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
   };
-
-  if (loading) {
-    return (
-      <div className="py-8 sm:py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center lg:text-center">
-            <h2 className="text-sm sm:text-base text-blue-600 font-semibold tracking-wide uppercase">Featured</h2>
-            <p className="mt-2 text-xl sm:text-3xl leading-tight font-extrabold tracking-tight text-gray-900 sm:leading-8">
-              Featured Properties
-            </p>
-          </div>
-          <div className="mt-6 sm:mt-10 grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white overflow-hidden shadow rounded-lg animate-pulse">
-                <div className="h-40 sm:h-48 bg-gray-300"></div>
-                <div className="p-4 sm:p-6">
-                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-6 bg-gray-300 rounded mb-4"></div>
-                  <div className="h-8 bg-gray-300 rounded"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="py-8 sm:py-12 bg-gray-50">
@@ -199,7 +102,7 @@ export default function FeaturedProperties() {
           </div>
         </div>
 
-        {properties.length === 0 && !loading && (
+        {properties.length === 0 && (
           <div className="mt-10 text-center">
             <p className="text-gray-600 sm:text-gray-500">No featured properties available at the moment.</p>
             <p className="text-sm text-gray-400 mt-2">

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/debug/leads - Debug endpoint to check lead distribution data
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Count total users
     const totalUsers = await prisma.user.count()

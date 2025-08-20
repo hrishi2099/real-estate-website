@@ -57,9 +57,14 @@ interface PipelineData {
   };
 }
 
+interface SalesManager {
+  id: string;
+  name: string;
+}
+
 export default function PipelineDashboard() {
   const [pipelineData, setPipelineData] = useState<PipelineData | null>(null);
-  const [salesManagers, setSalesManagers] = useState<any[]>([]);
+  const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -98,44 +103,43 @@ export default function PipelineDashboard() {
   };
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+  
+        const params = new URLSearchParams();
+        if (selectedManager !== "all") params.append("salesManagerId", selectedManager);
+        if (selectedStage !== "all") params.append("stage", selectedStage);
+        params.append("timeframe", timeframe);
+  
+        const [pipelineResponse, managersResponse] = await Promise.all([
+          fetch(`/api/admin/pipeline?${params}`),
+          fetch("/api/admin/sales-managers"),
+        ]);
+  
+        const pipelineData = await pipelineResponse.json();
+        const managersData = await managersResponse.json();
+  
+        if (pipelineData.success) {
+          setPipelineData(pipelineData.data);
+        } else {
+          setError(pipelineData.error || "Failed to load pipeline data");
+        }
+  
+        if (managersData.success) {
+          setSalesManagers(managersData.data || []);
+        }
+  
+      } catch (err) {
+        setError("Failed to load data");
+        console.error("Error loading pipeline data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadData();
   }, [selectedManager, selectedStage, timeframe]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (selectedManager !== "all") params.append("salesManagerId", selectedManager);
-      if (selectedStage !== "all") params.append("stage", selectedStage);
-      params.append("timeframe", timeframe);
-
-      const [pipelineResponse, managersResponse] = await Promise.all([
-        fetch(`/api/admin/pipeline?${params}`),
-        fetch("/api/admin/sales-managers"),
-      ]);
-
-      const pipelineData = await pipelineResponse.json();
-      const managersData = await managersResponse.json();
-
-      if (pipelineData.success) {
-        setPipelineData(pipelineData.data);
-      } else {
-        setError(pipelineData.error || "Failed to load pipeline data");
-      }
-
-      if (managersData.success) {
-        setSalesManagers(managersData.data || []);
-      }
-
-    } catch (err) {
-      setError("Failed to load data");
-      console.error("Error loading pipeline data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {

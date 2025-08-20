@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface OfficeSettings {
   id: string;
@@ -358,9 +359,11 @@ export default function AdminSettingsPage() {
             <div className="space-y-3 sm:space-y-4">
               {formData.logoUrl && (
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <img
+                  <Image
                     src={formData.logoUrl}
                     alt="Current logo"
+                    width={100}
+                    height={100}
                     className="h-12 sm:h-16 w-auto object-contain border border-gray-200 rounded"
                     key={`logo-${formData.logoUrl}`}
                   />

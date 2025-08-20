@@ -121,8 +121,17 @@ export async function POST(
   }
 }
 
+interface Message {
+  recipients: {
+    id: string;
+    user: {
+      phone?: string | null;
+    };
+  }[];
+}
+
 // Simulate RCS message sending (replace with actual RCS service integration)
-async function simulateRCSSending(message: any) {
+async function simulateRCSSending(message: Message) {
   const results = {
     sent: 0,
     delivered: 0,

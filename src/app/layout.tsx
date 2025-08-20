@@ -4,10 +4,11 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import Analytics from "@/components/Analytics";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { defaultMetadata } from "@/lib/metadata";
-import UniversalTracker from "@/components/UniversalTracker";
+import { getSettings } from "@/lib/settings";
+import AnalyticsScripts from "@/components/AnalyticsScripts";
+import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,21 +26,24 @@ export const viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
+
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased force-light-mode`}>
-        <Analytics />
-        <UniversalTracker />
+        <Suspense>
+          {settings && <AnalyticsScripts settings={settings} />}
+        </Suspense>
         <AuthProvider>
-          <Header />
+          <Header settings={settings} />
           <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
+          <Footer settings={settings} />
+          {settings?.phone && <WhatsAppButton settings={settings} />}
         </AuthProvider>
       </body>
     </html>

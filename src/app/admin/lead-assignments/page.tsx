@@ -38,6 +38,27 @@ interface SalesManager {
   territory?: string;
 }
 
+type BulkAction = 'update_status' | 'update_priority' | 'reassign' | 'delete';
+
+interface BulkData {
+  value?: string;
+  notes?: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  expectedCloseDate?: string;
+}
+
+interface BulkOperationRequest {
+  action: BulkAction;
+  assignmentIds: string[];
+  data?: {
+    status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    salesManagerId?: string;
+    notes?: string;
+    expectedCloseDate?: string | null;
+  };
+}
+
 export default function LeadAssignmentsManagement() {
   const [assignments, setAssignments] = useState<LeadAssignment[]>([]);
   const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
@@ -54,56 +75,55 @@ export default function LeadAssignmentsManagement() {
   
   // Bulk operation settings
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [bulkAction, setBulkAction] = useState<'update_status' | 'update_priority' | 'reassign' | 'delete'>('update_status');
-  const [bulkData, setBulkData] = useState<any>({});
+  const [bulkAction, setBulkAction] = useState<BulkAction>('update_status');
+  const [bulkData, setBulkData] = useState<BulkData>({});
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+  
+        const params = new URLSearchParams();
+        if (statusFilter !== 'all') params.append('status', statusFilter);
+        if (salesManagerFilter !== 'all') params.append('salesManagerId', salesManagerFilter);
+  
+        const [assignmentsResponse, salesManagersResponse] = await Promise.all([
+          fetch(`/api/admin/lead-assignments?${params}`),
+          fetch('/api/admin/sales-managers'),
+        ]);
+  
+        const assignmentsData = await assignmentsResponse.json();
+        const salesManagersData = await salesManagersResponse.json();
+  
+        if (assignmentsData.success) {
+          let filteredAssignments = assignmentsData.data || [];
+          
+          // Apply priority filter on client side
+          if (priorityFilter !== 'all') {
+            filteredAssignments = filteredAssignments.filter(
+              (assignment: LeadAssignment) => assignment.priority === priorityFilter
+            );
+          }
+          
+          setAssignments(filteredAssignments);
+        } else {
+          setError(assignmentsData.error || 'Failed to load assignments');
+        }
+  
+        if (salesManagersData.success) {
+          setSalesManagers(salesManagersData.data || []);
+        }
+  
+      } catch (err) {
+        setError('Failed to load data');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadData();
   }, [statusFilter, priorityFilter, salesManagerFilter]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (statusFilter !== 'all') params.append('status', statusFilter);
-      if (salesManagerFilter !== 'all') params.append('salesManagerId', salesManagerFilter);
-
-      const [assignmentsResponse, salesManagersResponse] = await Promise.all([
-        fetch(`/api/admin/lead-assignments?${params}`),
-        fetch('/api/admin/sales-managers'),
-      ]);
-
-      const assignmentsData = await assignmentsResponse.json();
-      const salesManagersData = await salesManagersResponse.json();
-
-      if (assignmentsData.success) {
-        let filteredAssignments = assignmentsData.data || [];
-        
-        // Apply priority filter on client side
-        if (priorityFilter !== 'all') {
-          filteredAssignments = filteredAssignments.filter(
-            (assignment: LeadAssignment) => assignment.priority === priorityFilter
-          );
-        }
-        
-        setAssignments(filteredAssignments);
-      } else {
-        setError(assignmentsData.error || 'Failed to load assignments');
-      }
-
-      if (salesManagersData.success) {
-        setSalesManagers(salesManagersData.data || []);
-      }
-
-    } catch (err) {
-      setError('Failed to load data');
-      console.error('Error loading data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleBulkOperation = async () => {
     if (selectedAssignments.length === 0) {
@@ -125,17 +145,17 @@ export default function LeadAssignmentsManagement() {
       setError(null);
       setSuccess(null);
 
-      let requestData: any = {
+      const requestData: BulkOperationRequest = {
         action: bulkAction,
         assignmentIds: selectedAssignments,
       };
 
       switch (bulkAction) {
         case 'update_status':
-          requestData.data = { status: bulkData.value };
+          requestData.data = { status: bulkData.value as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD' };
           break;
         case 'update_priority':
-          requestData.data = { priority: bulkData.value };
+          requestData.data = { priority: bulkData.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' };
           break;
         case 'reassign':
           requestData.data = {
@@ -163,7 +183,7 @@ export default function LeadAssignmentsManagement() {
         setSelectedAssignments([]);
         setBulkData({});
         setShowBulkModal(false);
-        await loadData();
+        // await loadData();
       } else {
         setError(data.error || 'Bulk operation failed');
       }

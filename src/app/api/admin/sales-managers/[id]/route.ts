@@ -68,6 +68,17 @@ export async function GET(
   }
 }
 
+interface UpdateData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  territory?: string;
+  commission?: number | null;
+  status?: string;
+  managerId?: string;
+  password?: string;
+}
+
 // Update sales manager
 export async function PUT(
   request: NextRequest,
@@ -85,7 +96,7 @@ export async function PUT(
       password,
     } = await request.json();
 
-    const updateData: any = {
+    const updateData: UpdateData = {
       name,
       email,
       phone,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { trackSearch } from "./Analytics";
+import { trackSearch } from "@/lib/tracking";
 
 interface SearchBarProps {
   placeholder?: string;

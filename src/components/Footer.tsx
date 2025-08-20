@@ -2,34 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import type { OfficeSettings } from '@prisma/client';
 
-interface OfficeSettings {
-  id: string;
-  companyName: string | null;
-  logoUrl: string | null;
-  phone: string | null;
-  email: string | null;
+interface FooterProps {
+  settings: Pick<OfficeSettings, 'companyName' | 'logoUrl' | 'phone' | 'email'> | null;
 }
 
-export default function Footer() {
-  const [officeSettings, setOfficeSettings] = useState<OfficeSettings | null>(null);
-
-  useEffect(() => {
-    const fetchOfficeSettings = async () => {
-      try {
-        const response = await fetch("/api/admin/settings");
-        if (response.ok) {
-          const settings = await response.json();
-          setOfficeSettings(settings);
-        }
-      } catch (error) {
-        console.error("Error fetching office settings:", error);
-      }
-    };
-
-    fetchOfficeSettings();
-  }, []);
+export default function Footer({ settings }: FooterProps) {
   return (
     <footer className="bg-gray-900">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
@@ -37,20 +16,20 @@ export default function Footer() {
           <div className="space-y-8 xl:col-span-1">
             <Link href="/" className="flex items-center space-x-3">
               {/* Logo Image - Dynamic from office settings */}
-              {officeSettings?.logoUrl && (
+              {settings?.logoUrl && (
                 <div className="relative h-10 w-36">
                   <Image
-                    src={officeSettings.logoUrl}
-                    alt={`${officeSettings?.companyName || "Company"} Logo`}
+                    src={settings.logoUrl}
+                    alt={`${settings?.companyName || "Company"} Logo`}
                     fill
                     className="object-contain"
-                    key={`footer-logo-${officeSettings.logoUrl}`}
+                    key={`footer-logo-${settings.logoUrl}`}
                   />
                 </div>
               )}
               {/* Company Name - Dynamic from office settings */}
               <span className="text-xl font-bold text-white">
-                {officeSettings?.companyName || "Company Name"}
+                {settings?.companyName || "Company Name"}
               </span>
             </Link>
             <p className="text-gray-300 text-base">
@@ -134,10 +113,10 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Contact Info</h3>
                 <ul className="mt-4 space-y-4">
                   <li className="text-base text-gray-300">
-                    📧 {officeSettings?.email || "contact@zaminseva.com"}
+                    📧 {settings?.email || "contact@zaminseva.com"}
                   </li>
                   <li className="text-base text-gray-300">
-                    📞 {officeSettings?.phone || "+91 98765 43210"}
+                    📞 {settings?.phone || "+91 98765 43210"}
                   </li>
                 </ul>
               </div>
@@ -146,7 +125,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 border-t border-gray-700 pt-8">
           <p className="text-base text-gray-400 xl:text-center">
-            &copy; 2024 {officeSettings?.companyName || "Company Name"}. All rights reserved.
+            &copy; 2024 {settings?.companyName || "Company Name"}. All rights reserved.
           </p>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 // Get all sales managers
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const salesManagers = await prisma.user.findMany({
       where: {

@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Get bulk operation statistics
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const stats = await prisma.leadAssignment.groupBy({
       by: ['status', 'priority'],

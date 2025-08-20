@@ -3,6 +3,15 @@ import { prisma } from '@/lib/prisma'
 import { getUserFromRequest } from '@/lib/auth'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
+interface UpdateData {
+  updatedAt: Date;
+  salesManagerId?: string | null;
+  assignedAt?: Date | null;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  responseDeadline?: Date;
+  notes?: string;
+}
+
 export async function POST(request: NextRequest) {
   const rateLimitResponse = rateLimit(rateLimitConfigs.admin)(request);
   if (rateLimitResponse) {
@@ -64,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build update data
-    const updateData: any = {
+    const updateData: UpdateData = {
       updatedAt: new Date()
     }
 

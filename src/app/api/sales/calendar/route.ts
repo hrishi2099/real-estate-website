@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  salesManagerId: string;
+  startTime?: {
+    gte: Date;
+    lte: Date;
+  };
+}
+
 // Get calendar events for a sales manager
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +27,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: any = {
+    const where: WhereClause = {
       salesManagerId,
     };
 

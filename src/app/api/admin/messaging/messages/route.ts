@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Get all RCS messages
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const messages = await prisma.rCSMessage.findMany({
       include: {
@@ -114,9 +114,13 @@ export async function POST(request: NextRequest) {
   }
 }
 
+interface User {
+  id: string;
+}
+
 // Helper function to generate recipients based on audience
 async function generateRecipients(messageId: string, targetAudience: string) {
-  let users: any[] = [];
+  let users: User[] = [];
 
   switch (targetAudience) {
     case 'ALL_USERS':

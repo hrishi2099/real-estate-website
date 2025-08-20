@@ -236,7 +236,7 @@ export async function GET(request: NextRequest) {
         locations.forEach((location: string) => {
           acc[location] = (acc[location] || 0) + 1;
         });
-      } catch (e) {
+      } catch (error) {
         // Skip invalid JSON
       }
       return acc;

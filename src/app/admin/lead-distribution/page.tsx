@@ -47,6 +47,9 @@ interface DistributionStats {
   }>;
 }
 
+type DistributionRule = 'round_robin' | 'load_balanced' | 'score_based' | 'manual';
+type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
 export default function LeadDistribution() {
   const [unassignedLeads, setUnassignedLeads] = useState<UnassignedLead[]>([]);
   const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
@@ -59,60 +62,59 @@ export default function LeadDistribution() {
   const [success, setSuccess] = useState<string | null>(null);
   
   // Distribution settings
-  const [distributionRule, setDistributionRule] = useState<'round_robin' | 'load_balanced' | 'score_based' | 'manual'>('load_balanced');
-  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'>('MEDIUM');
+  const [distributionRule, setDistributionRule] = useState<DistributionRule>('load_balanced');
+  const [priority, setPriority] = useState<Priority>('MEDIUM');
   const [notes, setNotes] = useState('');
   const [expectedCloseDate, setExpectedCloseDate] = useState('');
   const [gradeFilter, setGradeFilter] = useState<string>('all');
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+  
+        // Load unassigned leads
+        const leadsParams = new URLSearchParams();
+        if (gradeFilter !== 'all') {
+          leadsParams.append('grade', gradeFilter);
+        }
+        leadsParams.append('limit', '100');
+  
+        const [leadsResponse, salesManagersResponse, statsResponse] = await Promise.all([
+          fetch(`/api/admin/leads/unassigned?${leadsParams}`),
+          fetch('/api/admin/sales-managers'),
+          fetch('/api/admin/lead-assignments/bulk'),
+        ]);
+  
+        const leadsData = await leadsResponse.json();
+        const salesManagersData = await salesManagersResponse.json();
+        const statsData = await statsResponse.json();
+  
+        if (leadsData.success) {
+          setUnassignedLeads(leadsData.data || []);
+        }
+  
+        if (salesManagersData.success) {
+          setSalesManagers(salesManagersData.data || []);
+        }
+  
+        if (statsData.success) {
+          setStats(statsData.data);
+        }
+  
+        if (!leadsData.success || !salesManagersData.success || !statsData.success) {
+          setError('Failed to load some data');
+        }
+      } catch (err) {
+        setError('Failed to load data');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadData();
   }, [gradeFilter]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load unassigned leads
-      const leadsParams = new URLSearchParams();
-      if (gradeFilter !== 'all') {
-        leadsParams.append('grade', gradeFilter);
-      }
-      leadsParams.append('limit', '100');
-
-      const [leadsResponse, salesManagersResponse, statsResponse] = await Promise.all([
-        fetch(`/api/admin/leads/unassigned?${leadsParams}`),
-        fetch('/api/admin/sales-managers'),
-        fetch('/api/admin/lead-assignments/bulk'),
-      ]);
-
-      const leadsData = await leadsResponse.json();
-      const salesManagersData = await salesManagersResponse.json();
-      const statsData = await statsResponse.json();
-
-      if (leadsData.success) {
-        setUnassignedLeads(leadsData.data || []);
-      }
-
-      if (salesManagersData.success) {
-        setSalesManagers(salesManagersData.data || []);
-      }
-
-      if (statsData.success) {
-        setStats(statsData.data);
-      }
-
-      if (!leadsData.success || !salesManagersData.success || !statsData.success) {
-        setError('Failed to load some data');
-      }
-    } catch (err) {
-      setError('Failed to load data');
-      console.error('Error loading data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDistributeLeads = async () => {
     if (distributionRule === 'manual' && selectedLeads.length === 0) {
@@ -331,7 +333,7 @@ export default function LeadDistribution() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Distribution Rule</label>
             <select
               value={distributionRule}
-              onChange={(e) => setDistributionRule(e.target.value as any)}
+              onChange={(e) => setDistributionRule(e.target.value as DistributionRule)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="load_balanced">Load Balanced</option>
@@ -345,7 +347,7 @@ export default function LeadDistribution() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
+              onChange={(e) => setPriority(e.target.value as Priority)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="LOW">Low</option>

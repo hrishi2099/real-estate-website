@@ -131,7 +131,7 @@ describe('Properties API Route Logic', () => {
       }
 
       mockGetUserFromRequest.mockReturnValue(adminUser)
-      const user = getUserFromRequest({} as any)
+      const user = getUserFromRequest(mockRequest as any)
 
       expect(user).toBeTruthy()
       expect(user.role).toBe('ADMIN')
@@ -145,7 +145,7 @@ describe('Properties API Route Logic', () => {
       }
 
       mockGetUserFromRequest.mockReturnValue(regularUser)
-      const user = getUserFromRequest({} as any)
+      const user = getUserFromRequest(mockRequest as any)
 
       expect(user).toBeTruthy()
       expect(user.role).toBe('USER')

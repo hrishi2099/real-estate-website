@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  salesManagerId?: string;
+  status?: string;
+}
+
 // Get all lead assignments
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +13,7 @@ export async function GET(request: NextRequest) {
     const salesManagerId = searchParams.get("salesManagerId");
     const status = searchParams.get("status");
 
-    const where: any = {};
+    const where: WhereClause = {};
     if (salesManagerId) where.salesManagerId = salesManagerId;
     if (status) where.status = status;
 
