@@ -2,7 +2,15 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-
+import {
+  trackPageView,
+  trackScrollDepth,
+  trackTimeOnPage,
+  trackButtonClick,
+  trackError,
+  trackPerformance,
+  trackFormInteraction
+} from '@/lib/analytics-gtm';
 
 export function useUniversalTracking() {
   const pathname = usePathname();
@@ -19,12 +27,13 @@ export function useUniversalTracking() {
 
     // Track page view
     const pageTitle = document.title;
+    trackPageView(pathname, pageTitle);
 
     // Track initial page load performance
     if (typeof window !== 'undefined' && 'performance' in window) {
       const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
       if (loadTime > 0) {
-        // trackPerformance('page_load_time', loadTime, pathname);
+        trackPerformance('page_load_time', loadTime, pathname);
       }
     }
 
@@ -43,7 +52,7 @@ export function useUniversalTracking() {
       const currentDepth = Math.floor(scrollPercent / 25) * 25;
       if (currentDepth > scrollDepthRef.current && currentDepth > 0) {
         scrollDepthRef.current = currentDepth;
-        // trackScrollDepth(scrollTop, documentHeight + window.innerHeight);
+        trackScrollDepth(scrollTop, documentHeight + window.innerHeight);
       }
 
       // Track max scroll for time on page calculation
@@ -71,7 +80,7 @@ export function useUniversalTracking() {
                        target.closest('footer')?.getAttribute('class') || 
                        'unknown';
 
-        // trackButtonClick(text, buttonType, context);
+        trackButtonClick(text, buttonType, context);
       }
     };
 
@@ -83,17 +92,20 @@ export function useUniversalTracking() {
         const formName = form?.getAttribute('name') || form?.getAttribute('id') || 'unnamed_form';
         const fieldName = target.getAttribute('name') || target.getAttribute('id') || target.tagName.toLowerCase();
         
-        
+        // Import trackFormInteraction dynamically to avoid circular imports
+        import('@/lib/analytics-gtm').then(({ trackFormInteraction }) => {
+          trackFormInteraction(formName, fieldName, 'focus');
+        });
       }
     };
 
     // Error tracking
     const handleError = (event: ErrorEvent) => {
-      // trackError('javascript_error', event.message, event.filename || pathname);
+      trackError('javascript_error', event.message, event.filename || pathname);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      // trackError('promise_rejection', String(event.reason), pathname);
+      trackError('promise_rejection', String(event.reason), pathname);
     };
 
     // Visibility change tracking (tab switching)
@@ -102,7 +114,7 @@ export function useUniversalTracking() {
         // Track time spent when user leaves page
         const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
         if (timeSpent > 5) { // Only track if more than 5 seconds
-          // trackTimeOnPage(timeSpent, pathname);
+          trackTimeOnPage(timeSpent, pathname);
         }
       } else {
         // Reset timer when user returns
@@ -115,11 +127,11 @@ export function useUniversalTracking() {
       performanceObserverRef.current = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
           if (entry.entryType === 'largest-contentful-paint') {
-            // trackPerformance('lcp', entry.startTime, pathname);
+            trackPerformance('lcp', entry.startTime, pathname);
           } else if (entry.entryType === 'first-input') {
-            // trackPerformance('fid', (entry as any).processingStart - entry.startTime, pathname);
+            trackPerformance('fid', (entry as any).processingStart - entry.startTime, pathname);
           } else if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
-            // trackPerformance('cls', (entry as any).value, pathname);
+            trackPerformance('cls', (entry as any).value, pathname);
           }
         });
       });
@@ -144,7 +156,7 @@ export function useUniversalTracking() {
       // Track final time on page
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
       if (timeSpent > 5) {
-        // trackTimeOnPage(timeSpent, pathname);
+        trackTimeOnPage(timeSpent, pathname);
       }
 
       // Remove event listeners
@@ -167,7 +179,13 @@ export function useUniversalTracking() {
 export function useComponentTracking(componentName: string) {
   return {
     trackInteraction: (action: string, details?: Record<string, any>) => {
-      // Analytics removed, so no tracking here.
+      import('@/lib/analytics-gtm').then(({ trackEvent }) => {
+        trackEvent('component_interaction', {
+          component_name: componentName,
+          action: action,
+          ...details
+        });
+      });
     }
   };
 }

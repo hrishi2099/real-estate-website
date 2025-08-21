@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { trackAuth } from "@/lib/analytics-gtm";
 
 interface User {
   id: string;
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = 'user' in responseData ? responseData.user : responseData;
         if (userData && typeof userData === 'object' && 'id' in userData) {
           setUser(userData as User);
+          trackAuth('login', 'email');
           return { success: true };
         }
       }
@@ -89,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } finally {
       setUser(null);
+      trackAuth('logout');
     }
   };
 
