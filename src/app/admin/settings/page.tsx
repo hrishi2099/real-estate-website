@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
         const uploadedUrl = await handleLogoUpload(logoFile);
         console.log("Uploaded URL:", uploadedUrl);
         if (uploadedUrl) {
-          logoUrl = uploadedUrl;
+          logoUrl = `${window.location.origin}${uploadedUrl}`;
           console.log("Setting logoUrl to:", logoUrl);
         } else {
           console.error("Failed to upload logo");
