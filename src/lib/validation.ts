@@ -69,6 +69,7 @@ export const phoneSchema = z.string()
 export const urlSchema = z.string()
   .url('Invalid URL format')
   .refine((url) => url.startsWith('https://') || url.startsWith('http://'), 'URL must use HTTP or HTTPS')
+  .or(z.literal(''))
   .optional();
 
 export const passwordSchema = z.string()
