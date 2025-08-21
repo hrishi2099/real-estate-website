@@ -164,7 +164,7 @@ export default function AdminLayout({
         )}
 
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:top-16">
           <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-200">
             <div className="flex items-center flex-shrink-0 px-4">
               <h2 className="text-xl font-bold text-gray-900">Admin Panel</h2>
@@ -186,10 +186,12 @@ export default function AdminLayout({
 
         {/* Mobile sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${
+          className={`fixed top-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
+          {/* Spacer for global header */}
+          <div className="h-16"></div>
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Admin Panel</h2>
@@ -219,7 +221,7 @@ export default function AdminLayout({
         </aside>
 
         {/* Main content */}
-        <div className="flex flex-col flex-1 lg:pl-64">
+        <div className="flex flex-col flex-1 lg:pl-64 pt-16">
           {/* Page content */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
             {children}
