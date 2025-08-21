@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
-import { ContactInquiryStatus, Prisma } from '@prisma/client';
+import { ContactInquiryStatus, Prisma, User } from '@prisma/client';
 
 /**
  * GET a single contact inquiry by ID
