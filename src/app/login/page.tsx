@@ -1,15 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { getSettings } from "@/lib/settings";
+import type { OfficeSettings } from '@prisma/client';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [officeSettings, setOfficeSettings] = useState<OfficeSettings | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await getSettings();
+        setOfficeSettings(settings);
+      } catch (error) {
+        console.error("Error fetching office settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   
@@ -61,7 +76,7 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <Link href="/" className="flex items-center space-x-3">
             <div className="text-center">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Real Estate</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">{officeSettings?.companyName || "Real Estate"}</h3>
             </div>
           </Link>
         </div>

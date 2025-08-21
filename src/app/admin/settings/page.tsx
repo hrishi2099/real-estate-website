@@ -232,7 +232,17 @@ export default function AdminSettingsPage() {
         }, 1000);
       } else {
         const errorData = await response.json();
-        setMessage(`Error updating settings: ${errorData.details || errorData.error}`);
+        let errorMessage = "Unknown error";
+        if (errorData && typeof errorData === 'object') {
+          if (typeof errorData.error === 'string') {
+            errorMessage = errorData.error;
+          } else if (Array.isArray(errorData.details)) { // If details is an array of objects
+            errorMessage = errorData.details.map((detail: any) => detail.message || JSON.stringify(detail)).join(', ');
+          } else {
+            errorMessage = JSON.stringify(errorData); // Fallback to stringifying the whole object
+          }
+        }
+        setMessage(`Error updating settings: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Error saving settings:", error);
