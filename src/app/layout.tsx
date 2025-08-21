@@ -14,7 +14,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = defaultMetadata;
+export const metadata: Metadata = {
+  ...defaultMetadata,
+  icons: {
+    icon: '/2zameen seva2 (1) (1).png', // Path to your PNG favicon in the public directory
+  },
+};
 
 export const viewport = {
   width: 'device-width',
