@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { defaultMetadata } from "@/lib/metadata";
 import { getSettings } from "@/lib/settings";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import { Suspense } from "react";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,10 +38,9 @@ export default async function RootLayout({
           {settings && <AnalyticsScripts settings={settings} />}
         </Suspense>
         <AuthProvider>
-          <Header settings={settings} />
-          <main>{children}</main>
-          <Footer settings={settings} />
-          {settings?.phone && <WhatsAppButton settings={settings} />}
+          <LayoutWrapper settings={settings}>
+            {children}
+          </LayoutWrapper>
         </AuthProvider>
       </body>
     </html>
