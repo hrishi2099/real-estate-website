@@ -21,47 +21,25 @@ export default function Analytics() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      try {
-        setLoading(true);
-        const response = await api.getAdminAnalytics(`?timeframe=${timeframe}`);
-        if (response?.data) {
-          const data: AnalyticsData = response.data;
-          setAnalyticsData({
-            totalViews: data.totalViews || 0,
-            uniqueVisitors: data.uniqueVisitors || 0,
-            inquiries: data.totalInquiries || 0,
-            conversions: data.conversions || 0,
-            revenue: `₹${(data.totalRevenue || 0).toLocaleString()}`,
-            avgTimeOnSite: data.avgTimeOnSite || "0m 0s",
-            totalProperties: data.totalProperties || 0,
-            totalUsers: data.totalUsers || 0,
-            totalRevenue: data.totalRevenue || 0,
-            totalInquiries: data.totalInquiries || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to load analytics:", error);
-        // Fallback data
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      const response = await api.getAdminAnalytics(`?timeframe=${timeframe}`);
+      if (response?.data) {
+        const data = response.data as AnalyticsData;
         setAnalyticsData({
-          totalViews: 0,
-          uniqueVisitors: 0,
-          inquiries: 0,
-          conversions: 0,
-          revenue: "₹0",
-          avgTimeOnSite: "0m 0s",
-          totalProperties: 0,
-          totalUsers: 0,
-          totalRevenue: 0,
-          totalInquiries: 0,
+          totalViews: data.totalViews || 0,
+          uniqueVisitors: data.uniqueVisitors || 0,
+          inquiries: data.totalInquiries || 0,
+          conversions: data.conversions || 0,
+          revenue: `₹${(data.totalRevenue || 0).toLocaleString()}`,
+          avgTimeOnSite: data.avgTimeOnSite || "0m 0s",
+          totalProperties: data.totalProperties || 0,
+          totalUsers: data.totalUsers || 0,
+          totalRevenue: data.totalRevenue || 0,
+          totalInquiries: data.totalInquiries || 0,
         });
-      } finally {
-        setLoading(false);
       }
-    };
-    loadAnalytics();
-  }, [timeframe]);
     } catch (error) {
       console.error("Failed to load analytics:", error);
       // Fallback data
@@ -81,6 +59,10 @@ export default function Analytics() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [timeframe]);
 
   const topProperties = [
     { id: 1, title: "Modern Downtown Apartment", views: 1250, inquiries: 45, price: "₹4,50,00,000" },

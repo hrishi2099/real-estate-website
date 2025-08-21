@@ -68,51 +68,52 @@ export default function LeadDistribution() {
   const [expectedCloseDate, setExpectedCloseDate] = useState('');
   const [gradeFilter, setGradeFilter] = useState<string>('all');
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-  
-        // Load unassigned leads
-        const leadsParams = new URLSearchParams();
-        if (gradeFilter !== 'all') {
-          leadsParams.append('grade', gradeFilter);
-        }
-        leadsParams.append('limit', '100');
-  
-        const [leadsResponse, salesManagersResponse, statsResponse] = await Promise.all([
-          fetch(`/api/admin/leads/unassigned?${leadsParams}`),
-          fetch('/api/admin/sales-managers'),
-          fetch('/api/admin/lead-assignments/bulk'),
-        ]);
-  
-        const leadsData = await leadsResponse.json();
-        const salesManagersData = await salesManagersResponse.json();
-        const statsData = await statsResponse.json();
-  
-        if (leadsData.success) {
-          setUnassignedLeads(leadsData.data || []);
-        }
-  
-        if (salesManagersData.success) {
-          setSalesManagers(salesManagersData.data || []);
-        }
-  
-        if (statsData.success) {
-          setStats(statsData.data);
-        }
-  
-        if (!leadsData.success || !salesManagersData.success || !statsData.success) {
-          setError('Failed to load some data');
-        }
-      } catch (err) {
-        setError('Failed to load data');
-        console.error('Error loading data:', err);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load unassigned leads
+      const leadsParams = new URLSearchParams();
+      if (gradeFilter !== 'all') {
+        leadsParams.append('grade', gradeFilter);
       }
-    };
+      leadsParams.append('limit', '100');
+
+      const [leadsResponse, salesManagersResponse, statsResponse] = await Promise.all([
+        fetch(`/api/admin/leads/unassigned?${leadsParams}`),
+        fetch('/api/admin/sales-managers'),
+        fetch('/api/admin/lead-assignments/bulk'),
+      ]);
+
+      const leadsData = await leadsResponse.json();
+      const salesManagersData = await salesManagersResponse.json();
+      const statsData = await statsResponse.json();
+
+      if (leadsData.success) {
+        setUnassignedLeads(leadsData.data || []);
+      }
+
+      if (salesManagersData.success) {
+        setSalesManagers(salesManagersData.data || []);
+      }
+
+      if (statsData.success) {
+        setStats(statsData.data);
+      }
+
+      if (!leadsData.success || !salesManagersData.success || !statsData.success) {
+        setError('Failed to load some data');
+      }
+    } catch (err) {
+      setError('Failed to load data');
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
   }, [gradeFilter]);
 

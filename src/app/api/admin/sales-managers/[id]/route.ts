@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { UserStatus } from '@prisma/client';
 import bcrypt from "bcryptjs";
 
 // Get specific sales manager
@@ -74,9 +75,12 @@ interface UpdateData {
   phone?: string;
   territory?: string;
   commission?: number | null;
-  status?: string;
-  managerId?: string;
+  status?: UserStatus;
   password?: string;
+  manager?: {
+    connect?: { id: string };
+    disconnect?: boolean;
+  };
 }
 
 // Update sales manager
@@ -102,9 +106,16 @@ export async function PUT(
       phone,
       territory,
       commission: commission ? parseFloat(commission) : null,
-      status,
-      managerId,
+      status: status as UserStatus,
     };
+
+    if (managerId !== undefined) {
+      if (managerId === null) {
+        updateData.manager = { disconnect: true };
+      } else {
+        updateData.manager = { connect: { id: managerId } };
+      }
+    }
 
     // Hash password if provided
     if (password) {

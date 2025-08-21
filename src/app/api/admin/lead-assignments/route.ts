@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 interface WhereClause {
   salesManagerId?: string;
-  status?: string;
+  status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
 }
 
 // Get all lead assignments
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const where: WhereClause = {};
     if (salesManagerId) where.salesManagerId = salesManagerId;
-    if (status) where.status = status;
+    if (status) where.status = status as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
 
     const assignments = await prisma.leadAssignment.findMany({
       where,

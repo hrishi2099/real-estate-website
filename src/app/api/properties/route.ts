@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   const location = searchParams.get('location') || undefined;
   const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
   const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
-  const minArea = searchParams.get('minArea') ? parseFloat(search_params.get('minArea')!) : undefined;
+  const minArea = searchParams.get('minArea') ? parseFloat(searchParams.get('minArea')!) : undefined;
 
   try {
     const result = await getProperties({

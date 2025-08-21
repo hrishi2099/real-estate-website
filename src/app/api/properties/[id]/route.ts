@@ -5,8 +5,8 @@ import { revalidateTag } from 'next/cache';
 import { updatePropertySchema } from '@/lib/validation';
 import { getProperty } from '@/lib/properties';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(req: Request, context: any) {
+  const { id } = context.params;
 
   try {
     const property = await getProperty(id);
@@ -35,10 +35,17 @@ export const PUT = requireAdmin(async (req, { params }: { params: { id: string }
     const updatedProperty = await prisma.property.update({
       where: { id },
       data: {
-        ...validation.data,
+        ...(() => {
+          const { features, ...rest } = validation.data;
+          return rest;
+        })(),
         // Handle Decimal and JSON fields if necessary
         ...(validation.data.price && { price: validation.data.price }),
-        ...(validation.data.features && { features: JSON.stringify(validation.data.features) }),
+        ...(validation.data.features !== undefined && {
+          features: Array.isArray(validation.data.features)
+            ? validation.data.features.join(', ')
+            : validation.data.features,
+        }),
       },
     });
 

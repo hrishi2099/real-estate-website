@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { LeadAssignmentStatus } from '@prisma/client';
 
 // Get pipeline stages for a specific assignment
 export async function GET(
@@ -157,7 +158,7 @@ export async function PUT(
       });
 
       // Update assignment status based on stage
-      let assignmentStatus: AssignmentStatus = 'ACTIVE';
+      let assignmentStatus: LeadAssignmentStatus = 'ACTIVE';
       if (stage === 'WON') {
         assignmentStatus = 'COMPLETED';
       } else if (stage === 'LOST') {

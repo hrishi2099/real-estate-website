@@ -1,23 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-interface WhereClause {
-  role: string;
-  status: string;
-  leadScore: {
-    isNot: null;
-    grade?: string;
-    score?: {
-      gte?: number;
-      lte?: number;
-    };
-  };
-  leadAssignments: {
-    none: {
-      status: string;
-    };
-  };
-}
+import { UserStatus, LeadAssignmentStatus, Prisma, LeadGrade } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,30 +10,28 @@ export async function GET(request: NextRequest) {
     const maxScore = searchParams.get("maxScore");
     const limit = searchParams.get("limit");
 
-    // Get users with lead scores who are not assigned to any sales manager
-    const whereClause: WhereClause = {
+    const whereClause: Prisma.UserWhereInput = {
       role: "USER",
-      status: "ACTIVE",
+      status: UserStatus.ACTIVE,
+      leadAssignments: {
+        none: {
+          status: LeadAssignmentStatus.ACTIVE,
+        },
+      },
       leadScore: {
         isNot: null,
       },
-      leadAssignments: {
-        none: {
-          status: "ACTIVE", // Only exclude leads that have active assignments
-        },
-      },
     };
 
-    // Filter by lead score grade if specified
     if (grade) {
-      whereClause.leadScore.grade = grade;
+      (whereClause.leadScore as Prisma.LeadScoreWhereInput).grade = grade as LeadGrade;
     }
 
-    // Filter by score range if specified
     if (minScore || maxScore) {
-      whereClause.leadScore.score = {};
-      if (minScore) whereClause.leadScore.score.gte = parseInt(minScore);
-      if (maxScore) whereClause.leadScore.score.lte = parseInt(maxScore);
+      (whereClause.leadScore as Prisma.LeadScoreWhereInput).score = {
+        gte: minScore ? parseInt(minScore) : undefined,
+        lte: maxScore ? parseInt(maxScore) : undefined,
+      };
     }
 
     const unassignedLeads = await prisma.user.findMany({
@@ -59,7 +40,7 @@ export async function GET(request: NextRequest) {
         leadScore: true,
         leadAssignments: {
           where: {
-            status: "ACTIVE",
+            status: LeadAssignmentStatus.ACTIVE,
           },
           include: {
             salesManager: {
@@ -80,7 +61,6 @@ export async function GET(request: NextRequest) {
       take: limit ? parseInt(limit) : 50,
     });
 
-    // Format the response
     const formattedLeads = unassignedLeads.map(lead => ({
       user: {
         id: lead.id,

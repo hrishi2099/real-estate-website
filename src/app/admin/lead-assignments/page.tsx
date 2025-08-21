@@ -78,50 +78,51 @@ export default function LeadAssignmentsManagement() {
   const [bulkAction, setBulkAction] = useState<BulkAction>('update_status');
   const [bulkData, setBulkData] = useState<BulkData>({});
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-  
-        const params = new URLSearchParams();
-        if (statusFilter !== 'all') params.append('status', statusFilter);
-        if (salesManagerFilter !== 'all') params.append('salesManagerId', salesManagerFilter);
-  
-        const [assignmentsResponse, salesManagersResponse] = await Promise.all([
-          fetch(`/api/admin/lead-assignments?${params}`),
-          fetch('/api/admin/sales-managers'),
-        ]);
-  
-        const assignmentsData = await assignmentsResponse.json();
-        const salesManagersData = await salesManagersResponse.json();
-  
-        if (assignmentsData.success) {
-          let filteredAssignments = assignmentsData.data || [];
-          
-          // Apply priority filter on client side
-          if (priorityFilter !== 'all') {
-            filteredAssignments = filteredAssignments.filter(
-              (assignment: LeadAssignment) => assignment.priority === priorityFilter
-            );
-          }
-          
-          setAssignments(filteredAssignments);
-        } else {
-          setError(assignmentsData.error || 'Failed to load assignments');
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') params.append('status', statusFilter);
+      if (salesManagerFilter !== 'all') params.append('salesManagerId', salesManagerFilter);
+
+      const [assignmentsResponse, salesManagersResponse] = await Promise.all([
+        fetch(`/api/admin/lead-assignments?${params}`),
+        fetch('/api/admin/sales-managers'),
+      ]);
+
+      const assignmentsData = await assignmentsResponse.json();
+      const salesManagersData = await salesManagersResponse.json();
+
+      if (assignmentsData.success) {
+        let filteredAssignments = assignmentsData.data || [];
+        
+        // Apply priority filter on client side
+        if (priorityFilter !== 'all') {
+          filteredAssignments = filteredAssignments.filter(
+            (assignment: LeadAssignment) => assignment.priority === priorityFilter
+          );
         }
-  
-        if (salesManagersData.success) {
-          setSalesManagers(salesManagersData.data || []);
-        }
-  
-      } catch (err) {
-        setError('Failed to load data');
-        console.error('Error loading data:', err);
-      } finally {
-        setLoading(false);
+        
+        setAssignments(filteredAssignments);
+      } else {
+        setError(assignmentsData.error || 'Failed to load assignments');
       }
-    };
+
+      if (salesManagersData.success) {
+        setSalesManagers(salesManagersData.data || []);
+      }
+
+    } catch (err) {
+      setError('Failed to load data');
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
   }, [statusFilter, priorityFilter, salesManagerFilter]);
 
@@ -601,7 +602,7 @@ export default function LeadAssignmentsManagement() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                       <select
                         value={bulkData.priority || 'MEDIUM'}
-                        onChange={(e) => setBulkData({ ...bulkData, priority: e.target.value })}
+                        onChange={(e) => setBulkData({ ...bulkData, priority: e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="URGENT">Urgent</option>

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface WhereClause {
+  assignedAt: {
+    gte: Date;
+  };
+  salesManagerId?: string;
+}
+
 // Get pipeline data for a specific sales manager
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +29,14 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(timeframe));
 
-    // Get sales manager's pipeline stages
+    // Base where clause
+    const whereClause: WhereClause = {
+      assignedAt: {
+        gte: startDate,
+      },
+      salesManagerId,
+    };
+
     type Stage = 'NEW_LEAD' | 'CONTACTED' | 'QUALIFIED' | 'PROPOSAL_SENT' | 'NEGOTIATION' | 'PROPERTY_VIEWING' | 'APPLICATION' | 'CLOSING' | 'WON';
 
 interface DealsByStage {
@@ -126,3 +140,122 @@ interface DealsByStage {
       };
       return acc;
     }, {} as DealsByStage);
+
+    // Calculate pipeline velocity (average time from NEW_LEAD to WON)
+    const wonDeals = await prisma.pipelineStage.findMany({
+      where: {
+        stage: 'WON',
+        assignment: whereClause,
+      },
+      include: {
+        assignment: {
+          include: {
+            pipelineStages: {
+              where: {
+                stage: 'NEW_LEAD',
+              },
+              orderBy: {
+                enteredAt: 'asc',
+              },
+              take: 1,
+            },
+          },
+        },
+      },
+    });
+
+    const pipelineVelocity = wonDeals
+      .filter(stage => stage.assignment.pipelineStages.length > 0)
+      .reduce((acc, stage) => {
+        const startDate = stage.assignment.pipelineStages[0].enteredAt;
+        const endDate = stage.enteredAt;
+        const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        return acc + days;
+      }, 0) / Math.max(wonDeals.length, 1);
+
+    // Revenue metrics
+    const revenueMetrics = await prisma.pipelineStage.aggregate({
+      where: {
+        stage: 'WON',
+        assignment: whereClause,
+      },
+      _sum: {
+        estimatedValue: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    const totalPipelineValue = await prisma.pipelineStage.aggregate({
+      where: {
+        assignment: whereClause,
+        exitedAt: null, // Only active deals
+        estimatedValue: {
+          not: null,
+        },
+      },
+      _sum: {
+        estimatedValue: true,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        stages: pipelineStages.map(stage => ({
+          id: stage.id,
+          stage: stage.stage,
+          enteredAt: stage.enteredAt,
+          exitedAt: stage.exitedAt,
+          durationHours: stage.durationHours,
+          probability: stage.probability,
+          estimatedValue: stage.estimatedValue,
+          nextAction: stage.nextAction,
+          nextActionDate: stage.nextActionDate,
+          notes: stage.notes,
+          lead: {
+            id: stage.assignment.lead.id,
+            name: stage.assignment.lead.name,
+            email: stage.assignment.lead.email,
+            phone: stage.assignment.lead.phone,
+            leadScore: stage.assignment.lead.leadScore,
+          },
+          salesManager: stage.assignment.salesManager,
+          activities: stage.stageActivities.map(activity => ({
+            id: activity.id,
+            activityType: activity.activityType,
+            description: activity.description,
+            outcome: activity.outcome,
+            scheduledAt: activity.scheduledAt,
+            completedAt: activity.completedAt,
+            createdAt: activity.createdAt,
+          })),
+        })),
+        statistics: {
+          dealsByStage,
+          conversionRates,
+          pipelineVelocityDays: Math.round(pipelineVelocity),
+          revenue: {
+            won: Number(revenueMetrics._sum.estimatedValue || 0),
+            wonCount: revenueMetrics._count.id,
+            pipeline: Number(totalPipelineValue._sum.estimatedValue || 0),
+            avgDealSize: revenueMetrics._count.id > 0 
+              ? Number(revenueMetrics._sum.estimatedValue || 0) / revenueMetrics._count.id 
+              : 0,
+          },
+        },
+      },
+    });
+
+  } catch (error) {
+    console.error("Error fetching sales pipeline:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch sales pipeline",
+      },
+      { status: 500 }
+    );
+  }
+}

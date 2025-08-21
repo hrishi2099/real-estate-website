@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { PipelineActivityType, SalesStage } from '@prisma/client';
 
 interface WhereClause {
   createdAt: {
@@ -9,7 +10,7 @@ interface WhereClause {
     assignmentId: string;
   };
   createdBy?: string;
-  activityType?: string;
+  activityType?: PipelineActivityType;
 }
 
 // Get all pipeline activities with filters
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (activityType) {
-      whereClause.activityType = activityType;
+      whereClause.activityType = activityType as PipelineActivityType;
     }
 
     const activities = await prisma.pipelineActivity.findMany({
@@ -301,7 +302,7 @@ async function updateStageBasedOnActivity(
       await prisma.pipelineStage.create({
         data: {
           assignmentId: stage.assignmentId,
-          stage: newStage,
+          stage: newStage as SalesStage,
           probability: getDefaultProbability(newStage),
           createdBy: salesManagerId,
         },

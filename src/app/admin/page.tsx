@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       // Load recent activity (using inquiries as recent activity)
       const inquiriesResponse = await api.getAdminInquiries();
       if (inquiriesResponse?.data) {
-        const inquiriesData: Inquiry[] = inquiriesResponse.data;
+        const inquiriesData: any = inquiriesResponse.data;
         const activities: RecentActivity[] = Array.isArray(inquiriesData) ? inquiriesData
           .slice(0, 4)
           .map((inquiry: Inquiry) => ({
