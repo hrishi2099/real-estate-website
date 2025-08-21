@@ -150,6 +150,13 @@ export const officeSettingsSchema = z.object({
   fridayHours: z.string().max(50, 'Hours format too long').optional(),
   saturdayHours: z.string().max(50, 'Hours format too long').optional(),
   sundayHours: z.string().max(50, 'Hours format too long').optional(),
+  // Analytics & Tracking
+  gtmContainerId: z.string().max(50, 'GTM Container ID too long').optional(),
+  gtmEnabled: z.boolean().optional(),
+  ga4MeasurementId: z.string().max(50, 'GA4 Measurement ID too long').optional(),
+  ga4Enabled: z.boolean().optional(),
+  facebookPixelId: z.string().max(50, 'Facebook Pixel ID too long').optional(),
+  facebookPixelEnabled: z.boolean().optional(),
 });
 
 // Analytics query validation
