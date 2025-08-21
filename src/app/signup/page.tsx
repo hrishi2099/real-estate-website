@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { getSettings } from "@/lib/settings";
+import type { OfficeSettings } from '@prisma/client';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -17,7 +20,20 @@ export default function SignUpPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
+  const [officeSettings, setOfficeSettings] = useState<OfficeSettings | null>(null);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const settings = await getSettings();
+        setOfficeSettings(settings);
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      }
+    }
+    fetchSettings();
+  }, []);
+
   const { login } = useAuth();
   const router = useRouter();
 
@@ -109,9 +125,21 @@ export default function SignUpPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <Link href="/" className="flex items-center space-x-3">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-gray-900">Company Logo</h3>
-            </div>
+            {officeSettings?.logoUrl ? (
+              <div className="relative h-10 w-36"> {/* Adjust size as needed */}
+                <Image
+                  src={officeSettings.logoUrl}
+                  alt={`${officeSettings?.companyName || "Company"} Logo`}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            ) : (
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900">{officeSettings?.companyName || "Company Name"}</h3>
+              </div>
+            )}
           </Link>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
