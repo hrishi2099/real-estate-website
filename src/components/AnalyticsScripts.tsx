@@ -55,9 +55,11 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
 
       {/* 
         Google Analytics 4 (Direct). 
-        This will only run if GTM is disabled, as it's best practice to add GA4 through GTM if you're using it.
+        WARNING: If Google Tag Manager (GTM) is also enabled and configured to send GA4 data,
+        this direct implementation might lead to double-counting.
+        It's generally recommended to configure GA4 through GTM if GTM is in use.
       */}
-      {ga4Enabled && ga4MeasurementId && !gtmEnabled && (
+      {ga4Enabled && ga4MeasurementId && (
         <>
           <Script
             strategy="afterInteractive"
