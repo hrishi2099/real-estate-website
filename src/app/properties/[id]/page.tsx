@@ -4,6 +4,7 @@ import Gallery from "@/components/Gallery";
 import PropertyDetails from "@/components/PropertyDetails";
 import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
 import type { Metadata } from "next";
+import { getProperty } from "@/lib/properties";
 
 interface Property {
   id: string;
@@ -35,34 +36,6 @@ interface PropertyImage {
   isPrimary: boolean;
 }
 
-async function getProperty(id: string): Promise<Property | null> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/properties/${id}`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    const data = await response.json();
-    
-    if (!data.property) {
-      return null;
-    }
-    
-    return {
-      ...data.property,
-      features: data.property.features ? 
-        (Array.isArray(data.property.features) ? data.property.features : JSON.parse(data.property.features)) 
-        : []
-    };
-  } catch (error) {
-    console.error('Error fetching property for metadata:', error);
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const property = await getProperty(id);
@@ -88,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const images = property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url;
 
   return generateMetadataHelper(title, description, {
-    companyName: "Real Estate Platform",
+    companyName: "Zaminseva Prime Pvt. Ltd.",
     website: process.env.NEXT_PUBLIC_SITE_URL,
   }, {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/properties/${id}`,
@@ -112,6 +85,18 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   if (!property) {
     notFound();
   }
+
+  const propertyForDetails = {
+    ...property,
+    description: property.description || undefined,
+    area: property.area || undefined,
+    latitude: property.latitude || undefined,
+    longitude: property.longitude || undefined,
+    bedrooms: property.bedrooms || undefined,
+    bathrooms: property.bathrooms || undefined,
+    yearBuilt: property.yearBuilt || undefined,
+    owner: property.owner || undefined,
+  };
 
 
   const formatPrice = (price: number) => {
@@ -178,7 +163,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
           </section>
 
           <section aria-label="Property Details">
-            <PropertyDetails property={property} />
+            <PropertyDetails property={propertyForDetails} />
           </section>
         </article>
       </div>
