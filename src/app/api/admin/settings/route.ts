@@ -28,7 +28,18 @@ export const PUT = requireAdmin(async (req) => {
   }
 
   try {
-    const updatedSettings = await prisma.officeSettings.updateMany({
+    const settings = await prisma.officeSettings.findFirst();
+    if (!settings) {
+        // This should not happen based on the GET handler, but as a safeguard:
+        const newSettings = await prisma.officeSettings.create({
+            data: validation.data,
+        });
+        revalidateTag('settings');
+        return NextResponse.json(newSettings);
+    }
+
+    const updatedSettings = await prisma.officeSettings.update({
+      where: { id: settings.id },
       data: validation.data,
     });
 

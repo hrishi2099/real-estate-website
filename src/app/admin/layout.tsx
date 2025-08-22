@@ -12,6 +12,7 @@ export default function AdminLayout({
   const { isAdmin, isAuthenticated, isLoading, isHydrated } = useAuth();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (isHydrated && !isLoading) {
@@ -164,10 +165,20 @@ export default function AdminLayout({
         )}
 
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:top-16">
+        <aside
+          className={`hidden lg:flex lg:flex-col lg:fixed lg:top-16 transition-all duration-300 z-30 ${
+            desktopSidebarOpen ? "lg:w-64" : "lg:w-20"
+          }`}
+        >
           <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-200">
             <div className="flex items-center flex-shrink-0 px-4">
-              <h2 className="text-xl font-bold text-gray-900">Admin Panel</h2>
+              <h2
+                className={`text-xl font-bold text-gray-900 ${
+                  !desktopSidebarOpen && "hidden"
+                }`}
+              >
+                Admin Panel
+              </h2>
             </div>
             <nav className="mt-8 flex-1 px-3 space-y-1">
               {navItems.map((item) => (
@@ -177,7 +188,7 @@ export default function AdminLayout({
                   className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   {item.icon}
-                  {item.label}
+                  {desktopSidebarOpen && <span>{item.label}</span>}
                 </a>
               ))}
             </nav>
@@ -187,7 +198,7 @@ export default function AdminLayout({
         {/* Mobile sidebar */}
         <aside
           className={`fixed top-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           {/* Spacer for global header */}
@@ -221,7 +232,31 @@ export default function AdminLayout({
         </aside>
 
         {/* Main content */}
-        <div className="flex flex-col flex-1 lg:pl-64 pt-16">
+        <div
+          className={`flex flex-col flex-1 pt-16 transition-all duration-300 ${
+            desktopSidebarOpen ? "lg:pl-64" : "lg:pl-20"
+          }`}
+        >
+          <header className="bg-white shadow-sm z-20">
+            <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 lg:hidden"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+                className="hidden lg:block p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </header>
           {/* Page content */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
             {children}
