@@ -233,11 +233,11 @@ export default function AdminLayout({
 
         {/* Main content */}
         <div
-          className={`flex flex-col flex-1 pt-16 transition-all duration-300 ${
+          className={`flex flex-col flex-1 transition-all duration-300 ${
             desktopSidebarOpen ? "lg:pl-64" : "lg:pl-20"
           }`}
         >
-          <header className="bg-white shadow-sm z-20">
+          <header className="bg-white shadow-sm z-20 pt-16">
             <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}

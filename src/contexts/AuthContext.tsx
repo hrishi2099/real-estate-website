@@ -41,22 +41,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuth = async () => {
+    console.log("AuthContext: checkAuth started");
     try {
       const response = await api.getCurrentUser();
+      console.log("AuthContext: api.getCurrentUser() response:", response);
       if (response?.data && typeof response.data === 'object') {
         // The /auth/me endpoint returns { user }
         const responseData = response.data as { user?: User } | User;
         const userData = 'user' in responseData ? responseData.user : responseData;
         if (userData && typeof userData === 'object' && 'id' in userData) {
           setUser(userData as User);
+          console.log("AuthContext: User set to:", userData);
+        } else {
+          setUser(null);
+          console.log("AuthContext: No user data found in response, setting user to null.");
         }
+      } else {
+        setUser(null);
+        console.log("AuthContext: Invalid response data, setting user to null.");
       }
     } catch (error) {
+      setUser(null);
       if (typeof console !== 'undefined' && console.error) {
         console.error("Auth check failed:", error);
       }
+      console.log("AuthContext: Error during auth check, setting user to null.");
     } finally {
       setIsLoading(false);
+      console.log("AuthContext: checkAuth finished, isLoading set to false.");
     }
   };
 
