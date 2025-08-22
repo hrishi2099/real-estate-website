@@ -76,7 +76,7 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <Link href="/" className="flex items-center space-x-3">
             <div className="text-center">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">{officeSettings?.companyName || "Real Estate"}</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">{officeSettings?.companyName || "Zaminseva Prime PVT. LTD."}</h3>
             </div>
           </Link>
         </div>

@@ -21,27 +21,34 @@ export async function GET() {
 
 export const PUT = requireAdmin(async (req) => {
   const body = await req.json();
+  console.log("Received settings update request with body:", body);
 
   const validation = officeSettingsSchema.safeParse(body);
   if (!validation.success) {
+    console.error("Settings validation failed:", validation.error.issues);
     return NextResponse.json({ error: 'Invalid input', details: validation.error.issues }, { status: 400 });
   }
+
+  console.log("Validated settings data:", validation.data);
 
   try {
     const settings = await prisma.officeSettings.findFirst();
     if (!settings) {
-        // This should not happen based on the GET handler, but as a safeguard:
+        console.log("No existing settings found, creating new one.");
         const newSettings = await prisma.officeSettings.create({
             data: validation.data,
         });
+        console.log("Created new settings:", newSettings);
         revalidateTag('settings');
         return NextResponse.json(newSettings);
     }
 
+    console.log("Found existing settings with id:", settings.id);
     const updatedSettings = await prisma.officeSettings.update({
       where: { id: settings.id },
       data: validation.data,
     });
+    console.log("Updated settings in database:", updatedSettings);
 
     revalidateTag('settings');
 

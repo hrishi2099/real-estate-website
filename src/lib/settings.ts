@@ -11,6 +11,7 @@ export const getSettings = unstable_cache(
   async () => {
     console.log('Fetching settings from database...');
     const settings = await prisma.officeSettings.findFirst();
+    console.log('Settings fetched from database:', settings);
     return settings;
   },
   ['settings'], // Cache key

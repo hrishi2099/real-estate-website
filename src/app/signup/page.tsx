@@ -137,7 +137,7 @@ export default function SignUpPage() {
               </div>
             ) : (
               <div className="text-center">
-                <h3 className="text-xl font-bold text-gray-900">{officeSettings?.companyName || "Company Name"}</h3>
+                <h3 className="text-xl font-bold text-gray-900">{officeSettings?.companyName || "Zaminseva Prime PVT. LTD."}</h3>
               </div>
             )}
           </Link>
