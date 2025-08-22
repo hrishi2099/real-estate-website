@@ -83,14 +83,14 @@ export function generateMetadata(
 // Default metadata for the main layout
 export const defaultMetadata: Metadata = {
   title: {
-    default: "Real Estate Platform - Premium Properties",
-    template: "%s | Real Estate Platform"
+    default: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
+    template: "%s | Zaminseva Prime Pvt. Ltd."
   },
-  description: "Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and apartments with expert guidance.",
+  description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
   keywords: ["real estate", "properties", "homes", "luxury", "investment", "condos", "apartments", "villas", "buy", "sell"],
-  authors: [{ name: "Real Estate Platform" }],
-  creator: "Real Estate Platform",
-  publisher: "Real Estate Platform",
+  authors: [{ name: "Zaminseva Prime Pvt. Ltd." }],
+  creator: "Zaminseva Prime Pvt. Ltd.",
+  publisher: "Zaminseva Prime Pvt. Ltd.",
   formatDetection: {
     email: false,
     address: false,
@@ -106,24 +106,24 @@ export const defaultMetadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://example.com",
-    siteName: "Real Estate Platform",
-    title: "Real Estate Platform - Premium Properties",
-    description: "Professional real estate platform for buying, selling, and investing in premium properties.",
+    siteName: "Zaminseva Prime Pvt. Ltd.",
+    title: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
+    description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Real Estate Platform",
+        alt: "Zaminseva Prime Pvt. Ltd.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Real Estate Platform - Premium Properties",
-    description: "Professional real estate platform for buying, selling, and investing in premium properties.",
+    title: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
+    description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
     images: ["/og-image.jpg"],
-    creator: "@realestate",
+    creator: "@zaminseva",
   },
   robots: {
     index: true,
