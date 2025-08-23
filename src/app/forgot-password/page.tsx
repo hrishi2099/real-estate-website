@@ -1,13 +1,7 @@
 "use client";
 
-import type { Metadata } from "next";
 import { useState } from "react";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Forgot Password",
-  description: "Reset your password to regain access to your account. Enter your email address to receive a password reset link.",
-};
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

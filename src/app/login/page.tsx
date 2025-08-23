@@ -1,17 +1,11 @@
 "use client";
 
-import type { Metadata } from "next";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { getSettings } from "@/lib/settings";
 import type { OfficeSettings } from '@prisma/client';
-
-export const metadata: Metadata = {
-  title: "Login",
-  description: "Sign in to your account to access your dashboard, saved properties, and personalized real estate services.",
-};
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({

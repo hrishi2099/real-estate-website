@@ -1,14 +1,8 @@
 "use client";
 
-import type { Metadata } from "next";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-
-export const metadata: Metadata = {
-  title: "Reset Password",
-  description: "Reset your password to regain access to your account. Enter your new password to continue.",
-};
 
 function ResetPasswordContent() {
   const [formData, setFormData] = useState({
