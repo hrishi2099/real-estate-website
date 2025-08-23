@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState, useEffect } from "react";
 import { trackContactSubmission } from "@/lib/analytics-gtm";
 
@@ -19,6 +20,11 @@ interface OfficeSettings {
   saturdayHours: string | null;
   sundayHours: string | null;
 }
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with our expert real estate team for any inquiries about buying, selling, or investing in properties. Contact us today for a free consultation.",
+};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

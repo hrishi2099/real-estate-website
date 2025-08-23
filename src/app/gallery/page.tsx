@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +28,11 @@ interface GalleryResponse {
     totalPages: number;
   };
 }
+
+export const metadata: Metadata = {
+  title: "Property Gallery",
+  description: "Explore our collection of premium properties through stunning imagery. Browse high-quality photos of apartments, houses, villas, and more.",
+};
 
 export default function GalleryPage() {
   const [images, setImages] = useState<PropertyImage[]>([]);

@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,6 +31,11 @@ interface SearchFilters {
   maxArea: string;
   pricePerSqft: string;
 }
+
+export const metadata: Metadata = {
+  title: "Property Search",
+  description: "Find your perfect property with our advanced search filters. Search by location, property type, price, and more to find the best real estate listings.",
+};
 
 export default function PropertySearchPage() {
   const [properties, setProperties] = useState<Property[]>([]);

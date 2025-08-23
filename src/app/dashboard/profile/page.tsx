@@ -1,7 +1,13 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+
+export const metadata: Metadata = {
+  title: "My Profile",
+  description: "View and manage your profile information, including your name, email, and phone number.",
+};
 
 export default function ProfilePage() {
   const { user } = useAuth();

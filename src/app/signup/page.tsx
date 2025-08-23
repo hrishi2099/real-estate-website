@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +8,11 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getSettings } from "@/lib/settings";
 import type { OfficeSettings } from '@prisma/client';
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+  description: "Create an account to save your favorite properties, get personalized alerts, and manage your real estate investments.",
+};
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({

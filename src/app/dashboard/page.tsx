@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,11 @@ interface SavedProperty {
   image: string;
   savedDate: string;
 }
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Access your personal dashboard to manage your property investments, track your favorite listings, and view recent activity.",
+};
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, isHydrated } = useAuth();

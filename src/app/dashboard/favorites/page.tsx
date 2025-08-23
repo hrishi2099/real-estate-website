@@ -1,5 +1,6 @@
 "use client";
 
+import type { Metadata } from "next";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
@@ -16,6 +17,11 @@ interface Property {
   image: string;
   addedDate: string;
 }
+
+export const metadata: Metadata = {
+  title: "My Favorites",
+  description: "View and manage your saved properties. Keep track of your favorite real estate listings all in one place.",
+};
 
 export default function FavoritesPage() {
   const { user } = useAuth();
