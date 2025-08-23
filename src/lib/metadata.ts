@@ -75,7 +75,7 @@ export function generateMetadata(
     },
     metadataBase: new URL(siteUrl),
     alternates: {
-      canonical: options?.canonical || siteUrl,
+      canonical: options?.canonical ? new URL(options.canonical, siteUrl).toString() : siteUrl,
     },
   };
 }
