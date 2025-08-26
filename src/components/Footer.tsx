@@ -19,7 +19,7 @@ export default function Footer({ settings }: FooterProps) {
               {settings?.logoUrl && (
                 <div className="relative h-10 w-36">
                   <Image
-                    src={settings.logoUrl}
+                    src="/logos/logo.png"
                     alt={`${settings?.companyName || "Company"} Logo`}
                     fill
                     className="object-contain"

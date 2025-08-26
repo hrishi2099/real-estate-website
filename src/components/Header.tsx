@@ -46,7 +46,7 @@ export default function Header({ settings }: HeaderProps) {
               {settings?.logoUrl && (
                 <div className="relative h-6 w-24 sm:h-8 sm:w-32">
                   <Image
-                    src={settings.logoUrl}
+                    src="/logos/logo.png"
                     alt={`${settings?.companyName || "Company"} Logo`}
                     fill
                     className="object-contain"
