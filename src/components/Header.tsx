@@ -62,7 +62,7 @@ export default function Header({ settings }: HeaderProps) {
             </Link>
           </div>
           
-          <nav className="hidden md:flex space-x-10" data-section="main-navigation">
+          <nav className="hidden md:flex space-x-4 lg:space-x-8" data-section="main-navigation">
             <Link 
               href="/" 
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
