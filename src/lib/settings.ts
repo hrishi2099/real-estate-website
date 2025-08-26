@@ -9,9 +9,26 @@ import { prisma } from '@/lib/prisma';
  */
 export const getSettings = unstable_cache(
   async () => {
-    console.log('Fetching settings from database...');
-    const settings = await prisma.officeSettings.findFirst();
-    console.log('Settings fetched from database:', settings);
+    const settings = await prisma.officeSettings.findFirst({
+      select: {
+        // Fields for Header, Footer, and general UI
+        companyName: true,
+        logoUrl: true,
+        address: true,
+        phone: true,
+        email: true,
+        website: true,
+        // Fields for AnalyticsScripts
+        gtmEnabled: true,
+        gtmContainerId: true,
+        ga4Enabled: true,
+        ga4MeasurementId: true,
+        facebookPixelEnabled: true,
+        facebookPixelId: true,
+        googleAdsEnabled: true,
+        googleAdsId: true,
+      },
+    });
     return settings;
   },
   ['settings'], // Cache key
