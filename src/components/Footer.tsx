@@ -82,7 +82,7 @@ export default function Footer({ settings }: FooterProps) {
                   </li>
                   <li>
                     <Link href="/contact" className="text-base text-gray-300 hover:text-white">
-                      Contact
+                      Contact Us
                     </Link>
                   </li>
                   <li>

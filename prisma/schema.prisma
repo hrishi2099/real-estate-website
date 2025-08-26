@@ -210,6 +210,10 @@ model OfficeSettings {
   facebookPixelId      String?
   facebookPixelEnabled Boolean? @default(false)
 
+  // Google Ads
+  googleAdsId      String? // AW-XXXXXXXXXX format
+  googleAdsEnabled Boolean? @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

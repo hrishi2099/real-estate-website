@@ -11,6 +11,8 @@ type AnalyticsProps = {
     | 'ga4MeasurementId'
     | 'facebookPixelEnabled'
     | 'facebookPixelId'
+    | 'googleAdsEnabled'
+    | 'googleAdsId'
   >;
 };
 
@@ -22,6 +24,8 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
     ga4MeasurementId,
     facebookPixelEnabled,
     facebookPixelId,
+    googleAdsEnabled,
+    googleAdsId,
   } = settings;
 
   return (
@@ -31,7 +35,7 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
         <>
           <Script
             id="gtm-script"
-            strategy="afterInteractive"
+            strategy="beforeInteractive"
             dangerouslySetInnerHTML={{
               __html: `
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -80,7 +84,7 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
         </>
       )}
 
-            {/* Facebook Pixel */}
+      {/* Facebook Pixel */}
       {facebookPixelEnabled && facebookPixelId && (
         <>
           <Script
@@ -110,6 +114,28 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
               alt=""
             />
           </noscript>
+        </>
+      )}
+
+      {/* Google Ads */}
+      {googleAdsEnabled && googleAdsId && (
+        <>
+          <Script
+            strategy="beforeInteractive"
+            src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
+          />
+          <Script
+            id="google-ads-init"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${googleAdsId}');
+              `,
+            }}
+          />
         </>
       )}
     </>

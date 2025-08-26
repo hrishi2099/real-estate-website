@@ -75,35 +75,35 @@ export default function Header({ settings }: HeaderProps) {
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('Properties', '/properties', 'main-navigation')}
             >
-              Properties
+              View Properties
             </Link>
             <Link 
               href="/search" 
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('Search', '/search', 'main-navigation')}
             >
-              Search
+              Search Properties
             </Link>
             <Link 
               href="/gallery" 
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('Gallery', '/gallery', 'main-navigation')}
             >
-              Gallery
+              View Gallery
             </Link>
             <Link 
               href="/about" 
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('About', '/about', 'main-navigation')}
             >
-              About
+              About Us
             </Link>
             <Link 
               href="/contact" 
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('Contact', '/contact', 'main-navigation')}
             >
-              Contact
+              Contact Us
             </Link>
           </nav>
 
@@ -129,7 +129,7 @@ export default function Header({ settings }: HeaderProps) {
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                     <div className="py-1">
                       <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Dashboard
+                        User Dashboard
                       </Link>
                       {isAdmin && (
                         <Link href="/admin" className="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-50">
@@ -142,10 +142,10 @@ export default function Header({ settings }: HeaderProps) {
                         </Link>
                       )}
                       <Link href="/dashboard/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Profile
+                        My Profile
                       </Link>
                       <Link href="/dashboard/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Favorites
+                        My Favorites
                       </Link>
                       <button
                         onClick={logout}
@@ -211,35 +211,35 @@ export default function Header({ settings }: HeaderProps) {
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Properties
+                View Properties
               </Link>
               <Link 
                 href="/search" 
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Search
+                Search Properties
               </Link>
               <Link 
                 href="/gallery" 
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Gallery
+                View Gallery
               </Link>
               <Link 
                 href="/about" 
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About
+                About Us
               </Link>
               <Link 
                 href="/contact" 
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Contact
+                Contact Us
               </Link>
               
               {showAuthUI && isAuthenticated ? (
@@ -261,7 +261,7 @@ export default function Header({ settings }: HeaderProps) {
                       className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Dashboard
+                      User Dashboard
                     </Link>
                     {isAdmin && (
                       <Link 
@@ -286,14 +286,14 @@ export default function Header({ settings }: HeaderProps) {
                       className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Profile
+                      My Profile
                     </Link>
                     <Link 
                       href="/dashboard/favorites" 
                       className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Favorites
+                      My Favorites
                     </Link>
                     <button
                       onClick={() => { logout(); setIsMenuOpen(false); }}
