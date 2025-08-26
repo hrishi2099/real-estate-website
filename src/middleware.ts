@@ -14,11 +14,11 @@ const securityHeaders = {
   // Content Security Policy
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.doubleclick.net https://www.googleadservices.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https: http:",
-    "connect-src 'self' https://www.google-analytics.com https://api.whatsapp.com",
+    "connect-src 'self' https://www.google-analytics.com https://api.whatsapp.com https://*.doubleclick.net https://www.googleadservices.com",
     "frame-ancestors 'none'",
   ].join('; '),
   
