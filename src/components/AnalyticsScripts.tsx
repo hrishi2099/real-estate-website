@@ -122,7 +122,7 @@ const AnalyticsScripts = ({ settings }: AnalyticsProps) => {
         <>
           <Script
             strategy="beforeInteractive"
-            src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}&cache-bust=${new Date().getTime()}`}
           />
           <Script
             id="google-ads-init"
