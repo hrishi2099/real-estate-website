@@ -1,36 +1,47 @@
-import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
+import type { OfficeSettings } from '@prisma/client';
+
+// Define a type for the settings we are fetching to ensure type safety
+type SelectedSettings = Pick<
+  OfficeSettings,
+  | 'companyName'
+  | 'logoUrl'
+  | 'address'
+  | 'phone'
+  | 'email'
+  | 'website'
+  | 'gtmEnabled'
+  | 'gtmContainerId'
+  | 'ga4Enabled'
+  | 'ga4MeasurementId'
+  | 'facebookPixelEnabled'
+  | 'facebookPixelId'
+  | 'googleAdsEnabled'
+  | 'googleAdsId'
+>;
 
 /**
  * Fetches the application settings from the database.
- * This function is cached to avoid repeated database calls across the application
- * during a single request lifecycle. The cache is revalidated on-demand
- * when settings are updated.
+ * Caching has been temporarily removed to debug a build issue.
  */
-export const getSettings = unstable_cache(
-  async () => {
-    const settings = await prisma.officeSettings.findFirst({
-      select: {
-        // Fields for Header, Footer, and general UI
-        companyName: true,
-        logoUrl: true,
-        address: true,
-        phone: true,
-        email: true,
-        website: true,
-        // Fields for AnalyticsScripts
-        gtmEnabled: true,
-        gtmContainerId: true,
-        ga4Enabled: true,
-        ga4MeasurementId: true,
-        facebookPixelEnabled: true,
-        facebookPixelId: true,
-        googleAdsEnabled: true,
-        googleAdsId: true,
-      },
-    });
-    return settings;
-  },
-  ['settings'], // Cache key
-  { tags: ['settings'] } // Cache tag for revalidation
-);
+export const getSettings = async (): Promise<SelectedSettings | null> => {
+  const settings = await prisma.officeSettings.findFirst({
+    select: {
+      companyName: true,
+      logoUrl: true,
+      address: true,
+      phone: true,
+      email: true,
+      website: true,
+      gtmEnabled: true,
+      gtmContainerId: true,
+      ga4Enabled: true,
+      ga4MeasurementId: true,
+      facebookPixelEnabled: true,
+      facebookPixelId: true,
+      googleAdsEnabled: true,
+      googleAdsId: true,
+    },
+  });
+  return settings;
+};
