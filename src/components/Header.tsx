@@ -40,7 +40,7 @@ export default function Header({ settings }: HeaderProps) {
     <header className="bg-white shadow-lg relative z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4 sm:py-6">
-          <div className="flex justify-start lg:w-0 lg:flex-1">
+          <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               {/* Logo Image - Dynamic from office settings */}
               {settings?.logoUrl && (
@@ -107,7 +107,7 @@ export default function Header({ settings }: HeaderProps) {
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0" data-section="auth-navigation">
+          <div className="hidden md:flex items-center justify-end" data-section="auth-navigation">
             {showAuthUI && isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
                 <button
