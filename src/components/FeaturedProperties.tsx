@@ -36,14 +36,14 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
     <div className="py-8 sm:py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center lg:text-center">
-          <h2 className="text-sm sm:text-base text-blue-600 font-semibold tracking-wide uppercase">
+          <h3 className="text-sm sm:text-base text-blue-600 font-semibold tracking-wide uppercase">
             {isFeatured ? 'Featured' : 'Latest Properties'}
+          </h3>
+          <h2 className="mt-2 text-xl sm:text-3xl leading-tight font-extrabold tracking-tight text-gray-900 sm:leading-8">
+            Explore Our Premium Land Plots
           </h2>
-          <p className="mt-2 text-xl sm:text-3xl leading-tight font-extrabold tracking-tight text-gray-900 sm:leading-8">
-            Premium Land Plots
-          </p>
           <p className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-xl text-gray-600 lg:mx-auto leading-relaxed">
-            Explore our handpicked selection of premium properties and investment opportunities.
+            Discover a curated collection of premium properties and exclusive investment opportunities. Each property is carefully selected to meet our high standards of quality and value, ensuring you find the perfect match for your investment goals.
           </p>
         </div>
 
@@ -104,7 +104,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
 
         {properties.length === 0 && (
           <div className="mt-10 text-center">
-            <p className="text-gray-600 sm:text-gray-500">No featured properties available at the moment.</p>
+            <p className="text-gray-600 sm:text-gray-500">We are currently curating a new collection of featured properties. Please check back soon for exciting new investment opportunities.</p>
             <p className="text-sm text-gray-400 mt-2">
               Check browser console for debug information, or visit{' '}
               <a href="/api/debug/properties" className="text-blue-600 hover:underline" target="_blank">

@@ -119,7 +119,7 @@ export default function PropertyStats() {
             label: "Properties Sold",
             suffix: "+",
             icon: "🏠",
-            description: "Successfully completed property transactions"
+            description: "Successfully closed deals and happy new landowners."
           },
           {
             id: 2,
@@ -128,7 +128,7 @@ export default function PropertyStats() {
             prefix: "",
             suffix: "M+",
             icon: "📏",
-            description: "Total property area transferred"
+            description: "Vast expanse of land successfully transferred to our clients."
           },
           {
             id: 3,
@@ -136,7 +136,7 @@ export default function PropertyStats() {
             label: "Years Experience",
             suffix: "+",
             icon: "⏰",
-            description: "In real estate market"
+            description: "Decades of expertise in the real estate market."
           },
           {
             id: 4,
@@ -144,7 +144,7 @@ export default function PropertyStats() {
             label: "Client Satisfaction",
             suffix: "%",
             icon: "⭐",
-            description: "Happy property owners rating"
+            description: "Our commitment to excellence reflects in our client feedback."
           },
           {
             id: 5,
@@ -152,7 +152,7 @@ export default function PropertyStats() {
             label: "Available Properties",
             suffix: "+",
             icon: "🏗️",
-            description: "Ready for purchase"
+            description: "A wide range of properties ready for you to own."
           },
           {
             id: 6,
@@ -160,7 +160,7 @@ export default function PropertyStats() {
             label: "Days Average Sale",
             suffix: "",
             icon: "📈",
-            description: "Time to complete transaction"
+            description: "Efficient and streamlined process to get you your property faster."
           }
         ]);
       } finally {
@@ -203,7 +203,7 @@ export default function PropertyStats() {
             Leading Real Estate Solutions
           </h2>
           <p className="mt-2 sm:mt-4 text-base sm:text-lg lg:text-xl text-blue-100">
-            Trusted by property buyers and investors across the region
+            Our numbers speak for themselves. We are a trusted partner for property buyers and investors, delivering exceptional results and unparalleled service.
           </p>
         </div>
         
@@ -258,11 +258,10 @@ export default function PropertyStats() {
         <div className="mt-8 sm:mt-12 text-center">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/20">
             <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">
-              Ready to Join Our Success Stories?
+              Your Success Story Starts Here
             </h3>
             <p className="text-sm sm:text-base text-blue-100 mb-4 sm:mb-6 leading-relaxed">
-              Let our proven track record work for you. Whether buying, selling, or investing in property, 
-              we&apos;ll help you achieve your real estate goals.
+              Our proven track record of success is your guarantee of a seamless and rewarding experience. Whether you're buying, selling, or investing, we are committed to helping you achieve your real estate goals and build a prosperous future.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Link

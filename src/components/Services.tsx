@@ -3,22 +3,22 @@ import Link from "next/link";
 const services = [
   {
     title: "Land Sales & Acquisition",
-    description: "Expert guidance through land purchasing with due diligence, title verification, and legal documentation support.",
+    description: "Navigate the complexities of land acquisition with our expert guidance. We provide comprehensive support, from due diligence and title verification to legal documentation, ensuring a smooth and secure transaction.",
     icon: "🌿",
   },
   {
     title: "Site Development Planning",
-    description: "Comprehensive site planning services including zoning consultation, utility connections, and development permits.",
+    description: "Turn your vision into a reality with our site development planning services. We offer expert consultation on zoning, utility connections, and permit acquisition to lay the groundwork for your project's success.",
     icon: "📋",
   },
   {
     title: "Land Investment Consulting",
-    description: "Strategic land investment advice to help you build wealth through smart land acquisition and development.",
+    description: "Build your wealth through strategic land investments. Our consulting services provide you with the insights and advice needed to make informed decisions that align with your financial goals.",
     icon: "📈",
   },
   {
     title: "Land Valuation & Survey",
-    description: "Professional land surveys, soil testing, and market valuations to ensure you make informed investment decisions.",
+    description: "Make confident investment decisions with our professional land valuation and survey services. We provide accurate market valuations, soil testing, and detailed surveys to give you a clear picture of your investment's potential.",
     icon: "📏",
   },
 ];
@@ -28,12 +28,12 @@ export default function Services() {
     <div className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center">
-          <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Services</h2>
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Your Land Development Partners
-          </p>
+          <h3 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Services</h3>
+          <h2 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            Comprehensive Land Development Services
+          </h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            From land acquisition to development planning, we provide comprehensive land investment services.
+            We offer a full suite of services to support you at every stage of your land investment journey. From initial acquisition to development planning and beyond, our team is here to ensure your success.
           </p>
         </div>
 
@@ -58,10 +58,10 @@ export default function Services() {
         <div className="mt-12 text-center">
           <div className="bg-blue-50 rounded-lg px-6 py-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Get Started?
+              Begin Your Land Investment Journey
             </h3>
             <p className="text-lg text-gray-600 mb-6">
-              Contact our expert team today for a free consultation.
+              Take the first step towards a successful land investment. Contact our expert team today for a free, no-obligation consultation and let us help you turn your vision into reality.
             </p>
             <Link
               href="/contact"
