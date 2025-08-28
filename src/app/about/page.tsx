@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn about our company's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
+  title: "About Us | Zaminseva Prime",
+  description: "Learn about Zaminseva Prime's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
   openGraph: {
-    title: "About Us | Real Estate Platform",
-    description: "Learn about our company's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
+    title: "About Us | Zaminseva Prime",
+    description: "Learn about Zaminseva Prime's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
   },
 };
 
@@ -16,32 +16,14 @@ const teamMembers = [
     name: "Dattatray Ghore",
     role: "Founder & CEO",
     image: "https://images.unsplash.com/photo-1494790108755-2616c6e2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-    bio: "With over 15 years in real estate, Dattatray founded the company to provide unparalleled service to property buyers and investors."
-  },
-  {
-    name: "Michael Chen",
-    role: "Senior Sales Director",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "Michael specializes in commercial real estate and has closed over ₹1,500 Cr in property transactions."
-  },
-  {
-    name: "Emily Rodriguez",
-    role: "Investment Specialist",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "Emily helps clients build wealth through strategic property investments with her expertise in market and investment analysis."
-  },
-  {
-    name: "David Thompson",
-    role: "Property Manager",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    bio: "David oversees our property management services, ensuring optimal maintenance and regulatory compliance."
+    bio: "With over 25 years in real estate, Dattatray founded the company to provide unparalleled service to property buyers and investors."
   }
 ];
 
 const stats = [
   { number: "1247+", label: "Properties Sold" },
   { number: "3.2M+", label: "Sq Ft Developed" },
-  { number: "15+", label: "Years Experience" },
+  { number: "25+", label: "Years Experience" },
   { number: "97%", label: "Client Satisfaction" }
 ];
 
@@ -51,9 +33,9 @@ export default function AboutPage() {
       <div className="bg-gray-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900">About Our Company</h1>
+            <h1 className="text-4xl font-bold text-gray-900">About Zaminseva Prime</h1>
             <p className="mt-4 text-xl text-gray-600">
-              Your trusted partner in real estate since 2008
+              Your trusted partner in real estate since 2000
             </p>
           </div>
         </div>
@@ -64,17 +46,17 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <p className="text-gray-600 mb-4">
-              Founded in 2008, our company has grown from a small real estate brokerage to one of the most trusted 
+              Founded in 2000, Zaminseva Prime has grown from a small real estate brokerage to one of the most trusted 
               names in property sales and investment. Our journey began with a simple vision: to provide exceptional service 
               and expertise to clients seeking premium properties for investment and personal use.
             </p>
             <p className="text-gray-600 mb-4">
-              Over the years, we&apos;ve built a reputation for excellence, integrity, and innovation in real estate. Our team of 
+              Over the years, Zaminseva Prime has built a reputation for excellence, integrity, and innovation in real estate. Our team of 
               experienced professionals combines deep knowledge of market trends, property values, and investment potential with 
               cutting-edge technology to deliver results that exceed expectations.
             </p>
             <p className="text-gray-600">
-              Today, we continue to set the standard for real estate services, helping investors, buyers, and sellers 
+              Today, Zaminseva Prime continues to set the standard for real estate services, helping investors, buyers, and sellers 
               navigate complex property transactions and achieve their real estate goals with confidence.
             </p>
           </div>
@@ -89,7 +71,7 @@ export default function AboutPage() {
         </div>
 
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Track Record</h2>
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Zaminseva Prime Track Record</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
@@ -101,7 +83,7 @@ export default function AboutPage() {
         </div>
 
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Values</h2>
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Zaminseva Prime Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -140,8 +122,8 @@ export default function AboutPage() {
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Meet Our Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Meet Zaminseva Prime Team</h2>
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-8 justify-items-center">
             {teamMembers.map((member, index) => (
               <div key={index} className="text-center">
                 <div className="relative h-64 w-64 mx-auto mb-4 rounded-lg overflow-hidden">
@@ -161,22 +143,22 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-16 bg-blue-50 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to Work With Us?</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to Work With Zaminseva Prime?</h2>
           <p className="text-gray-600 mb-6">
-            Whether you&apos;re buying, selling, or investing in property, our expert team is here to guide you every step of the way.
+            Whether you&apos;re buying, selling, or investing in property, Zaminseva Prime&apos;s expert team is here to guide you every step of the way.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/contact"
               className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
-              Contact Us Today
+              Contact Zaminseva Prime Today
             </a>
             <Link
               href="/properties"
               className="inline-flex items-center justify-center px-6 py-3 border border-blue-600 text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50"
             >
-              View Properties
+              View Zaminseva Prime Properties
             </Link>
           </div>
         </div>
