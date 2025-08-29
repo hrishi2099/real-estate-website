@@ -54,7 +54,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                 <div className="relative h-40 sm:h-48">
                   <Image
                     src={getPropertyImage(property)}
-                    alt={property.title}
+                    alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
                     fill
                     className="object-cover"
                   />

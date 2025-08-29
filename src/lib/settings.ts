@@ -5,6 +5,13 @@ import { prisma } from '@/lib/prisma';
  * Caching has been temporarily removed to debug a build issue.
  */
 export const getSettings = async () => {
-  const settings = await prisma.officeSettings.findFirst();
-  return settings;
+  console.log('Fetching settings...');
+  try {
+    const settings = await prisma.officeSettings.findFirst();
+    console.log('Fetched settings:', settings);
+    return settings;
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    return null;
+  }
 };

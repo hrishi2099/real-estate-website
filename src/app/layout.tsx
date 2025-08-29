@@ -36,13 +36,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSettings();
+  console.log('Settings in RootLayout:', settings);
 
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased force-light-mode`}>
-        <Suspense>
-          {settings && <AnalyticsScripts settings={settings} />}
-        </Suspense>
+        {settings && <AnalyticsScripts settings={settings} />}
         <AuthProvider>
           <Header settings={settings} />
           <main>{children}</main>
