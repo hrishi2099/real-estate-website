@@ -14,12 +14,12 @@ const securityHeaders = {
   // Content Security Policy
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.doubleclick.net https://www.googleadservices.com https://*.googletagmanager.com https://www.google.com https://www.google.co.in https://ad.doubleclick.net",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.google.com https://www.gstatic.com https://*.googletagmanager.com",
-    "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https: http: https://www.google-analytics.com https://www.google.com https://www.google.co.in https://stats.g.doubleclick.net https://ad.doubleclick.net https://*.googletagmanager.com",
-    "connect-src 'self' https://www.google-analytics.com https://api.whatsapp.com https://*.doubleclick.net https://www.googleadservices.com https://stats.g.doubleclick.net https://*.googletagmanager.com https://www.google.com",
-    "frame-src 'self' https://www.googletagmanager.com https://bid.g.doubleclick.net",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
+    "style-src 'self' 'unsafe-inline' *.googleapis.com *.google.com *.gstatic.com",
+    "font-src 'self' *.gstatic.com",
+    "img-src 'self' data: blob: https: http: *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
+    "connect-src 'self' *.google-analytics.com *.google.com *.doubleclick.net",
+    "frame-src 'self' *.google.com *.doubleclick.net",
     "frame-ancestors 'none'",
   ].join('; '),
   
