@@ -15,7 +15,7 @@ const securityHeaders = {
   'Content-Security-Policy': [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
-    "style-src 'self' 'unsafe-inline' *.googleapis.com *.google.com *.gstatic.com",
+    "style-src 'self' 'unsafe-inline' *.googleapis.com *.google.com *.gstatic.com *.googletagmanager.com",
     "font-src 'self' *.gstatic.com",
     "img-src 'self' data: blob: https: http: *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
     "connect-src 'self' *.google-analytics.com *.google.com *.doubleclick.net",
