@@ -248,7 +248,7 @@ export default function PropertiesClient() {
                     <header className="mb-2 sm:mb-3">
                       <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-1 line-clamp-2">
                         {property.title}
-                      </h2>
+                      </h3>
                       <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                         {formatPrice(property.price)}
                       </p>
