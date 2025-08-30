@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
-import StructuredData from "./StructuredData";
+
 import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
 
@@ -91,7 +91,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
   return (
     <>
-      <StructuredData property={property} />
+      
       <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Property Overview */}
       <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">

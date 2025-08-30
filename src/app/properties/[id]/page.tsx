@@ -5,6 +5,7 @@ import PropertyDetails from "@/components/PropertyDetails";
 import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
 import type { Metadata } from "next";
 import { getProperty } from "@/lib/properties";
+import StructuredData from "@/components/StructuredData";
 
 interface Property {
   id: string;
@@ -107,8 +108,43 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     }).format(price);
   };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://zaminseva.com';
+  const realEstateListingSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": property.title,
+    "description": property.description || `${property.type} in ${property.location}`,
+    "url": `${siteUrl}/properties/${property.id}`,
+    "image": property.images?.map(img => img.url) || [],
+    "offers": {
+      "@type": "Offer",
+      "price": property.price,
+      "priceCurrency": "INR",
+      "availability": property.status === "ACTIVE" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": property.location
+    },
+    "geo": property.latitude && property.longitude ? {
+      "@type": "GeoCoordinates",
+      "latitude": property.latitude,
+      "longitude": property.longitude
+    } : undefined,
+    "floorSize": property.area ? {
+      "@type": "QuantitativeValue",
+      "value": property.area,
+      "unitCode": "FTK"
+    } : undefined,
+    "numberOfRooms": property.bedrooms,
+    "numberOfBathroomsTotal": property.bathrooms,
+    "yearBuilt": property.yearBuilt,
+    "propertyType": property.type,
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <StructuredData data={realEstateListingSchema} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex items-center space-x-2 text-sm">

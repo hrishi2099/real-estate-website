@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { defaultMetadata } from "@/lib/metadata";
 import { getSettings } from "@/lib/settings";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
+import StructuredData from "@/components/StructuredData";
 import { Suspense } from "react";
 
 const inter = Inter({
@@ -38,9 +39,38 @@ export default async function RootLayout({
   const settings = await getSettings();
   console.log('Settings in RootLayout:', settings);
 
+  const siteUrl = settings?.website || process.env.NEXT_PUBLIC_SITE_URL || 'http://zaminseva.com';
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": settings?.companyName || "Zaminseva Prime Pvt. Ltd.",
+    "url": siteUrl,
+    "logo": settings?.logoUrl,
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": settings?.phone,
+      "contactType": "Customer Service",
+      "email": settings?.email
+    }
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": siteUrl,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${siteUrl}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased force-light-mode`}>
+        <StructuredData data={organizationSchema} />
+        <StructuredData data={websiteSchema} />
         {settings && <AnalyticsScripts settings={settings} />}
         <AuthProvider>
           <Header settings={settings} />
