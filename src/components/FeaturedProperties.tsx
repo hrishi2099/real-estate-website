@@ -56,6 +56,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                     src={getPropertyImage(property)}
                     alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                   <div className="absolute top-2 left-2 sm:top-4 sm:left-4">
