@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import PropertiesClient from "@/components/PropertiesClient";
 
 export const metadata: Metadata = generateMetadataHelper(
-  "Properties - Find Your Perfect Property",
+  "Properties & Land for Sale",
   "Browse our extensive collection of premium real estate properties. Find apartments, houses, villas, and commercial spaces for sale and rent. Advanced filters to help you find exactly what you're looking for.",
   null,
   {

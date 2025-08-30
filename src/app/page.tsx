@@ -6,7 +6,7 @@ import { getFeaturedProperties } from "@/lib/properties";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Home - Zaminseva Prime Pvt. Ltd.",
+  title: "NA Plots & Farmhouse Land | Zaminseva Prime Pvt. Ltd.",
   description: "Discover premium NA plots and farmhouse land with Zaminseva Prime Pvt. Ltd. Your trusted partner for real estate investments and dream properties.",
 };
 
