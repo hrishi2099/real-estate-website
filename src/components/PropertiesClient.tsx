@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import {
   trackFilterUsage,
   trackPropertyListInteraction,
 } from "@/lib/tracking";
-import ExportButton from "@/components/ExportButton";
+const ExportButton = dynamic(() => import('@/components/ExportButton'), { ssr: false });
 
 interface Property {
   id: string;
