@@ -246,7 +246,7 @@ export default function PropertiesClient() {
                   </div>
                   <div className="p-3 sm:p-4 lg:p-6">
                     <header className="mb-2 sm:mb-3">
-                      <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-1 line-clamp-2">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-1 line-clamp-2">
                         {property.title}
                       </h2>
                       <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
