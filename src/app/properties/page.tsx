@@ -9,7 +9,7 @@ export const metadata: Metadata = generateMetadataHelper(
   "Browse our extensive collection of premium real estate properties. Find apartments, houses, villas, and commercial spaces for sale and rent. Advanced filters to help you find exactly what you're looking for.",
   null,
   {
-    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/properties`,
+    canonical: "/properties",
     keywords: [
       'real estate properties',
       'houses for sale',

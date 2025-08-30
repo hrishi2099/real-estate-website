@@ -62,9 +62,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   return generateMetadataHelper(title, description, {
     companyName: "Zaminseva Prime Pvt. Ltd.",
-    website: process.env.NEXT_PUBLIC_SITE_URL,
   }, {
-    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/properties/${id}`,
+    canonical: `/properties/${id}`,
     images: images ? [images] : undefined,
     keywords: [
       'real estate',

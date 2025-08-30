@@ -20,7 +20,7 @@ export function generateMetadata(
   const companyName = officeSettings?.companyName || "Real Estate Platform";
   const baseTitle = title ? `${title} | ${companyName}` : `${companyName} - Premium Properties`;
   const baseDescription = description || `Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and apartments with expert guidance.`;
-  const siteUrl = officeSettings?.website || process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+  const siteUrl = officeSettings?.website || process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com";
 
   return {
     title: baseTitle,
@@ -105,7 +105,7 @@ export const defaultMetadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://example.com",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com",
     siteName: "Zaminseva Prime Pvt. Ltd.",
     title: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
     description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
@@ -136,8 +136,8 @@ export const defaultMetadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com"),
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://example.com",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com",
   },
 };
