@@ -19,7 +19,7 @@ const securityHeaders = {
     "font-src 'self' *.gstatic.com",
     "img-src 'self' data: blob: https: http: *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
     "connect-src 'self' *.google-analytics.com *.google.com *.doubleclick.net",
-    "frame-src 'self' *.google.com *.doubleclick.net",
+    "frame-src 'self' *.google.com *.doubleclick.net www.googletagmanager.com",
     "frame-ancestors 'none'",
   ].join('; '),
   

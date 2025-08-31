@@ -25,6 +25,13 @@ export default function WhatsAppButton({ settings }: WhatsAppButtonProps) {
     const whatsappUrl = `https://wa.me/${phoneNumber.replace('+', '')}?text=${message}`;
     if (typeof window !== 'undefined') {
       window.open(whatsappUrl, '_blank');
+      // GTM DataLayer Push
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'whatsapp_click',
+          phone_number: phoneNumber,
+        });
+      }
     }
   };
 
