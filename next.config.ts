@@ -6,7 +6,7 @@ const cspHeader = `
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: blob: images.unsplash.com;
     font-src 'self';
-    connect-src 'self' *.googletagmanager.com *.google-analytics.com vitals.vercel-insights.com *.googleadservices.com *.google.com;
+    connect-src 'self' *.googletagmanager.com *.google-analytics.com vitals.vercel-insights.com *.googleadservices.com www.google.com *.google.com;
     frame-src 'self';
     object-src 'none';
     base-uri 'self';
