@@ -76,6 +76,21 @@ export async function GET(request: NextRequest) {
       prisma.propertyImage.count({ where })
     ]);
 
+    if (images.length === 0) {
+      return NextResponse.json(
+        {
+          images: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+          },
+        },
+        { headers: { 'x-robots-tag': 'noindex' } }
+      );
+    }
+
     return NextResponse.json({
       images,
       pagination: {

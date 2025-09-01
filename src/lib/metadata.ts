@@ -97,8 +97,6 @@ export const defaultMetadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
     apple: '/apple-icon.png',
   },
   manifest: '/manifest.json',

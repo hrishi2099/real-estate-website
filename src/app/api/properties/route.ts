@@ -30,6 +30,10 @@ export async function GET(req: Request) {
       },
     });
 
+    if (result.properties.length === 0) {
+      return NextResponse.json(result, { headers: { 'x-robots-tag': 'noindex' } });
+    }
+
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching properties:', error);

@@ -15,7 +15,7 @@ const teamMembers = [
   {
     name: "Dattatray Ghore",
     role: "Founder & CEO",
-    image: "https://images.unsplash.com/photo-1494790108755-2616c6e2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
     bio: "With over 25 years in real estate, Dattatray founded the company to provide unparalleled service to property buyers and investors."
   }
 ];
