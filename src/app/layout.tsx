@@ -37,7 +37,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSettings();
-  console.log('Settings in RootLayout:', settings);
 
   const siteUrl = settings?.website || process.env.NEXT_PUBLIC_SITE_URL || 'http://zaminseva.com';
 
