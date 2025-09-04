@@ -50,7 +50,7 @@ export default function SalesLeads() {
 
   const priorityColors = {
     HIGH: "bg-red-100 text-red-800",
-    MEDIUM: "bg-yellow-100 text-yellow-800",
+    NORMAL: "bg-yellow-100 text-yellow-800",
     LOW: "bg-green-100 text-green-800",
   };
 

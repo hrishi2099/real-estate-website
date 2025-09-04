@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ContactInquiryStatus, Prisma, User } from '@prisma/client';
+import { NotificationService } from '@/lib/notification-service';
 
 /**
  * GET a single contact inquiry by ID
@@ -60,8 +61,8 @@ export const PATCH = requireAdmin(async (
         return NextResponse.json({ error: 'Invalid sales manager ID' }, { status: 400 });
       }
     }
-    if (priority && !['LOW', 'MEDIUM', 'HIGH'].includes(priority)) {
-      return NextResponse.json({ error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' }, { status: 400 });
+    if (priority && !['LOW', 'NORMAL', 'HIGH'].includes(priority)) {
+      return NextResponse.json({ error: 'Invalid priority. Must be one of: LOW, NORMAL, HIGH' }, { status: 400 });
     }
 
     // --- Build update data object ---
@@ -76,6 +77,25 @@ export const PATCH = requireAdmin(async (
     if (priority) updateData.priority = priority;
     if (responseDeadline) updateData.responseDeadline = new Date(responseDeadline);
     if (notes !== undefined) updateData.notes = notes;
+
+    // --- Get current inquiry for comparison ---
+    const currentInquiry = await prisma.contactInquiry.findUnique({
+      where: { id },
+      include: {
+        salesManager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            territory: true,
+          },
+        },
+      },
+    });
+
+    if (!currentInquiry) {
+      return NextResponse.json({ error: 'Contact inquiry not found' }, { status: 404 });
+    }
 
     // --- Perform update ---
     const updatedInquiry = await prisma.contactInquiry.update({
@@ -92,6 +112,40 @@ export const PATCH = requireAdmin(async (
         },
       },
     });
+
+    // --- Send notifications for significant changes ---
+    try {
+      // Notify if sales manager was assigned
+      if (salesManagerId && !currentInquiry.salesManagerId) {
+        await NotificationService.notifyInquiryAssignment(
+          salesManagerId,
+          id,
+          {
+            name: updatedInquiry.name,
+            email: updatedInquiry.email,
+            subject: updatedInquiry.subject,
+            priority: updatedInquiry.priority || 'NORMAL'
+          }
+        );
+      }
+
+      // Notify if status changed and there's an assigned sales manager
+      if (status && status !== currentInquiry.status && updatedInquiry.salesManagerId) {
+        await NotificationService.notifyInquiryUpdate(
+          updatedInquiry.salesManagerId,
+          id,
+          currentInquiry.status,
+          status,
+          {
+            name: updatedInquiry.name,
+            subject: updatedInquiry.subject
+          }
+        );
+      }
+    } catch (notificationError) {
+      console.error('Failed to send notification:', notificationError);
+      // Don't fail the entire operation if notification fails
+    }
 
     return NextResponse.json({ success: true, contactInquiry: updatedInquiry });
   } catch (error) {

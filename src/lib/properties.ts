@@ -12,6 +12,7 @@ interface GetPropertiesOptions {
     minPrice?: number;
     maxPrice?: number;
     minArea?: number;
+    salesManagerId?: string;
   };
   sortBy?: 'createdAt' | 'price';
   sortOrder?: 'asc' | 'desc';
@@ -39,6 +40,7 @@ export async function getProperties(options: GetPropertiesOptions = {}) {
       if (filters.maxPrice) where.price.lte = filters.maxPrice;
     }
     if (filters.minArea) where.area = { gte: filters.minArea };
+    if (filters.salesManagerId) where.ownerId = filters.salesManagerId;
 
     const [properties, total] = await prisma.$transaction([
       prisma.property.findMany({

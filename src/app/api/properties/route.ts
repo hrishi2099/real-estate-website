@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { revalidateTag } from 'next/cache';
 import { createPropertySchema } from '@/lib/validation';
 import { getProperties } from '@/lib/properties';
+import { getUserFromRequest } from '@/lib/auth';
 
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
@@ -16,6 +17,9 @@ export async function GET(req: Request) {
   const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
   const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
   const minArea = searchParams.get('minArea') ? parseFloat(searchParams.get('minArea')!) : undefined;
+
+  const user = await getUserFromRequest(req);
+  const isSalesManager = user?.role === 'SALES_MANAGER';
 
   try {
     const result = await getProperties({
@@ -27,6 +31,7 @@ export async function GET(req: Request) {
         minPrice,
         maxPrice,
         minArea,
+        ...(isSalesManager && { salesManagerId: user.userId }),
       },
     });
 

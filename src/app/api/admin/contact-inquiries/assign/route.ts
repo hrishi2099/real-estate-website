@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromRequest } from '@/lib/auth'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
+import { NotificationService } from '@/lib/notification-service'
 
 interface UpdateData {
   updatedAt: Date;
   salesManagerId?: string | null;
   assignedAt?: Date | null;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
   responseDeadline?: Date;
   notes?: string;
 }
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
           id: salesManagerId,
           OR: [
             { role: 'ADMIN' },
-            { role: 'USER' }
+            { role: 'SALES_MANAGER' }
           ]
         }
       })
@@ -65,9 +66,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate priority if provided
-    if (priority && !['LOW', 'MEDIUM', 'HIGH'].includes(priority)) {
+    if (priority && !['LOW', 'NORMAL', 'HIGH'].includes(priority)) {
       return NextResponse.json(
-        { error: 'Invalid priority. Must be one of: LOW, MEDIUM, HIGH' },
+        { error: 'Invalid priority. Must be one of: LOW, NORMAL, HIGH' },
         { status: 400 }
       )
     }
@@ -117,6 +118,39 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // Send notifications to sales manager if inquiries were assigned
+    if (salesManagerId && updatedInquiries.length > 0) {
+      try {
+        if (updatedInquiries.length === 1) {
+          // Single inquiry notification
+          const inquiry = updatedInquiries[0]
+          await NotificationService.notifyInquiryAssignment(
+            salesManagerId,
+            inquiry.id,
+            {
+              name: inquiry.name,
+              email: inquiry.email,
+              subject: inquiry.subject,
+              priority: inquiry.priority || 'NORMAL'
+            }
+          )
+        } else {
+          // Bulk assignment notification
+          await NotificationService.notifyBulkAssignment(
+            salesManagerId,
+            updatedInquiries.length,
+            {
+              names: updatedInquiries.map(i => i.name),
+              subjects: updatedInquiries.map(i => i.subject)
+            }
+          )
+        }
+      } catch (notificationError) {
+        console.error('Failed to send notification:', notificationError)
+        // Don't fail the entire operation if notification fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -181,7 +215,7 @@ export async function PUT(request: NextRequest) {
         OR: [
           { role: 'ADMIN' },
           { 
-            role: 'USER',
+            role: 'SALES_MANAGER',
             territory: { not: null }
           }
         ],
@@ -211,6 +245,7 @@ export async function PUT(request: NextRequest) {
 
     // Simple round-robin distribution
     const distributionResults = []
+    const managerAssignments = new Map<string, any[]>() // Track assignments per manager
     let currentManagerIndex = 0
 
     for (const inquiry of unassignedInquiries) {
@@ -238,8 +273,47 @@ export async function PUT(request: NextRequest) {
 
       distributionResults.push(updatedInquiry)
       
+      // Track assignments for notification
+      if (!managerAssignments.has(selectedManager.id)) {
+        managerAssignments.set(selectedManager.id, [])
+      }
+      managerAssignments.get(selectedManager.id)!.push(updatedInquiry)
+      
       // Move to next manager (round-robin)
       currentManagerIndex = (currentManagerIndex + 1) % salesManagers.length
+    }
+
+    // Send notifications to each manager about their assigned inquiries
+    for (const [managerId, assignedInquiries] of managerAssignments) {
+      try {
+        if (assignedInquiries.length === 1) {
+          // Single inquiry notification
+          const inquiry = assignedInquiries[0]
+          await NotificationService.notifyInquiryAssignment(
+            managerId,
+            inquiry.id,
+            {
+              name: inquiry.name,
+              email: inquiry.email,
+              subject: inquiry.subject,
+              priority: inquiry.priority || 'NORMAL'
+            }
+          )
+        } else {
+          // Bulk assignment notification
+          await NotificationService.notifyBulkAssignment(
+            managerId,
+            assignedInquiries.length,
+            {
+              names: assignedInquiries.map(i => i.name),
+              subjects: assignedInquiries.map(i => i.subject)
+            }
+          )
+        }
+      } catch (notificationError) {
+        console.error(`Failed to send notification to manager ${managerId}:`, notificationError)
+        // Don't fail the entire operation if notification fails
+      }
     }
 
     return NextResponse.json({

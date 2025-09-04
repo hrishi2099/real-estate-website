@@ -10,7 +10,7 @@ interface LeadAssignment {
   status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
   notes?: string;
   expectedCloseDate?: string;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
   lead: {
     id: string;
     name: string;
@@ -43,7 +43,7 @@ type BulkAction = 'update_status' | 'update_priority' | 'reassign' | 'delete';
 interface BulkData {
   value?: string;
   notes?: string;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
   expectedCloseDate?: string;
 }
 
@@ -52,7 +52,7 @@ interface BulkOperationRequest {
   assignmentIds: string[];
   data?: {
     status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
-    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
     salesManagerId?: string;
     notes?: string;
     expectedCloseDate?: string | null;
@@ -156,13 +156,13 @@ export default function LeadAssignmentsManagement() {
           requestData.data = { status: bulkData.value as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD' };
           break;
         case 'update_priority':
-          requestData.data = { priority: bulkData.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' };
+          requestData.data = { priority: bulkData.value as 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' };
           break;
         case 'reassign':
           requestData.data = {
             salesManagerId: bulkData.value,
             notes: bulkData.notes || 'Bulk reassignment',
-            priority: bulkData.priority || 'MEDIUM',
+            priority: bulkData.priority || 'NORMAL',
             expectedCloseDate: bulkData.expectedCloseDate || null,
           };
           break;
@@ -218,7 +218,7 @@ export default function LeadAssignmentsManagement() {
     switch (priority) {
       case 'URGENT': return 'bg-red-100 text-red-800';
       case 'HIGH': return 'bg-orange-100 text-orange-800';
-      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
+      case 'NORMAL': return 'bg-yellow-100 text-yellow-800';
       case 'LOW': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -352,7 +352,7 @@ export default function LeadAssignmentsManagement() {
               <option value="all">All Priorities</option>
               <option value="URGENT">Urgent</option>
               <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
+              <option value="NORMAL">Normal</option>
               <option value="LOW">Low</option>
             </select>
           </div>
@@ -577,7 +577,7 @@ export default function LeadAssignmentsManagement() {
                       <option value="">Select Priority</option>
                       <option value="URGENT">Urgent</option>
                       <option value="HIGH">High</option>
-                      <option value="MEDIUM">Medium</option>
+                      <option value="NORMAL">Normal</option>
                       <option value="LOW">Low</option>
                     </select>
                   </div>
@@ -601,13 +601,13 @@ export default function LeadAssignmentsManagement() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                       <select
-                        value={bulkData.priority || 'MEDIUM'}
-                        onChange={(e) => setBulkData({ ...bulkData, priority: e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' })}
+                        value={bulkData.priority || 'NORMAL'}
+                        onChange={(e) => setBulkData({ ...bulkData, priority: e.target.value as 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="URGENT">Urgent</option>
                         <option value="HIGH">High</option>
-                        <option value="MEDIUM">Medium</option>
+                        <option value="NORMAL">Normal</option>
                         <option value="LOW">Low</option>
                       </select>
                     </div>

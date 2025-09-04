@@ -48,7 +48,7 @@ interface DistributionStats {
 }
 
 type DistributionRule = 'round_robin' | 'load_balanced' | 'score_based' | 'manual';
-type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+type Priority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 
 export default function LeadDistribution() {
   const [unassignedLeads, setUnassignedLeads] = useState<UnassignedLead[]>([]);
@@ -63,7 +63,7 @@ export default function LeadDistribution() {
   
   // Distribution settings
   const [distributionRule, setDistributionRule] = useState<DistributionRule>('load_balanced');
-  const [priority, setPriority] = useState<Priority>('MEDIUM');
+  const [priority, setPriority] = useState<Priority>('NORMAL');
   const [notes, setNotes] = useState('');
   const [expectedCloseDate, setExpectedCloseDate] = useState('');
   const [gradeFilter, setGradeFilter] = useState<string>('all');
@@ -352,7 +352,7 @@ export default function LeadDistribution() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
+              <option value="NORMAL">Normal</option>
               <option value="HIGH">High</option>
               <option value="URGENT">Urgent</option>
             </select>

@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       salesManagerId,
       notes,
       expectedCloseDate,
-      priority = "MEDIUM",
+      priority = "NORMAL",
     } = await request.json();
 
     if (!leadId || !salesManagerId) {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import InquiryDistributionDashboard from "@/components/InquiryDistributionDashboard";
 
 interface ContactInquiry {
   id: string;
@@ -31,82 +30,102 @@ interface SalesManager {
   name: string;
   email: string;
   territory?: string;
+  _count?: {
+    assignedContactInquiries: number;
+  };
 }
 
-export default function ContactInquiriesManagement() {
+interface DistributionStats {
+  totalInquiries: number;
+  unassignedInquiries: number;
+  assignedInquiries: number;
+  newInquiries: number;
+  respondedInquiries: number;
+  closedInquiries: number;
+  managerWorkloads: Array<{
+    managerId: string;
+    managerName: string;
+    territory?: string;
+    assignedCount: number;
+    newCount: number;
+    respondedCount: number;
+  }>;
+}
+
+export default function InquiryDistributionDashboard() {
   const [inquiries, setInquiries] = useState<ContactInquiry[]>([]);
+  const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
+  const [stats, setStats] = useState<DistributionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [exporting, setExporting] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const [salesManagers, setSalesManagers] = useState<SalesManager[]>([]);
   const [selectedInquiries, setSelectedInquiries] = useState<string[]>([]);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [distributing, setDistributing] = useState(false);
-  const [showDistributionDashboard, setShowDistributionDashboard] = useState(false);
-
-  const [statusFilter, setStatusFilter] = useState<'all' | 'NEW' | 'REVIEWED' | 'RESPONDED' | 'CLOSED'>('all');
+  const [filter, setFilter] = useState<'all' | 'unassigned' | 'assigned'>('all');
 
   useEffect(() => {
-    loadInquiries();
-    loadSalesManagers();
+    loadData();
   }, []);
 
-  const loadInquiries = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/admin/contact-inquiries');
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch contact inquiries');
+      const [inquiriesResponse, managersResponse] = await Promise.all([
+        fetch('/api/admin/contact-inquiries'),
+        fetch('/api/admin/sales-managers')
+      ]);
+
+      if (!inquiriesResponse.ok || !managersResponse.ok) {
+        throw new Error('Failed to fetch data');
       }
+
+      const inquiriesData = await inquiriesResponse.json();
+      const managersData = await managersResponse.json();
+
+      setInquiries(inquiriesData.contactInquiries || []);
+      setSalesManagers(managersData.data || []);
       
-      const data = await response.json();
-      setInquiries(data.contactInquiries || []);
+      // Calculate stats
+      calculateStats(inquiriesData.contactInquiries || [], managersData.data || []);
     } catch (err) {
-      setError('Failed to load contact inquiries');
-      console.error('Error loading contact inquiries:', err);
+      setError('Failed to load data');
+      console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateInquiryStatus = async (inquiryId: string, newStatus: 'NEW' | 'REVIEWED' | 'RESPONDED' | 'CLOSED') => {
-    try {
-      setUpdatingStatus(inquiryId);
-      const response = await fetch(`/api/admin/contact-inquiries/${inquiryId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update inquiry status');
-      }
-      
-      // Refresh the inquiries list
-      await loadInquiries();
-    } catch (err) {
-      console.error('Error updating inquiry status:', err);
-      alert('Failed to update inquiry status. Please try again.');
-    } finally {
-      setUpdatingStatus(null);
-    }
-  };
+  const calculateStats = (inquiriesData: ContactInquiry[], managersData: SalesManager[]) => {
+    const totalInquiries = inquiriesData.length;
+    const unassignedInquiries = inquiriesData.filter(i => !i.salesManagerId).length;
+    const assignedInquiries = totalInquiries - unassignedInquiries;
+    const newInquiries = inquiriesData.filter(i => i.status === 'NEW').length;
+    const respondedInquiries = inquiriesData.filter(i => i.status === 'RESPONDED').length;
+    const closedInquiries = inquiriesData.filter(i => i.status === 'CLOSED').length;
 
-  const loadSalesManagers = async () => {
-    try {
-      const response = await fetch('/api/admin/sales-managers');
-      if (response.ok) {
-        const data = await response.json();
-        setSalesManagers(data.data || []);
-      }
-    } catch (err) {
-      console.error('Error loading sales managers:', err);
-    }
+    const managerWorkloads = managersData.map(manager => {
+      const managerInquiries = inquiriesData.filter(i => i.salesManagerId === manager.id);
+      return {
+        managerId: manager.id,
+        managerName: manager.name,
+        territory: manager.territory,
+        assignedCount: managerInquiries.length,
+        newCount: managerInquiries.filter(i => i.status === 'NEW').length,
+        respondedCount: managerInquiries.filter(i => i.status === 'RESPONDED').length,
+      };
+    });
+
+    setStats({
+      totalInquiries,
+      unassignedInquiries,
+      assignedInquiries,
+      newInquiries,
+      respondedInquiries,
+      closedInquiries,
+      managerWorkloads
+    });
   };
 
   const autoDistribute = async () => {
@@ -125,7 +144,7 @@ export default function ContactInquiriesManagement() {
 
       const data = await response.json();
       alert(`Successfully distributed ${data.distributedCount} inquiries to sales managers.`);
-      await loadInquiries();
+      await loadData();
     } catch (err) {
       console.error('Error auto-distributing inquiries:', err);
       alert('Failed to auto-distribute inquiries. Please try again.');
@@ -155,7 +174,7 @@ export default function ContactInquiriesManagement() {
       alert(`Successfully assigned ${data.updatedCount} inquiries.`);
       setSelectedInquiries([]);
       setShowAssignModal(false);
-      await loadInquiries();
+      await loadData();
     } catch (err) {
       console.error('Error assigning inquiries:', err);
       alert('Failed to assign inquiries. Please try again.');
@@ -171,6 +190,7 @@ export default function ContactInquiriesManagement() {
   };
 
   const handleSelectAll = () => {
+    const filteredInquiries = getFilteredInquiries();
     if (selectedInquiries.length === filteredInquiries.length) {
       setSelectedInquiries([]);
     } else {
@@ -178,43 +198,16 @@ export default function ContactInquiriesManagement() {
     }
   };
 
-  const exportToExcel = async () => {
-    try {
-      setExporting(true);
-      const params = new URLSearchParams();
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
-      }
-      
-      const response = await fetch(`/api/admin/contact-inquiries/export?${params.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to export contact inquiries');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      
-      const currentDate = new Date().toISOString().split('T')[0];
-      link.download = `contact-inquiries-${currentDate}.xlsx`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Error exporting contact inquiries:', err);
-      alert('Failed to export contact inquiries. Please try again.');
-    } finally {
-      setExporting(false);
+  const getFilteredInquiries = () => {
+    switch (filter) {
+      case 'unassigned':
+        return inquiries.filter(i => !i.salesManagerId);
+      case 'assigned':
+        return inquiries.filter(i => i.salesManagerId);
+      default:
+        return inquiries;
     }
   };
-
-  const filteredInquiries = inquiries.filter(inquiry => 
-    statusFilter === 'all' || inquiry.status === statusFilter
-  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -237,67 +230,47 @@ export default function ContactInquiriesManagement() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Contact Inquiries</h1>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Loading contact inquiries...</span>
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600">Loading distribution dashboard...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Contact Inquiries</h1>
-          <button 
-            onClick={loadInquiries}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading contact inquiries</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
-            </div>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">Error loading dashboard</h3>
+            <p className="mt-1 text-sm text-red-700">{error}</p>
+            <button 
+              onClick={loadData}
+              className="mt-2 text-sm text-red-600 hover:text-red-500"
+            >
+              Try again
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
+  const filteredInquiries = getFilteredInquiries();
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Contact Inquiries</h1>
-        <div className="flex flex-wrap gap-3">
+        <h2 className="text-2xl font-bold text-gray-900">Inquiry Distribution Dashboard</h2>
+        <div className="flex gap-3">
           <button 
-            onClick={() => setShowDistributionDashboard(!showDistributionDashboard)}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-              showDistributionDashboard 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            {showDistributionDashboard ? 'Hide Dashboard' : 'Show Dashboard'}
-          </button>
-          <button 
-            onClick={loadInquiries}
+            onClick={loadData}
             disabled={loading}
             className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
@@ -329,96 +302,95 @@ export default function ContactInquiriesManagement() {
               Assign Selected ({selectedInquiries.length})
             </button>
           )}
-          
-          <button 
-            onClick={exportToExcel}
-            disabled={exporting}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            {exporting ? 'Exporting...' : 'Export to Excel'}
-          </button>
         </div>
       </div>
 
-      {/* Distribution Dashboard */}
-      {showDistributionDashboard && (
-        <InquiryDistributionDashboard />
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-2xl font-bold text-gray-900">{stats.totalInquiries}</div>
+            <div className="text-sm text-gray-600">Total Inquiries</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-2xl font-bold text-orange-600">{stats.unassignedInquiries}</div>
+            <div className="text-sm text-gray-600">Unassigned</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-2xl font-bold text-blue-600">{stats.assignedInquiries}</div>
+            <div className="text-sm text-gray-600">Assigned</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-2xl font-bold text-green-600">{stats.respondedInquiries}</div>
+            <div className="text-sm text-gray-600">Responded</div>
+          </div>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{inquiries.length}</div>
-          <div className="text-sm text-gray-600">Total Inquiries</div>
+      {/* Manager Workload */}
+      {stats && stats.managerWorkloads.length > 0 && (
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Sales Manager Workload</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stats.managerWorkloads.map((workload) => (
+              <div key={workload.managerId} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">{workload.managerName}</h4>
+                  <span className="text-sm text-gray-500">{workload.territory || 'No territory'}</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Total Assigned:</span>
+                    <span className="font-medium">{workload.assignedCount}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">New:</span>
+                    <span className="font-medium text-red-600">{workload.newCount}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Responded:</span>
+                    <span className="font-medium text-green-600">{workload.respondedCount}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-red-600">{inquiries.filter(i => i.status === 'NEW').length}</div>
-          <div className="text-sm text-gray-600">New</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-blue-600">{inquiries.filter(i => i.status === 'RESPONDED').length}</div>
-          <div className="text-sm text-gray-600">Responded</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-green-600">{inquiries.filter(i => i.status === 'CLOSED').length}</div>
-          <div className="text-sm text-gray-600">Closed</div>
-        </div>
-      </div>
+      )}
 
+      {/* Inquiries Table */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex gap-2">
             <button
-              onClick={() => setStatusFilter('all')}
+              onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusFilter === 'all' 
+                filter === 'all' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              All Status
+              All Inquiries
             </button>
             <button
-              onClick={() => setStatusFilter('NEW')}
+              onClick={() => setFilter('unassigned')}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusFilter === 'NEW' 
+                filter === 'unassigned' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              New
+              Unassigned
             </button>
             <button
-              onClick={() => setStatusFilter('REVIEWED')}
+              onClick={() => setFilter('assigned')}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusFilter === 'REVIEWED' 
+                filter === 'assigned' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Reviewed
-            </button>
-            <button
-              onClick={() => setStatusFilter('RESPONDED')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusFilter === 'RESPONDED' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Responded
-            </button>
-            <button
-              onClick={() => setStatusFilter('CLOSED')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusFilter === 'CLOSED' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Closed
+              Assigned
             </button>
           </div>
         </div>
@@ -441,8 +413,6 @@ export default function ContactInquiriesManagement() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sales Manager</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -487,34 +457,6 @@ export default function ContactInquiriesManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 max-w-xs truncate">
-                      {inquiry.message}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <select
-                        value={inquiry.status}
-                        onChange={(e) => updateInquiryStatus(inquiry.id, e.target.value as 'NEW' | 'REVIEWED' | 'RESPONDED' | 'CLOSED')}
-                        disabled={updatingStatus === inquiry.id}
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <option value="NEW">New</option>
-                        <option value="REVIEWED">Reviewed</option>
-                        <option value="RESPONDED">Responded</option>
-                        <option value="CLOSED">Closed</option>
-                      </select>
-                      {updatingStatus === inquiry.id && (
-                        <div className="flex items-center">
-                          <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -522,7 +464,7 @@ export default function ContactInquiriesManagement() {
           
           {filteredInquiries.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No contact inquiries found.</p>
+              <p className="text-gray-500">No inquiries found for the selected filter.</p>
             </div>
           )}
         </div>

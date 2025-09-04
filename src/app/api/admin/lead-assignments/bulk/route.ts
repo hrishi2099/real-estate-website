@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         const newAssignments = leadIds.map(leadId => ({
           leadId,
           salesManagerId: data.salesManagerId,
-          priority: data.priority || 'MEDIUM',
+          priority: data.priority || 'NORMAL',
           notes: data.notes || 'Bulk reassignment',
           expectedCloseDate: data.expectedCloseDate ? new Date(data.expectedCloseDate) : null,
         }));
