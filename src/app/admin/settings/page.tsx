@@ -266,20 +266,7 @@ export default function AdminSettingsPage() {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Office Settings</h1>
         <p className="text-sm sm:text-base text-gray-600">Manage your office information and branding</p>
         
-        {/* Debug info - Hidden on mobile for cleaner view */}
-        <div className="mt-4 p-3 sm:p-4 bg-gray-100 rounded text-xs sm:text-sm hidden md:block">
-          <strong>Debug Info:</strong>
-          <br />Settings ID: {settings?.id || 'No settings'}
-          <br />Form Address: &quot;{formData.address}&quot;
-          <br />Settings Address: &quot;{settings?.address}&quot;
-          <br />
-          <button 
-            onClick={() => fetchSettings()} 
-            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs touch-manipulation"
-          >
-            Refresh Data
-          </button>
-        </div>
+        
       </div>
 
       <div className="bg-white shadow rounded-lg">
