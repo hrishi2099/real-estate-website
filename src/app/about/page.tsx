@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | Zaminseva Prime",
-  description: "Learn about Zaminseva Prime's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
+  title: "About Us | Zaminseva Prime - Your Partner in Property",
+  description: "Discover the story behind Zaminseva Prime. We're not just real estate agents; we're your dedicated partners in finding the perfect property. Learn about our mission, our values, and the passionate team ready to guide you on your real estate journey.",
   openGraph: {
-    title: "About Us | Zaminseva Prime",
-    description: "Learn about Zaminseva Prime's history, mission, and the experienced team dedicated to helping you find the perfect property investment opportunity.",
+    title: "About Us | Zaminseva Prime - Your Partner in Property",
+    description: "Discover the story behind Zaminseva Prime. We're not just real estate agents; we're your dedicated partners in finding the perfect property. Learn about our mission, our values, and the passionate team ready to guide you on your real estate journey.",
   },
 };
 
@@ -16,7 +16,7 @@ const teamMembers = [
     name: "Dattatray Ghore",
     role: "Founder & CEO",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-    bio: "With over 25 years in real estate, Dattatray founded the company to provide unparalleled service to property buyers and investors."
+    bio: "A true visionary in the real estate world, Dattatray’s passion for property is contagious. With over 25 years of hands-on experience, he founded Zaminseva Prime with the mission to create a more personal, client-focused real estate experience. He’s not just the CEO; he’s the heart and soul of our company, inspiring us all to be better every day."
   }
 ];
 
@@ -46,18 +46,13 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <p className="text-gray-600 mb-4">
-              Founded in 2000, Zaminseva Prime has grown from a small real estate brokerage to one of the most trusted 
-              names in property sales and investment. Our journey began with a simple vision: to provide exceptional service 
-              and expertise to clients seeking premium properties for investment and personal use.
+              Our journey started with a simple, yet powerful idea: to build a real estate experience that’s not just about transactions, but about transformations. Back in 2000, our founder, Dattatray Ghore, saw a gap in the market. People weren't just looking for properties; they were looking for a place to call home, a smart investment for their future, and a trusted guide to help them navigate the often-complex world of real estate.
             </p>
             <p className="text-gray-600 mb-4">
-              Over the years, Zaminseva Prime has built a reputation for excellence, integrity, and innovation in real estate. Our team of 
-              experienced professionals combines deep knowledge of market trends, property values, and investment potential with 
-              cutting-edge technology to deliver results that exceed expectations.
+              And so, Zaminseva Prime was born. We began as a small, passionate team with a big vision. We wanted to create a place where clients felt heard, understood, and empowered. We’ve always believed that buying or selling a property is one of life's most significant moments, and we’re honored to be a part of that journey.
             </p>
             <p className="text-gray-600">
-              Today, Zaminseva Prime continues to set the standard for real estate services, helping investors, buyers, and sellers 
-              navigate complex property transactions and achieve their real estate goals with confidence.
+              Over the years, we've grown, but our core values have remained the same. We’re still that same dedicated team, committed to providing you with unparalleled service, expert advice, and a personal touch that makes all the difference. We're not just here to close a deal; we're here to open doors to your future.
             </p>
           </div>
           <div className="relative h-96 rounded-lg overflow-hidden">
@@ -91,9 +86,9 @@ export default function AboutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Integrity</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Integrity First, Always</h3>
               <p className="text-gray-600">
-                We conduct business with the highest ethical standards, ensuring transparency and honesty in every property transaction.
+                For us, real estate is built on trust. We believe in open, honest communication and complete transparency. You’ll always know where you stand with us. We’re committed to upholding the highest ethical standards, ensuring that every step of your journey is clear, fair, and in your best interest.
               </p>
             </div>
             <div className="text-center">
@@ -102,9 +97,9 @@ export default function AboutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Excellence</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Excellence in Everything We Do</h3>
               <p className="text-gray-600">
-                We strive for excellence in everything we do, from property evaluation to investment consulting and beyond.
+                We’re obsessed with quality. From our initial consultation to the final handshake, we strive for excellence in every detail. Our team is constantly learning, adapting, and using the latest market insights and technology to ensure you get the best possible outcome. We don't just meet expectations; we aim to exceed them.
               </p>
             </div>
             <div className="text-center">
@@ -113,9 +108,9 @@ export default function AboutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Client-Focused</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">You're at the Heart of Our Business</h3>
               <p className="text-gray-600">
-                Our clients&apos; real estate goals come first. We listen, understand, and tailor our property solutions to exceed expectations.
+                Our clients are the reason we do what we do. We take the time to understand your unique needs, dreams, and goals. We listen, we learn, and we tailor our approach to fit you. Your success is our success, and we’re dedicated to helping you achieve your real estate ambitions with confidence and peace of mind.
               </p>
             </div>
           </div>
