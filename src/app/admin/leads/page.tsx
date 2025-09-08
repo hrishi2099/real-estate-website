@@ -1,23 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import LeadUploadForm from "@/components/LeadUploadForm"; // Import the new component
 
-interface LeadScore {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  leadScore: {
-    score: number;
-    grade: string;
-    lastActivity?: Date;
-    seriousBuyerIndicator: boolean;
-    budgetEstimate?: number;
-  };
+// Updated Lead interface to reflect the new Lead model structure
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  score: number;
+  grade: string;
+  lastActivity?: Date;
+  seriousBuyerIndicator: boolean;
+  budgetEstimate?: number;
+  createdAt: Date; // Assuming createdAt is used for joinDate
 }
 
+// ScoreBreakdown interface might need to be updated based on the new API for breakdown
 interface ScoreBreakdown {
   score: number;
   grade: string;
@@ -25,12 +25,12 @@ interface ScoreBreakdown {
 }
 
 export default function LeadsManagement() {
-  const [leads, setLeads] = useState<LeadScore[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]); // Changed to Lead[]
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gradeFilter, setGradeFilter] = useState<string>("all");
   const [scoreBreakdown, setScoreBreakdown] = useState<ScoreBreakdown | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null); // Changed to selectedLeadId
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
 
@@ -38,18 +38,32 @@ export default function LeadsManagement() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
       if (gradeFilter !== "all") {
         params.append("grade", gradeFilter);
       }
       params.append("limit", "100");
 
-      const response = await fetch(`/api/admin/leads?${params}`);
+      // Changed endpoint to unassigned leads, assuming this is the primary list
+      const response = await fetch(`/api/admin/leads/unassigned?${params}`);
       const data = await response.json();
 
       if (data.success) {
-        setLeads(data.data || []);
+        // The data.data from unassigned leads is formatted as { lead: {...}, leadScore: {...} }
+        // We need to flatten it to just the Lead object
+        setLeads(data.data.map((item: any) => ({
+          id: item.lead.id,
+          name: item.lead.name,
+          email: item.lead.email,
+          phone: item.lead.phone,
+          score: item.leadScore.score,
+          grade: item.leadScore.grade,
+          lastActivity: item.leadScore.lastActivity,
+          seriousBuyerIndicator: item.leadScore.seriousBuyerIndicator,
+          budgetEstimate: item.leadScore.budgetEstimate,
+          createdAt: item.lead.createdAt,
+        })) || []);
       } else {
         setError(data.error || "Failed to load leads");
       }
@@ -65,31 +79,31 @@ export default function LeadsManagement() {
     loadLeads();
   }, [gradeFilter]);
 
-  const handleViewBreakdown = async (userId: string) => {
-    try {
-      setSelectedUserId(userId);
-      const response = await fetch(`/api/admin/leads/${userId}`);
-      const data = await response.json();
+  const handleViewBreakdown = async (leadId: string) => { // Changed to leadId
+    // This API endpoint needs to be updated to provide breakdown for the new Lead model
+    // For now, commenting out the logic that relies on the old structure
+    // setSelectedLeadId(leadId);
+    // const response = await fetch(`/api/admin/leads/${leadId}`);
+    // const data = await response.json();
 
-      if (data.success) {
-        setScoreBreakdown(data.data);
-        setShowBreakdownModal(true);
-      } else {
-        setError(data.error || "Failed to load score breakdown");
-      }
-    } catch (err) {
-      setError("Failed to load score breakdown");
-      console.error("Error loading breakdown:", err);
-    }
+    // if (data.success) {
+    //   setScoreBreakdown(data.data);
+    //   setShowBreakdownModal(true);
+    // } else {
+    //   setError(data.error || "Failed to load score breakdown");
+    // }
+    // console.log(`View breakdown for lead ID: ${leadId}`);
+    alert("Lead score breakdown feature is not yet adapted for the new Lead model.");
   };
 
   const handleRecalculateAll = async () => {
-    if (!confirm("This will recalculate scores for all users. Continue?")) {
+    if (!confirm("This will recalculate scores for all leads. Continue?")) { // Changed "users" to "leads"
       return;
     }
 
     try {
       setRecalculating(true);
+      // This API endpoint needs to be updated to work with the new Lead model
       const response = await fetch("/api/admin/leads/recalculate", {
         method: "POST",
         headers: {
@@ -130,15 +144,15 @@ export default function LeadsManagement() {
 
   const filteredLeads = leads.filter(lead => {
     if (gradeFilter === "all") return true;
-    return lead.leadScore.grade === gradeFilter;
+    return lead.grade === gradeFilter; // Directly access grade
   });
 
   const gradeStats = {
     total: leads.length,
-    qualified: leads.filter(l => l.leadScore.grade === "QUALIFIED").length,
-    hot: leads.filter(l => l.leadScore.grade === "HOT").length,
-    warm: leads.filter(l => l.leadScore.grade === "WARM").length,
-    cold: leads.filter(l => l.leadScore.grade === "COLD").length,
+    qualified: leads.filter(l => l.grade === "QUALIFIED").length, // Directly access grade
+    hot: leads.filter(l => l.grade === "HOT").length, // Directly access grade
+    warm: leads.filter(l => l.grade === "WARM").length, // Directly access grade
+    cold: leads.filter(l => l.grade === "COLD").length, // Directly access grade
   };
 
   if (loading) {
@@ -213,6 +227,9 @@ export default function LeadsManagement() {
           </button>
         </div>
       </div>
+
+      {/* Integrate LeadUploadForm */}
+      <LeadUploadForm />
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
@@ -323,34 +340,34 @@ export default function LeadsManagement() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLeads.map((lead) => (
-                <tr key={lead.user.id} className="hover:bg-gray-50">
+                <tr key={lead.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-                        {lead.user.name.charAt(0).toUpperCase()}
+                        {lead.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{lead.user.name}</div>
-                        <div className="text-sm text-gray-500">{lead.user.email}</div>
-                        {lead.user.phone && (
-                          <div className="text-sm text-gray-500">{lead.user.phone}</div>
+                        <div className="text-sm font-medium text-gray-900">{lead.name}</div>
+                        <div className="text-sm text-gray-500">{lead.email}</div>
+                        {lead.phone && (
+                          <div className="text-sm text-gray-500">{lead.phone}</div>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="space-y-1">
-                      <div className={`text-2xl font-bold ${getScoreColor(lead.leadScore.score)}`}>
-                        {lead.leadScore.score}
+                      <div className={`text-2xl font-bold ${getScoreColor(lead.score)}`}>
+                        {lead.score}
                       </div>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGradeColor(lead.leadScore.grade)}`}>
-                        {lead.leadScore.grade}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGradeColor(lead.grade)}`}>
+                        {lead.grade}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {lead.leadScore.seriousBuyerIndicator ? (
+                      {lead.seriousBuyerIndicator ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           <svg className="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
                             <circle cx={4} cy={4} r={3} />
@@ -368,26 +385,26 @@ export default function LeadsManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {lead.leadScore.budgetEstimate 
-                      ? `$${lead.leadScore.budgetEstimate.toLocaleString()}`
+                    {lead.budgetEstimate 
+                      ? `$${lead.budgetEstimate.toLocaleString()}`
                       : 'Unknown'
                     }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {lead.leadScore.lastActivity 
-                      ? new Date(lead.leadScore.lastActivity).toLocaleDateString()
+                    {lead.lastActivity 
+                      ? new Date(lead.lastActivity).toLocaleDateString()
                       : 'No activity'
                     }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button 
-                      onClick={() => handleViewBreakdown(lead.user.id)}
+                      onClick={() => handleViewBreakdown(lead.id)} 
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
                       View Details
                     </button>
                     <a 
-                      href={`mailto:${lead.user.email}`}
+                      href={`mailto:${lead.email}`}
                       className="text-green-600 hover:text-green-900"
                     >
                       Contact
@@ -402,26 +419,26 @@ export default function LeadsManagement() {
         {/* Mobile Card View */}
         <div className="md:hidden space-y-4">
           {filteredLeads.map((lead) => (
-            <div key={lead.user.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div key={lead.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
               <div className="flex items-start space-x-3">
                 <div className="h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
-                  {lead.user.name.charAt(0).toUpperCase()}
+                  {lead.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">{lead.user.name}</h3>
-                      <p className="text-sm text-gray-500 truncate">{lead.user.email}</p>
-                      {lead.user.phone && (
-                        <p className="text-sm text-gray-500 truncate">{lead.user.phone}</p>
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{lead.name}</h3>
+                      <p className="text-sm text-gray-500 truncate">{lead.email}</p>
+                      {lead.phone && (
+                        <p className="text-sm text-gray-500 truncate">{lead.phone}</p>
                       )}
                     </div>
                     <div className="flex flex-col items-end space-y-1 ml-2">
-                      <div className={`text-lg font-bold ${getScoreColor(lead.leadScore.score)}`}>
-                        {lead.leadScore.score}
+                      <div className={`text-lg font-bold ${getScoreColor(lead.score)}`}>
+                        {lead.score}
                       </div>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGradeColor(lead.leadScore.grade)}`}>
-                        {lead.leadScore.grade}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGradeColor(lead.grade)}`}>
+                        {lead.grade}
                       </span>
                     </div>
                   </div>
@@ -429,7 +446,7 @@ export default function LeadsManagement() {
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <span className="text-gray-600">Status: </span>
-                      {lead.leadScore.seriousBuyerIndicator ? (
+                      {lead.seriousBuyerIndicator ? (
                         <span className="text-green-600 font-medium">Serious</span>
                       ) : (
                         <span className="text-gray-600">Browser</span>
@@ -438,8 +455,8 @@ export default function LeadsManagement() {
                     <div>
                       <span className="text-gray-600">Budget: </span>
                       <span className="font-medium">
-                        {lead.leadScore.budgetEstimate 
-                          ? `$${lead.leadScore.budgetEstimate.toLocaleString()}`
+                        {lead.budgetEstimate 
+                          ? `$${lead.budgetEstimate.toLocaleString()}`
                           : 'Unknown'
                         }
                       </span>
@@ -447,23 +464,23 @@ export default function LeadsManagement() {
                     <div className="col-span-2">
                       <span className="text-gray-600">Last Activity: </span>
                       <span className="font-medium">
-                        {lead.leadScore.lastActivity 
-                          ? new Date(lead.leadScore.lastActivity).toLocaleDateString()
+                        {lead.lastActivity 
+                          ? new Date(lead.lastActivity).toLocaleDateString()
                           : 'No activity'
                         }
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 flex space-x-3">
                     <button 
-                      onClick={() => handleViewBreakdown(lead.user.id)}
+                      onClick={() => handleViewBreakdown(lead.id)} 
                       className="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm touch-manipulation"
                     >
                       View Details
                     </button>
                     <a 
-                      href={`mailto:${lead.user.email}`}
+                      href={`mailto:${lead.email}`}
                       className="flex-1 bg-green-600 text-white text-center py-2 px-3 rounded-lg hover:bg-green-700 transition-colors text-sm touch-manipulation"
                     >
                       Contact
@@ -493,7 +510,7 @@ export default function LeadsManagement() {
                   onClick={() => {
                     setShowBreakdownModal(false);
                     setScoreBreakdown(null);
-                    setSelectedUserId(null);
+                    setSelectedLeadId(null);
                   }}
                   className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
                 >
