@@ -53,16 +53,16 @@ export default function LeadsManagement() {
         // The data.data from unassigned leads is formatted as { lead: {...}, leadScore: {...} }
         // We need to flatten it to just the Lead object
         setLeads(data.data.map((item: any) => ({
-          id: item.lead?.id,
-          name: item.lead?.name,
-          email: item.lead?.email,
-          phone: item.lead?.phone,
-          score: item.leadScore?.score,
-          grade: item.leadScore?.grade,
-          lastActivity: item.leadScore?.lastActivity,
-          seriousBuyerIndicator: item.leadScore?.seriousBuyerIndicator,
-          budgetEstimate: item.leadScore?.budgetEstimate,
-          createdAt: item.lead?.createdAt,
+          id: item.lead.id,
+          name: item.lead.name,
+          email: item.lead.email,
+          phone: item.lead.phone,
+          score: item.leadScore.score,
+          grade: item.leadScore.grade,
+          lastActivity: item.leadScore.lastActivity,
+          seriousBuyerIndicator: item.leadScore.seriousBuyerIndicator,
+          budgetEstimate: item.leadScore.budgetEstimate,
+          createdAt: item.lead.createdAt,
         })) || []);
       } else {
         setError(data.error || "Failed to load leads");
