@@ -57,6 +57,8 @@ export async function GET(request: NextRequest) {
       take: limit ? parseInt(limit) : 50,
     });
 
+    console.log('Unassigned Leads from Prisma:', unassignedLeads);
+
     const formattedLeads = unassignedLeads.map(lead => ({ // 'lead' is now the Lead model
       lead: { // Renamed from 'user' to 'lead' for clarity
         id: lead.id,
@@ -76,6 +78,8 @@ export async function GET(request: NextRequest) {
       },
       hasActiveAssignments: lead.leadAssignments.length > 0,
     }));
+
+    console.log('Formatted Leads for response:', formattedLeads);
 
     return NextResponse.json({
       success: true,
