@@ -45,8 +45,7 @@ model User {
   // Sales Manager relations
   manager                User?            @relation("ManagerSubordinate", fields: [managerId], references: [id])
   subordinates           User[]           @relation("ManagerSubordinate")
-  assignedLeads          LeadAssignment[]
-  leadAssignments        LeadAssignment[] @relation("LeadAssignments")
+  assignedLeads          LeadAssignment[] @relation("SalesManagerToAssignment")
   calendarEvents         CalendarEvent[]
   leadCalendarEvents     CalendarEvent[]  @relation("CalendarLead")
   assignedContactInquiries ContactInquiry[] @relation("ContactInquirySalesManager")
@@ -239,6 +238,20 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model Lead {
+  id     String @id @default(cuid())
+  name   String
+  email  String
+  phone  String?
+  status String @default("NEW") // Example default status
+  source String @default("Excel Upload") // Example default source
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  leadAssignments LeadAssignment[] @relation("LeadToAssignment")
+}
+
 model LeadScore {
   id     String    @id @default(cuid())
   userId String    @unique
@@ -304,8 +317,8 @@ model LeadAssignment {
   priority          LeadPriority         @default(MEDIUM)
 
   // Relations
-  lead           User            @relation("LeadAssignments", fields: [leadId], references: [id], onDelete: Cascade)
-  salesManager   User            @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+  lead           Lead            @relation("LeadToAssignment", fields: [leadId], references: [id], onDelete: Cascade)
+  salesManager   User            @relation("SalesManagerToAssignment", fields: [salesManagerId], references: [id], onDelete: Cascade)
   pipelineStages PipelineStage[]
 
   @@unique([leadId, salesManagerId])
