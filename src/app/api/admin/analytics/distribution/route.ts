@@ -39,11 +39,7 @@ export async function GET(request: NextRequest) {
             },
           },
           include: {
-            lead: {
-              include: {
-                leadScore: true,
-              },
-            },
+            lead: true,
           },
         },
         _count: {
@@ -70,7 +66,7 @@ export async function GET(request: NextRequest) {
 
       // Calculate average lead score
       const leadScores = assignments
-        .map(a => a.lead.leadScore?.score || 0)
+        .map(a => a.lead.score || 0) // Changed from lead.leadScore?.score to lead.score
         .filter(score => score > 0);
       const avgLeadScore = leadScores.length > 0 
         ? leadScores.reduce((sum, score) => sum + score, 0) / leadScores.length
@@ -95,7 +91,7 @@ export async function GET(request: NextRequest) {
 
       // Get grade distribution of assigned leads
       const gradeDistribution = assignments.reduce((acc, assignment) => {
-        const grade = assignment.lead.leadScore?.grade || 'UNKNOWN';
+        const grade = assignment.lead.grade || 'UNKNOWN'; // Changed from lead.leadScore?.grade to lead.grade
         acc[grade] = (acc[grade] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -122,8 +118,8 @@ export async function GET(request: NextRequest) {
           status: assignment.status,
           priority: assignment.priority,
           assignedAt: assignment.assignedAt,
-          leadScore: assignment.lead.leadScore?.score || 0,
-          leadGrade: assignment.lead.leadScore?.grade || 'UNKNOWN',
+          leadScore: assignment.lead.score || 0, // Changed from lead.leadScore?.score to lead.score
+          leadGrade: assignment.lead.grade || 'UNKNOWN', // Changed from lead.leadScore?.grade to lead.grade
         })),
       };
     });
@@ -174,19 +170,13 @@ export async function GET(request: NextRequest) {
         },
         ...(salesManagerId ? { salesManagerId } : {}),
         lead: {
-          leadScore: {
-            score: {
-              gte: 70, // High-scoring leads
-            },
+          score: {
+            gte: 70, // High-scoring leads
           },
         },
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true, // Changed from include: { leadScore: true } to true
         salesManager: {
           select: {
             name: true,
@@ -195,9 +185,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: {
         lead: {
-          leadScore: {
-            score: 'desc',
-          },
+          score: 'desc',
         },
       },
       take: 10,
@@ -211,26 +199,20 @@ export async function GET(request: NextRequest) {
         },
         ...(salesManagerId ? { salesManagerId } : {}),
         lead: {
-          leadScore: {
-            locationSearches: {
-              not: null,
-            },
+          locationSearches: {
+            not: null,
           },
         },
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true, // Changed from include: { leadScore: true } to true
       },
     });
 
     const locationAnalysis = leadSources.reduce((acc, assignment) => {
       try {
-        const locations = assignment.lead.leadScore?.locationSearches 
-          ? JSON.parse(assignment.lead.leadScore.locationSearches) 
+        const locations = assignment.lead.locationSearches 
+          ? JSON.parse(assignment.lead.locationSearches) 
           : [];
         
         locations.forEach((location: string) => {
@@ -255,8 +237,8 @@ export async function GET(request: NextRequest) {
         topLeads: topLeads.map(assignment => ({
           leadName: assignment.lead.name,
           leadEmail: assignment.lead.email,
-          score: assignment.lead.leadScore?.score || 0,
-          grade: assignment.lead.leadScore?.grade || 'UNKNOWN',
+          score: assignment.lead.score || 0,
+          grade: assignment.lead.grade || 'UNKNOWN',
           salesManagerName: assignment.salesManager.name,
           assignedAt: assignment.assignedAt,
           status: assignment.status,

@@ -24,11 +24,7 @@ export async function GET(
         },
         assignedLeads: {
           include: {
-            lead: {
-              include: {
-                leadScore: true,
-              },
-            },
+            lead: true,
           },
           orderBy: {
             assignedAt: "desc",

@@ -90,11 +90,7 @@ export async function POST(request: NextRequest) {
         status: "ACTIVE",
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
         salesManager: {
           select: {
             id: true,

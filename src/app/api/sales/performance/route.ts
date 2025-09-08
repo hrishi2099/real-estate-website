@@ -29,11 +29,7 @@ export async function GET(request: NextRequest) {
         },
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
       },
     });
 

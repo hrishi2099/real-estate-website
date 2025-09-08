@@ -35,15 +35,13 @@ export interface LeadWithScore {
   email: string;
   phone?: string;
   joinDate: Date;
-  leadScore: {
-    score: number;
-    grade: string;
-    seriousBuyerIndicator: boolean;
-    budgetEstimate?: number;
-    locationSearches?: string[];
-    propertyTypeInterests?: string[];
-    lastActivity?: Date;
-  };
+  score: number; // Directly on Lead model
+  grade: string; // Directly on Lead model
+  seriousBuyerIndicator: boolean; // Directly on Lead model
+  budgetEstimate?: number; // Directly on Lead model
+  locationSearches?: string[]; // Directly on Lead model
+  propertyTypeInterests?: string[]; // Directly on Lead model
+  lastActivity?: Date; // Directly on Lead model
 }
 
 export class LeadDistributionEngine {
@@ -85,11 +83,7 @@ export class LeadDistributionEngine {
           status: "COMPLETED",
         },
         include: {
-          lead: {
-            include: {
-              leadScore: true,
-            }
-          }
+          lead: true, // Changed from include: { leadScore: true } to true
         },
         orderBy: { assignedAt: "desc" },
         take: 50, // Last 50 for performance calculation
@@ -143,34 +137,29 @@ export class LeadDistributionEngine {
     limit?: number;
   }): Promise<LeadWithScore[]> {
     const whereClause: any = {
-      role: "USER",
-      status: "ACTIVE",
-      leadScore: { isNot: null },
       leadAssignments: {
         none: { status: "ACTIVE" }
       },
     };
 
     if (filters?.minScore) {
-      whereClause.leadScore.score = { gte: filters.minScore };
+      whereClause.score = { gte: filters.minScore }; // Directly on Lead model
     }
 
     if (filters?.grade) {
-      whereClause.leadScore.grade = filters.grade;
+      whereClause.grade = filters.grade; // Directly on Lead model
     }
 
     if (filters?.seriousBuyersOnly) {
-      whereClause.leadScore.seriousBuyerIndicator = true;
+      whereClause.seriousBuyerIndicator = true; // Directly on Lead model
     }
 
-    const leads = await prisma.user.findMany({
+    const leads = await prisma.lead.findMany({ // Changed from prisma.user to prisma.lead
       where: whereClause,
-      include: {
-        leadScore: true,
-      },
+      // leadScore is now directly on Lead model, no need to include
       orderBy: [
-        { leadScore: { score: "desc" } },
-        { leadScore: { lastCalculated: "desc" } },
+        { score: "desc" }, // Directly on Lead model
+        { lastCalculated: "desc" }, // Directly on Lead model
       ],
       take: filters?.limit || 100,
     });
@@ -180,19 +169,17 @@ export class LeadDistributionEngine {
       name: lead.name,
       email: lead.email,
       phone: lead.phone || undefined,
-      joinDate: lead.joinDate,
-      leadScore: {
-        score: lead.leadScore?.score || 0,
-        grade: lead.leadScore?.grade || 'COLD',
-        seriousBuyerIndicator: lead.leadScore?.seriousBuyerIndicator || false,
-        budgetEstimate: lead.leadScore?.budgetEstimate ? 
-          parseFloat(lead.leadScore.budgetEstimate.toString()) : undefined,
-        locationSearches: lead.leadScore?.locationSearches ? 
-          JSON.parse(lead.leadScore.locationSearches) : undefined,
-        propertyTypeInterests: lead.leadScore?.propertyTypeInterests ? 
-          JSON.parse(lead.leadScore.propertyTypeInterests) : undefined,
-        lastActivity: lead.leadScore?.lastActivity || undefined,
-      },
+      joinDate: lead.createdAt, // Using createdAt from Lead model
+      score: lead.score || 0, // Directly from Lead model
+      grade: lead.grade || 'COLD', // Directly from Lead model
+      seriousBuyerIndicator: lead.seriousBuyerIndicator || false, // Directly from Lead model
+      budgetEstimate: lead.budgetEstimate ? 
+        parseFloat(lead.budgetEstimate.toString()) : undefined, // Directly from Lead model
+      locationSearches: lead.locationSearches ? 
+        JSON.parse(lead.locationSearches) : undefined, // Directly from Lead model
+      propertyTypeInterests: lead.propertyTypeInterests ? 
+        JSON.parse(lead.propertyTypeInterests) : undefined, // Directly from Lead model
+      lastActivity: lead.lastActivity || undefined, // Directly from Lead model
     }));
   }
 
@@ -288,7 +275,7 @@ export class LeadDistributionEngine {
     });
 
     // Sort leads by score (desc) so high-value leads go first
-    const sortedLeads = [...leads].sort((a, b) => b.leadScore.score - a.leadScore.score);
+    const sortedLeads = [...leads].sort((a, b) => b.score - a.score); // Directly access score
 
     let managerIndex = 0;
     const workingManagers = [...performanceRankedManagers];
@@ -306,10 +293,10 @@ export class LeadDistributionEngine {
       // For low-score leads (<40), use round-robin among all
       let selectedManager: SalesManagerWithStats;
 
-      if (lead.leadScore.score >= 70) {
+      if (lead.score >= 70) { // Directly access score
         // High-value lead: assign to top performer with capacity
         selectedManager = availableManagers.find(manager => manager.successRate && manager.successRate > 20) || availableManagers[0];
-      } else if (lead.leadScore.score >= 40) {
+      } else if (lead.score >= 40) { // Directly access score
         // Medium-value lead: balanced distribution
         availableManagers.sort((a, b) => a.currentLoad - b.currentLoad);
         selectedManager = availableManagers[0];
@@ -322,7 +309,7 @@ export class LeadDistributionEngine {
       assignments.push({
         leadId: lead.id,
         salesManagerId: selectedManager.id,
-        reason: `Score-based assignment (lead score: ${lead.leadScore.score}, manager success rate: ${selectedManager.successRate?.toFixed(1)}%)`
+        reason: `Score-based assignment (lead score: ${lead.score}, manager success rate: ${selectedManager.successRate?.toFixed(1)}%)` // Directly access score
       });
 
       // Update current load
@@ -349,8 +336,8 @@ export class LeadDistributionEngine {
       let reason = "Territory-based assignment";
 
       // Try to match by territory if we have location data for the lead
-      if (lead.leadScore.locationSearches && territoryMapping) {
-        for (const location of lead.leadScore.locationSearches) {
+      if (lead.locationSearches && territoryMapping) { // Directly access locationSearches
+        for (const location of lead.locationSearches) { // Directly access locationSearches
           for (const [territory, managerIds] of Object.entries(territoryMapping)) {
             if (location.toLowerCase().includes(territory.toLowerCase())) {
               const territoryManagers = workingManagers.filter(manager => 
@@ -430,32 +417,27 @@ export class LeadDistributionEngine {
     let leadsToDistribute: LeadWithScore[];
 
     if (leadIds) {
-      const leads = await prisma.user.findMany({
+      const leads = await prisma.lead.findMany({ // Changed from prisma.user to prisma.lead
         where: {
           id: { in: leadIds },
-          role: "USER",
-          status: "ACTIVE",
         },
-        include: { leadScore: true },
       });
       leadsToDistribute = leads.map(lead => ({
         id: lead.id,
         name: lead.name,
         email: lead.email,
         phone: lead.phone || undefined,
-        joinDate: lead.joinDate,
-        leadScore: {
-          score: lead.leadScore?.score || 0,
-          grade: lead.leadScore?.grade || 'COLD',
-          seriousBuyerIndicator: lead.leadScore?.seriousBuyerIndicator || false,
-          budgetEstimate: lead.leadScore?.budgetEstimate ? 
-            parseFloat(lead.leadScore.budgetEstimate.toString()) : undefined,
-          locationSearches: lead.leadScore?.locationSearches ? 
-            JSON.parse(lead.leadScore.locationSearches) : undefined,
-          propertyTypeInterests: lead.leadScore?.propertyTypeInterests ? 
-            JSON.parse(lead.leadScore.propertyTypeInterests) : undefined,
-          lastActivity: lead.leadScore?.lastActivity || undefined,
-        },
+        joinDate: lead.createdAt, // Using createdAt from Lead model
+        score: lead.score || 0, // Directly from Lead model
+        grade: lead.grade || 'COLD', // Directly from Lead model
+        seriousBuyerIndicator: lead.seriousBuyerIndicator || false, // Directly from Lead model
+        budgetEstimate: lead.budgetEstimate ? 
+          parseFloat(lead.budgetEstimate.toString()) : undefined, // Directly from Lead model
+        locationSearches: lead.locationSearches ? 
+          JSON.parse(lead.locationSearches) : undefined, // Directly from Lead model
+        propertyTypeInterests: lead.propertyTypeInterests ? 
+          JSON.parse(lead.propertyTypeInterests) : undefined, // Directly from Lead model
+        lastActivity: lead.lastActivity || undefined, // Directly from Lead model
       }));
     } else {
       leadsToDistribute = await this.getUnassignedLeads({
@@ -493,7 +475,7 @@ export class LeadDistributionEngine {
       assignments: assignments.map(assignment => ({
         ...assignment,
         metadata: {
-          leadScore: leadsToDistribute.find(l => l.id === assignment.leadId)?.leadScore,
+          leadScore: leadsToDistribute.find(l => l.id === assignment.leadId), // Directly map the Lead object
           salesManagerStats: selectedManagers.find(sm => sm.id === assignment.salesManagerId),
         }
       })),

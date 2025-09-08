@@ -1,69 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { LeadAssignmentStatus } from '@prisma/client' // Import LeadAssignmentStatus
 
 // GET /api/debug/leads - Debug endpoint to check lead distribution data
 export async function GET() {
   try {
-    // Count total users
+    // Count total users (still relevant for overall user base)
     const totalUsers = await prisma.user.count()
-    
-    // Count users by role
+
+    // Count users by role (still relevant for overall user base)
     const usersByRole = await prisma.user.groupBy({
       by: ['role'],
       _count: { id: true }
     })
-    
-    // Count users with lead scores
-    const usersWithLeadScores = await prisma.user.count({
+
+    // Count leads with lead scores (now all Lead records have scores)
+    const totalLeads = await prisma.lead.count()
+
+    // Count unassigned leads (Lead records with no active assignments)
+    const unassignedLeads = await prisma.lead.count({
       where: {
-        leadScore: { isNot: null },
-        role: 'USER'
-      }
-    })
-    
-    // Count unassigned leads (users who are leads with no active assignments)
-    const unassignedLeads = await prisma.user.count({
-      where: {
-        role: 'USER',
-        status: 'ACTIVE',
-        leadScore: { isNot: null },
         leadAssignments: {
           none: {
-            status: 'ACTIVE'
+            status: LeadAssignmentStatus.ACTIVE
           }
         }
       }
     })
-    
-    // Count active sales managers
+
+    // Count active sales managers (still relevant)
     const activeSalesManagers = await prisma.user.count({
       where: {
         role: 'SALES_MANAGER',
         status: 'ACTIVE'
       }
     })
-    
-    // Get sample data
-    const sampleLeads = await prisma.user.findMany({
+
+    // Get sample leads
+    const sampleLeads = await prisma.lead.findMany({
       where: {
-        role: 'USER',
-        status: 'ACTIVE',
-        leadScore: { isNot: null },
         leadAssignments: {
           none: {
-            status: 'ACTIVE'
+            status: LeadAssignmentStatus.ACTIVE
           }
         }
       },
       include: {
-        leadScore: true,
         leadAssignments: {
-          where: { status: 'ACTIVE' }
+          where: { status: LeadAssignmentStatus.ACTIVE }
         }
       },
       take: 3
     })
-    
+
     const sampleSalesManagers = await prisma.user.findMany({
       where: {
         role: 'SALES_MANAGER',
@@ -80,11 +69,11 @@ export async function GET() {
       },
       take: 3
     })
-    
+
     // Count lead assignments
     const totalAssignments = await prisma.leadAssignment.count()
     const activeAssignments = await prisma.leadAssignment.count({
-      where: { status: 'ACTIVE' }
+      where: { status: LeadAssignmentStatus.ACTIVE }
     })
 
     return NextResponse.json({
@@ -93,7 +82,7 @@ export async function GET() {
         acc[item.role] = item._count.id
         return acc
       }, {} as Record<string, number>),
-      usersWithLeadScores,
+      totalLeads, // Renamed from usersWithLeadScores
       unassignedLeads,
       activeSalesManagers,
       totalAssignments,
@@ -103,7 +92,8 @@ export async function GET() {
           id: lead.id,
           name: lead.name,
           email: lead.email,
-          leadScore: lead.leadScore,
+          score: lead.score, // Directly from Lead model
+          grade: lead.grade, // Directly from Lead model
           activeAssignments: lead.leadAssignments.length
         })),
         salesManagers: sampleSalesManagers.map(sm => ({

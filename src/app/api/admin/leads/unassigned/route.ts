@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { UserStatus, LeadAssignmentStatus, Prisma, LeadGrade } from "@prisma/client";
+import { LeadAssignmentStatus, Prisma, LeadGrade } from "@prisma/client"; // UserStatus is no longer needed for Lead model
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,34 +10,30 @@ export async function GET(request: NextRequest) {
     const maxScore = searchParams.get("maxScore");
     const limit = searchParams.get("limit");
 
-    const whereClause: Prisma.UserWhereInput = {
-      role: "USER",
-      status: UserStatus.ACTIVE,
+    const whereClause: Prisma.LeadWhereInput = { // Changed to Prisma.LeadWhereInput
       leadAssignments: {
         none: {
           status: LeadAssignmentStatus.ACTIVE,
         },
       },
-      leadScore: {
-        isNot: null,
-      },
+      // leadScore filtering now directly on Lead model
     };
 
     if (grade) {
-      (whereClause.leadScore as Prisma.LeadScoreWhereInput).grade = grade as LeadGrade;
+      whereClause.grade = grade as LeadGrade; // Directly on Lead model
     }
 
     if (minScore || maxScore) {
-      (whereClause.leadScore as Prisma.LeadScoreWhereInput).score = {
+      whereClause.score = { // Directly on Lead model
         gte: minScore ? parseInt(minScore) : undefined,
         lte: maxScore ? parseInt(maxScore) : undefined,
       };
     }
 
-    const unassignedLeads = await prisma.user.findMany({
+    const unassignedLeads = await prisma.lead.findMany({ // Changed to prisma.lead.findMany
       where: whereClause,
       include: {
-        leadScore: true,
+        // leadScore is now directly on Lead model, no need to include
         leadAssignments: {
           where: {
             status: LeadAssignmentStatus.ACTIVE,
@@ -55,28 +51,28 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [
-        { leadScore: { score: "desc" } },
-        { leadScore: { lastCalculated: "desc" } },
+        { score: "desc" }, // Directly on Lead model
+        { lastCalculated: "desc" }, // Directly on Lead model
       ],
       take: limit ? parseInt(limit) : 50,
     });
 
-    const formattedLeads = unassignedLeads.map(lead => ({
-      user: {
+    const formattedLeads = unassignedLeads.map(lead => ({ // 'lead' is now the Lead model
+      lead: { // Renamed from 'user' to 'lead' for clarity
         id: lead.id,
         name: lead.name,
         email: lead.email,
         phone: lead.phone,
-        joinDate: lead.joinDate,
+        createdAt: lead.createdAt, // Using createdAt from Lead model
       },
-      leadScore: {
-        score: lead.leadScore?.score || 0,
-        grade: lead.leadScore?.grade || 'COLD',
-        lastActivity: lead.leadScore?.lastActivity,
-        seriousBuyerIndicator: lead.leadScore?.seriousBuyerIndicator || false,
-        budgetEstimate: lead.leadScore?.budgetEstimate ? 
-          parseFloat(lead.leadScore.budgetEstimate.toString()) : undefined,
-        lastCalculated: lead.leadScore?.lastCalculated,
+      leadScore: { // Directly map from Lead model
+        score: lead.score || 0,
+        grade: lead.grade || 'COLD',
+        lastActivity: lead.lastActivity,
+        seriousBuyerIndicator: lead.seriousBuyerIndicator || false,
+        budgetEstimate: lead.budgetEstimate ? 
+          parseFloat(lead.budgetEstimate.toString()) : undefined,
+        lastCalculated: lead.lastCalculated,
       },
       hasActiveAssignments: lead.leadAssignments.length > 0,
     }));

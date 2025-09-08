@@ -50,11 +50,7 @@ interface DealsByStage {
       include: {
         assignment: {
           include: {
-            lead: {
-              include: {
-                leadScore: true,
-              },
-            },
+            lead: true,
             salesManager: {
               select: {
                 id: true,
@@ -212,7 +208,7 @@ interface DealsByStage {
             name: stage.assignment.lead.name,
             email: stage.assignment.lead.email,
             phone: stage.assignment.lead.phone,
-            leadScore: stage.assignment.lead.leadScore,
+            leadScore: stage.assignment.lead,
           },
           salesManager: stage.assignment.salesManager,
           activities: stage.stageActivities.map(activity => ({

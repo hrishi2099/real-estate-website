@@ -13,11 +13,7 @@ export async function GET(
         id: (await params).assignmentId,
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
         salesManager: {
           select: {
             id: true,

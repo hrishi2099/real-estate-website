@@ -20,11 +20,7 @@ export async function GET(request: NextRequest) {
     const assignments = await prisma.leadAssignment.findMany({
       where,
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
         salesManager: {
           select: {
             id: true,
@@ -105,11 +101,7 @@ export async function POST(request: NextRequest) {
         priority,
       },
       include: {
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
         salesManager: {
           select: {
             id: true,

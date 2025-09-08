@@ -15,11 +15,7 @@ export async function POST() {
       },
       include: {
         salesManager: true,
-        lead: {
-          include: {
-            leadScore: true,
-          },
-        },
+        lead: true,
       },
     });
 
@@ -35,8 +31,8 @@ export async function POST() {
 
         // Set initial estimated value based on lead score if available
         let estimatedValue = null;
-        if (assignment.lead.leadScore?.budgetEstimate) {
-          estimatedValue = assignment.lead.leadScore.budgetEstimate;
+        if (assignment.lead.budgetEstimate) {
+          estimatedValue = assignment.lead.budgetEstimate;
         }
 
         // Update the stage with estimated value if available

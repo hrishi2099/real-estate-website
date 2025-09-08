@@ -243,6 +243,35 @@ model Lead {
   name   String
   email  String
   phone  String?
+
+  // Lead Score fields (copied from LeadScore model)
+  score  Int       @default(0)
+  grade  LeadGrade @default(COLD)
+
+  // Engagement metrics
+  propertyViews          Int @default(0)
+  inquiriesMade          Int @default(0)
+  contactFormSubmissions Int @default(0)
+  favoritesSaved         Int @default(0)
+
+  // Behavior patterns
+  avgSessionDuration    Int? // in minutes
+  returnVisits          Int     @default(0)
+  priceRangeSearches    String? @db.Text // JSON array of price ranges
+  locationSearches      String? @db.Text // JSON array of locations
+  propertyTypeInterests String? @db.Text // JSON array of property types
+
+  // Temporal factors
+  lastActivity DateTime?
+  daysActive   Int       @default(0)
+
+  // Calculated factors
+  budgetEstimate        Decimal? @db.Decimal(12, 2)
+  seriousBuyerIndicator Boolean  @default(false)
+
+  // Timestamps
+  lastCalculated DateTime @default(now())
+
   status String @default("NEW") // Example default status
   source String @default("Excel Upload") // Example default source
   createdAt DateTime @default(now())
