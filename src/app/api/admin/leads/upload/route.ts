@@ -18,8 +18,17 @@ export async function POST(request: NextRequest) {
     const worksheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(worksheet);
 
-    const createdLeads = [];
-    for (const row of json) {
+    const processedJson = json.map((row: any) => {
+      const newRow: { [key: string]: any } = {};
+      for (const key in row) {
+        if (Object.prototype.hasOwnProperty.call(row, key)) {
+          newRow[key.toLowerCase()] = row[key];
+        }
+      }
+      return newRow;
+    });
+
+    for (const row of processedJson) {
       const { name, email, phone } = row as { name?: string; email?: string; phone?: string };
 
       if (!name || !email || !phone) {
