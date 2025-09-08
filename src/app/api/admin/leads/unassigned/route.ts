@@ -59,25 +59,30 @@ export async function GET(request: NextRequest) {
 
     console.log('Unassigned Leads from Prisma:', unassignedLeads);
 
-    const formattedLeads = unassignedLeads.map(lead => ({ // 'lead' is now the Lead model
-      lead: { // Renamed from 'user' to 'lead' for clarity
-        id: lead.id,
-        name: lead.name,
-        email: lead.email,
-        phone: lead.phone,
-        createdAt: lead.createdAt, // Using createdAt from Lead model
-      },
-      leadScore: { // Directly map from Lead model
-        score: lead.score || 0,
-        grade: lead.grade || 'COLD',
-        lastActivity: lead.lastActivity,
-        seriousBuyerIndicator: lead.seriousBuyerIndicator || false,
-        budgetEstimate: lead.budgetEstimate ? 
-          parseFloat(lead.budgetEstimate.toString()) : undefined,
-        lastCalculated: lead.lastCalculated,
-      },
-      hasActiveAssignments: lead.leadAssignments.length > 0,
-    }));
+    const formattedLeads = unassignedLeads.map(lead => {
+      console.log('Mapping lead:', lead);
+      const mappedLead = {
+        lead: { // Renamed from 'user' to 'lead' for clarity
+          id: lead.id,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          createdAt: lead.createdAt, // Using createdAt from Lead model
+        },
+        leadScore: { // Directly map from Lead model
+          score: lead.score || 0,
+          grade: lead.grade || 'COLD',
+          lastActivity: lead.lastActivity,
+          seriousBuyerIndicator: lead.seriousBuyerIndicator || false,
+          budgetEstimate: lead.budgetEstimate ? 
+            parseFloat(lead.budgetEstimate.toString()) : undefined,
+          lastCalculated: lead.lastCalculated,
+        },
+        hasActiveAssignments: lead.leadAssignments.length > 0,
+      };
+      console.log('Mapped lead:', mappedLead);
+      return mappedLead;
+    });
 
     console.log('Formatted Leads for response:', formattedLeads);
 
