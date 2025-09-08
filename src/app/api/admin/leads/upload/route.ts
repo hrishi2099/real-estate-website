@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
     const worksheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(worksheet);
 
+    console.log('Raw JSON from XLSX:', json);
+
     const processedJson = json.map((row: any) => {
       const newRow: { [key: string]: any } = {};
       for (const key in row) {
