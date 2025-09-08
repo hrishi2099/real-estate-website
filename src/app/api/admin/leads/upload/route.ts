@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import prisma from '@/lib/prisma'; // Assuming prisma client is exported from here
-import { distributeLead } from '@/lib/lead-distribution'; // Assuming distributeLead is exported from here
+import { leadDistributionEngine } from '@/lib/lead-distribution'; // Assuming distributeLead is exported from here
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
         createdLeads.push(newLead);
 
         // Distribute the newly created lead
-        await distributeLead(newLead.id); // Assuming distributeLead takes leadId
+        await leadDistributionEngine.distributeLeads(
+          { type: 'load_balanced' }, // Default rule for single lead distribution
+          [newLead.id] // Pass the new lead's ID
+        );
       } catch (dbError) {
         console.error('Error creating lead or distributing:', dbError);
         // Depending on requirements, you might want to return an error or continue
