@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       return newRow;
     });
 
+    const createdLeads = []; // Added this line
     for (const row of processedJson) {
       const { name, email, phone } = row as { name?: string; email?: string; phone?: string };
 
