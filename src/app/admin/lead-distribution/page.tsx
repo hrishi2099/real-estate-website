@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 
 interface UnassignedLead {
-  user: {
+  lead: {
     id: string;
     name: string;
     email: string;
     phone?: string;
-    joinDate: string;
+    createdAt: string;
   };
   leadScore: {
     score: number;
@@ -183,7 +183,7 @@ export default function LeadDistribution() {
     if (selectedLeads.length === unassignedLeads.length) {
       setSelectedLeads([]);
     } else {
-      setSelectedLeads(unassignedLeads.map(lead => lead.user.id));
+      setSelectedLeads(unassignedLeads.map(lead => lead.lead.id));
     }
   };
 
@@ -488,30 +488,30 @@ export default function LeadDistribution() {
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {unassignedLeads.map((lead) => (
               <div
-                key={lead.user.id}
+                key={lead.lead.id}
                 className={`p-3 border rounded-lg transition-colors ${
                   distributionRule === 'manual' ? 'cursor-pointer' : ''
                 } ${
-                  distributionRule === 'manual' && selectedLeads.includes(lead.user.id)
+                  distributionRule === 'manual' && selectedLeads.includes(lead.lead.id)
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
                 onClick={() => {
                   if (distributionRule === 'manual') {
-                    if (selectedLeads.includes(lead.user.id)) {
-                      setSelectedLeads(selectedLeads.filter(id => id !== lead.user.id));
+                    if (selectedLeads.includes(lead.lead.id)) {
+                      setSelectedLeads(selectedLeads.filter(id => id !== lead.lead.id));
                     } else {
-                      setSelectedLeads([...selectedLeads, lead.user.id]);
+                      setSelectedLeads([...selectedLeads, lead.lead.id]);
                     }
                   }
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{lead.user.name}</div>
-                    <div className="text-sm text-gray-500">{lead.user.email}</div>
-                    {lead.user.phone && (
-                      <div className="text-xs text-gray-400">{lead.user.phone}</div>
+                    <div className="text-sm font-medium text-gray-900">{lead.lead.name}</div>
+                    <div className="text-sm text-gray-500">{lead.lead.email}</div>
+                    {lead.lead.phone && (
+                      <div className="text-xs text-gray-400">{lead.lead.phone}</div>
                     )}
                   </div>
                   <div className="text-right">
