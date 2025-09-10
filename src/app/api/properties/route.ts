@@ -54,17 +54,27 @@ export const POST = requireAdmin(async (req) => {
     return NextResponse.json({ error: 'Invalid input', details: validation.error.issues }, { status: 400 });
   }
 
+  const { images, ...propertyData } = validation.data;
+
   try {
     const newProperty = await prisma.property.create({
       data: {
-        ...validation.data,
+        ...propertyData,
         ownerId: req.user.userId,
-        // Handle Decimal and JSON fields if necessary
-        price: validation.data.price,
-        area: validation.data.area,
-        features: validation.data.features ? JSON.stringify(validation.data.features) : undefined,
+        price: propertyData.price,
+        area: propertyData.area,
+        features: propertyData.features ? JSON.stringify(propertyData.features) : undefined,
       },
     });
+
+    if (images && images.length > 0) {
+      await prisma.propertyImage.createMany({
+        data: images.map(image => ({
+          ...image,
+          propertyId: newProperty.id,
+        })),
+      });
+    }
 
     // Revalidate the cache for properties
     revalidateTag('properties');

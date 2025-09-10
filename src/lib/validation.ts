@@ -113,6 +113,10 @@ export const createPropertySchema = z.object({
   area: z.number().min(0, 'Area must be positive'),
   features: z.array(createSecureTextSchema(1, 100, 'Feature')).optional(),
   isFeatured: z.boolean().default(false),
+  images: z.array(z.object({
+    url: z.string().url(),
+    filename: z.string(),
+  })).optional(),
 });
 
 export const updatePropertySchema = createPropertySchema.partial();

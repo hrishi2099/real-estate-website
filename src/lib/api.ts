@@ -132,6 +132,7 @@ class ApiClient {
     area?: number;
     yearBuilt?: number;
     features?: string[];
+    images?: { url: string; filename: string }[];
   }) {
     return this.request('/properties', {
       method: 'POST',

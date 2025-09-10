@@ -120,6 +120,26 @@ export default function NewProperty() {
 
     setLoading(true);
     try {
+      let imageUrls: string[] = [];
+      if (formData.images.length > 0) {
+        const imageFormData = new FormData();
+        formData.images.forEach(image => {
+          imageFormData.append('files', image);
+        });
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Image upload failed');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        imageUrls = uploadResult.urls;
+      }
+
       const propertyData = {
         title: formData.title.trim(),
         description: formData.description.trim() || undefined,
@@ -133,7 +153,8 @@ export default function NewProperty() {
         area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
         features: formData.features,
         status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
-        isFeatured: false
+        isFeatured: false,
+        images: imageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
       };
 
       const response = await api.createProperty(propertyData);
