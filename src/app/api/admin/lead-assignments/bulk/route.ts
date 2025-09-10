@@ -176,11 +176,14 @@ export async function GET() {
 
     const salesManagerWithStats = salesManagerStats.map(stat => {
       const manager = salesManagers.find(sm => sm.id === stat.salesManagerId);
+      if (!manager) {
+        return null;
+      }
       return {
         salesManager: manager,
         activeAssignments: stat._count.id,
       };
-    });
+    }).filter(Boolean);
 
     return NextResponse.json({
       success: true,
