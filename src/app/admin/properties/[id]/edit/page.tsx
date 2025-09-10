@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
 
@@ -51,6 +51,7 @@ export default function EditProperty() {
   const router = useRouter();
   const params = useParams();
   const propertyId = params.id as string;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,9 @@ export default function EditProperty() {
     bathrooms: 1,
     area: '',
     features: [] as string[],
-    isFeatured: false
+    isFeatured: false,
+    newImages: [] as File[],
+    existingImages: [] as { url: string; alt: string }[]
   });
 
   const propertyTypes = [
@@ -123,7 +126,9 @@ export default function EditProperty() {
               bathrooms: propertyData.bathrooms || 1,
               area: propertyData.area?.toString() || '',
               features: propertyData.features || [],
-              isFeatured: propertyData.isFeatured || false
+              isFeatured: propertyData.isFeatured || false,
+              newImages: [],
+              existingImages: propertyData.images || []
             });
           } else {
             console.log('Property data not found or invalid:', propertyData);
@@ -168,6 +173,13 @@ export default function EditProperty() {
       features: prev.features.includes(feature)
         ? prev.features.filter(f => f !== feature)
         : [...prev.features, feature]
+    }));
+  };
+
+  const handleRemoveImage = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      existingImages: prev.existingImages.filter(image => image.url !== url)
     }));
   };
 
@@ -227,8 +239,29 @@ export default function EditProperty() {
 
     setSaving(true);
     try {
-      // Only include fields that have values or need to be updated
-      const propertyData: PropertyData = {
+      let newImageUrls: string[] = [];
+      if (formData.newImages.length > 0) {
+        const imageFormData = new FormData();
+        formData.newImages.forEach(image => {
+          imageFormData.append('files', image);
+        });
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Image upload failed');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        newImageUrls = uploadResult.files.map((file: any) => file.url);
+      }
+
+      const allImageUrls = [...formData.existingImages.map(img => img.url), ...newImageUrls];
+
+      const propertyData = {
         title: formData.title.trim(),
         price: Number(formData.price),
         location: formData.location.trim(),
@@ -236,25 +269,13 @@ export default function EditProperty() {
         bedrooms: Number(formData.bedrooms),
         bathrooms: Number(formData.bathrooms),
         features: formData.features,
-        isFeatured: formData.isFeatured
+        isFeatured: formData.isFeatured,
+        description: formData.description.trim() || undefined,
+        latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
+        area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
+        images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
       };
-
-      // Only include optional fields if they have values
-      if (formData.description && formData.description.trim()) {
-        propertyData.description = formData.description.trim();
-      }
-      
-      if (formData.latitude && formData.latitude.trim()) {
-        propertyData.latitude = Number(formData.latitude);
-      }
-      
-      if (formData.longitude && formData.longitude.trim()) {
-        propertyData.longitude = Number(formData.longitude);
-      }
-      
-      if (formData.area && formData.area.trim()) {
-        propertyData.area = Number(formData.area);
-      }
 
       const response = await api.updateProperty(propertyId, propertyData);
       if (response?.data) {
@@ -327,9 +348,7 @@ export default function EditProperty() {
                 value={formData.title}
                 onChange={handleInputChange}
                 required
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter property title"
               />
               {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
@@ -345,9 +364,7 @@ export default function EditProperty() {
                 value={formData.price}
                 onChange={handleInputChange}
                 required
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.price ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="₹45,00,000"
               />
               {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
@@ -363,9 +380,7 @@ export default function EditProperty() {
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.location ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.location ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Downtown, City Center"
               />
               {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
@@ -430,9 +445,7 @@ export default function EditProperty() {
                 value={formData.bedrooms}
                 onChange={handleInputChange}
                 min="0"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.bedrooms ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.bedrooms ? 'border-red-500' : 'border-gray-300'}`}
               />
               {errors.bedrooms && <p className="text-red-500 text-sm mt-1">{errors.bedrooms}</p>}
             </div>
@@ -448,9 +461,7 @@ export default function EditProperty() {
                 onChange={handleInputChange}
                 min="0"
                 step="0.5"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.bathrooms ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.bathrooms ? 'border-red-500' : 'border-gray-300'}`}
               />
               {errors.bathrooms && <p className="text-red-500 text-sm mt-1">{errors.bathrooms}</p>}
             </div>
@@ -464,9 +475,7 @@ export default function EditProperty() {
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.area ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.area ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="1,200"
               />
               {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
@@ -484,9 +493,7 @@ export default function EditProperty() {
                 step="any"
                 min="-90"
                 max="90"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.latitude ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.latitude ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="19.076"
               />
               {errors.latitude && <p className="text-red-500 text-sm mt-1">{errors.latitude}</p>}
@@ -505,9 +512,7 @@ export default function EditProperty() {
                 step="any"
                 min="-180"
                 max="180"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.longitude ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${errors.longitude ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="72.878"
               />
               {errors.longitude && <p className="text-red-500 text-sm mt-1">{errors.longitude}</p>}
@@ -545,6 +550,53 @@ export default function EditProperty() {
                 <span className="text-sm text-gray-700">{feature}</span>
               </label>
             ))}
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Images</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            {formData.existingImages.map(image => (
+              <div key={image.url} className="relative">
+                <img src={image.url} alt={image.alt} className="w-full h-32 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(image.url)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <div className="text-gray-500">
+              <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <p className="text-sm">Click to upload images or drag and drop</p>
+              <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF up to 10MB each</p>
+            </div>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFormData(prev => ({
+                    ...prev,
+                    newImages: [...prev.newImages, ...Array.from(e.target.files || [])]
+                  }));
+                }
+              }}
+            />
           </div>
         </div>
 
