@@ -137,7 +137,7 @@ export default function NewProperty() {
         }
 
         const uploadResult = await uploadResponse.json();
-        imageUrls = uploadResult.urls;
+        imageUrls = uploadResult.files.map((file: any) => file.url);
       }
 
       const propertyData = {
