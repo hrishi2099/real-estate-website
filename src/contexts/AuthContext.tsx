@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { trackAuth } from "@/lib/analytics-gtm";
+import { signIn } from "next-auth/react";
 
 interface User {
   id: string;
@@ -23,6 +24,7 @@ interface AuthContextType {
   isSalesManager: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   isLoading: boolean;
   isHydrated: boolean;
 }
@@ -100,6 +102,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      await signIn("google");
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -107,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isSalesManager: user?.role === 'SALES_MANAGER',
     login,
     logout,
+    signInWithGoogle,
     isLoading,
     isHydrated,
   };
