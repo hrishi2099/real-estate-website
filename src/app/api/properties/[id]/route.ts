@@ -31,23 +31,33 @@ export const PUT = requireAdmin(async (req, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Invalid input', details: validation.error.issues }, { status: 400 });
   }
 
+  const { images, ...propertyData } = validation.data;
+
   try {
     const updatedProperty = await prisma.property.update({
       where: { id },
       data: {
-        ...(() => {
-          const { features, ...rest } = validation.data;
-          return rest;
-        })(),
-        // Handle Decimal and JSON fields if necessary
-        ...(validation.data.price && { price: validation.data.price }),
-        ...(validation.data.features !== undefined && {
-          features: Array.isArray(validation.data.features)
-            ? validation.data.features.join(', ')
-            : validation.data.features,
-        }),
+        ...propertyData,
+        features: propertyData.features ? JSON.stringify(propertyData.features) : undefined,
       },
     });
+
+    if (images) {
+      // Delete existing images
+      await prisma.propertyImage.deleteMany({
+        where: { propertyId: id },
+      });
+
+      // Create new images
+      if (images.length > 0) {
+        await prisma.propertyImage.createMany({
+          data: images.map(image => ({
+            ...image,
+            propertyId: id,
+          })),
+        });
+      }
+    }
 
     // Revalidate the cache for properties
     revalidateTag('properties');
