@@ -37,7 +37,11 @@ export async function POST(request: NextRequest) {
       const { name, email, phone } = row as { name?: string; email?: string; phone?: string };
 
       if (!name || !email || !phone) {
-        console.warn('Skipping row due to missing data:', row);
+        const missingFields = [];
+        if (!name) missingFields.push('name');
+        if (!email) missingFields.push('email');
+        if (!phone) missingFields.push('phone');
+        console.warn(`Skipping row due to missing fields: ${missingFields.join(', ')}`, row);
         continue;
       }
 
