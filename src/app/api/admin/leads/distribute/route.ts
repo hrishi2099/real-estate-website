@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       rule,
       leadIds,
       salesManagerIds,
-      priority = 'NORMAL',
+      priority = 'MEDIUM',
       notes,
       expectedCloseDate,
     } = body;
