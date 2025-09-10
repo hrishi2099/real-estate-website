@@ -472,6 +472,7 @@ enum LeadAssignmentStatus {
 enum LeadPriority {
   LOW
   MEDIUM
+  NORMAL
   HIGH
   URGENT
 }
