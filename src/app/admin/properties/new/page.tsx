@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
@@ -11,6 +11,7 @@ interface ValidationError {
 
 export default function NewProperty() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -409,7 +410,10 @@ export default function NewProperty() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Images</h2>
           
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <div className="text-gray-500">
               <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -421,6 +425,7 @@ export default function NewProperty() {
               type="file"
               multiple
               accept="image/*"
+              ref={fileInputRef}
               className="hidden"
               onChange={(e) => {
                 if (e.target.files) {
