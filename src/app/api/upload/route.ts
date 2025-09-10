@@ -31,8 +31,9 @@ export async function POST(request: NextRequest) {
     const uploadsDir = join(process.cwd(), 'public', 'uploads')
     try {
       await mkdir(uploadsDir, { recursive: true })
-    } catch {
-      // Directory might already exist
+    } catch (error) {
+      console.error('Error creating uploads directory:', error);
+      // Directory might already exist, so we can continue
     }
 
     for (const file of files) {
@@ -58,6 +59,8 @@ export async function POST(request: NextRequest) {
       const extension = file.name.split('.').pop()
       const filename = `${uuid()}.${extension}`
       const filepath = join(uploadsDir, filename)
+      console.log('Attempting to write file to:', filepath);
+
 
       // Convert file to buffer and save
       const bytes = await file.arrayBuffer()
@@ -78,9 +81,10 @@ export async function POST(request: NextRequest) {
       files: uploadedFiles
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     )
   }
