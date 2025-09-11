@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
     const createdLeads = []; // Added this line
     for (const row of processedJson) {
       console.log('Processing row:', row); // Added for debugging
-      const { name, email, phone } = row as { name?: string; email?: string; phone?: string };
+      const { name, email, phone: rawPhone } = row as { name?: string; email?: string; phone?: any };
+      const phone = rawPhone ? String(rawPhone) : null; // Convert phone to string or null
       console.log(`Extracted - Name: ${name}, Email: ${email}, Phone: ${phone}`); // Added for debugging
 
       if (!name || !email || !phone) {
