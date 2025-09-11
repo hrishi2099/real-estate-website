@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
 
     const createdLeads = []; // Added this line
     for (const row of processedJson) {
+      console.log('Processing row:', row); // Added for debugging
       const { name, email, phone } = row as { name?: string; email?: string; phone?: string };
+      console.log(`Extracted - Name: ${name}, Email: ${email}, Phone: ${phone}`); // Added for debugging
 
       if (!name || !email || !phone) {
         const missingFields = [];
