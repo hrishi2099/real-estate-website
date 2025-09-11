@@ -5,17 +5,20 @@ import LeadUploadForm from "@/components/LeadUploadForm"; // Import the new comp
 
 // Updated Lead interface to reflect the new Lead model structure
 interface Lead {
-  id: string;
+  id: string; // This will be the LeadAssignment ID
+  leadId: string; // The actual Lead ID
   name: string;
   email: string;
   phone?: string;
   score: number;
   grade: string;
+  priority: string; // Directly from LeadAssignment
   lastActivity?: Date;
   seriousBuyerIndicator: boolean;
   budgetEstimate?: number;
-  createdAt: Date; // Assuming createdAt is used for joinDate
-  priority?: string; // Added priority to the Lead interface
+  createdAt: Date; // From nested lead
+  salesManagerName?: string; // From nested salesManager
+  salesManagerEmail?: string; // From nested salesManager
 }
 
 // ScoreBreakdown interface might need to be updated based on the new API for breakdown
@@ -51,20 +54,22 @@ export default function LeadsManagement() {
       const data = await response.json();
 
       if (data.success) {
-        // The data.data from unassigned leads is formatted as { lead: {...}, leadScore: {...} }
-        // We need to flatten it to just the Lead object
+        // The data.data is now an array of LeadAssignment objects
         setLeads(data.data.map((item: any) => ({
-          id: item.lead?.id,
+          id: item.id, // LeadAssignment ID
+          leadId: item.lead?.id,
           name: item.lead?.name,
           email: item.lead?.email,
           phone: item.lead?.phone,
-          score: item.leadScore?.score,
-          grade: item.leadScore?.grade,
-          lastActivity: item.leadScore?.lastActivity,
-          seriousBuyerIndicator: item.leadScore?.seriousBuyerIndicator,
-          budgetEstimate: item.leadScore?.budgetEstimate,
+          score: item.lead?.score,
+          grade: item.lead?.grade,
+          priority: item.priority, // Directly from LeadAssignment
+          lastActivity: item.lead?.lastActivity,
+          seriousBuyerIndicator: item.lead?.seriousBuyerIndicator,
+          budgetEstimate: item.lead?.budgetEstimate,
           createdAt: item.lead?.createdAt,
-          priority: item.leadScore?.priority || 'NORMAL', // Added priority mapping
+          salesManagerName: item.salesManager?.name,
+          salesManagerEmail: item.salesManager?.email,
         })) || []);
       } else {
         setError(data.error || "Failed to load leads");
