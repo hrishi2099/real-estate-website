@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmailImproved } from "@/lib/email-improved";
+import { generateLeadAssignmentEmail } from "@/lib/email-templates/lead-assignment";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     let result;
+    let newlyAssignedLeadIds: string[] = [];
 
     switch (action) {
       case 'update_status':
@@ -85,7 +88,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Create new assignments
-        const newAssignments = leadIds.map(leadId => ({
+        const newAssignmentsData = leadIds.map(leadId => ({
           leadId,
           salesManagerId: data.salesManagerId,
           priority: data.priority || 'NORMAL',
@@ -94,9 +97,47 @@ export async function POST(request: NextRequest) {
         }));
 
         result = await prisma.leadAssignment.createMany({
-          data: newAssignments,
+          data: newAssignmentsData,
           skipDuplicates: true,
         });
+
+        // Get the newly created assignments with full details for notification
+        const createdAssignmentRecords = await prisma.leadAssignment.findMany({
+          where: {
+            leadId: { in: leadIds },
+            salesManagerId: data.salesManagerId,
+          },
+          include: {
+            lead: true,
+            salesManager: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        });
+
+        // Send email notifications for newly assigned leads
+        for (const assignment of createdAssignmentRecords) {
+          if (assignment.salesManager?.email) {
+            const { html, text } = generateLeadAssignmentEmail({
+              lead: assignment.lead,
+              salesManager: assignment.salesManager,
+              assignment: assignment,
+            });
+
+            await sendEmailImproved({
+              to: assignment.salesManager.email,
+              subject: `New Lead Assigned: ${assignment.lead.name || 'N/A'}`,
+              html,
+              text,
+            });
+            console.log(`Email notification sent for lead ${assignment.lead.id} to ${assignment.salesManager.email} (bulk reassignment)`);
+          }
+        }
+
         break;
 
       case 'delete':

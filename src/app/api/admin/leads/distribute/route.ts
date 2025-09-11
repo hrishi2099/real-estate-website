@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { leadDistributionEngine } from "@/lib/lead-distribution";
+import { sendEmailImproved } from "@/lib/email-improved";
+import { generateLeadAssignmentEmail } from "@/lib/email-templates/lead-assignment";
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,6 +107,25 @@ export async function POST(request: NextRequest) {
       },
       take: 50, // Limit response size
     });
+
+    // Send email notifications for newly assigned leads
+    for (const assignment of assignmentDetails) {
+      if (assignment.salesManager?.email) {
+        const { html, text } = generateLeadAssignmentEmail({
+          lead: assignment.lead,
+          salesManager: assignment.salesManager,
+          assignment: assignment,
+        });
+
+        await sendEmailImproved({
+          to: assignment.salesManager.email,
+          subject: `New Lead Assigned: ${assignment.lead.name || 'N/A'}`,
+          html,
+          text,
+        });
+        console.log(`Email notification sent for lead ${assignment.lead.id} to ${assignment.salesManager.email} (initial distribution)`);
+      }
+    }
 
     return NextResponse.json({
       success: true,

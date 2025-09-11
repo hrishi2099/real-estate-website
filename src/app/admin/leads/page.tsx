@@ -15,6 +15,7 @@ interface Lead {
   seriousBuyerIndicator: boolean;
   budgetEstimate?: number;
   createdAt: Date; // Assuming createdAt is used for joinDate
+  priority?: string; // Added priority to the Lead interface
 }
 
 // ScoreBreakdown interface might need to be updated based on the new API for breakdown
@@ -63,6 +64,7 @@ export default function LeadsManagement() {
           seriousBuyerIndicator: item.leadScore?.seriousBuyerIndicator,
           budgetEstimate: item.leadScore?.budgetEstimate,
           createdAt: item.lead?.createdAt,
+          priority: item.leadScore?.priority || 'NORMAL', // Added priority mapping
         })) || []);
       } else {
         setError(data.error || "Failed to load leads");
