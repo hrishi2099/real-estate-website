@@ -21,10 +21,8 @@ interface PipelineStage {
     name: string;
     email: string;
     phone?: string;
-    leadScore?: {
-      score: number;
-      grade: string;
-    };
+    score: number;
+    grade: string;
   };
   recentActivities: Array<{
     id: string;
@@ -34,20 +32,7 @@ interface PipelineStage {
   }>;
 }
 
-interface UpcomingAction {
-  id: string;
-  stage: string;
-  nextAction: string;
-  nextActionDate: string;
-  lead: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  probability?: number;
-  estimatedValue?: number;
-}
+
 
 export default function SalesPipeline() {
   const { user } = useAuth();
@@ -248,7 +233,7 @@ export default function SalesPipeline() {
     );
   }
 
-  const { stages = [], performance = {}, upcomingActions = [] } = pipelineData || {};
+  const { stages = [], statistics = {} } = pipelineData || {};
 
   return (
     <div className="space-y-6">
@@ -291,7 +276,7 @@ export default function SalesPipeline() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pipeline Value</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {formatCurrency(performance.revenue?.pipeline || 0)}
+                {formatCurrency(statistics.revenue?.pipeline || 0)}
               </p>
             </div>
           </div>
@@ -307,58 +292,17 @@ export default function SalesPipeline() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Win Rate</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {performance.winRate || 0}%
+                {statistics.revenue?.winRate || 0}%
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Upcoming Actions</p>
-              <p className="text-2xl font-semibold text-gray-900">{upcomingActions.length}</p>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       {/* Upcoming Actions */}
-      {upcomingActions.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Upcoming Actions</h3>
-          <div className="space-y-3">
-            {upcomingActions.slice(0, 5).map((action: UpcomingAction) => (
-              <div key={action.id} className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${stageColors[action.stage]}`}>
-                      {stageLabels[action.stage]}
-                    </span>
-                    <span className="font-medium text-gray-900">{action.lead.name}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">{action.nextAction}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
-                    Due: {formatDate(action.nextActionDate)}
-                  </p>
-                  {action.estimatedValue && (
-                    <p className="text-xs text-green-600">
-                      {formatCurrency(action.estimatedValue)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      
 
       {/* Stage Filter */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
