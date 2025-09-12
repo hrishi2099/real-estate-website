@@ -256,7 +256,10 @@ export default function EditProperty() {
         }
 
         const uploadResult = await uploadResponse.json();
-        newImageUrls = uploadResult.files.map((file: any) => file.url);
+        newImageUrls = uploadResult.files.map((file: any) => {
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+          return new URL(file.url, baseUrl).href;
+        });
       }
 
       const allImageUrls = [...formData.existingImages.map(img => img.url), ...newImageUrls];
