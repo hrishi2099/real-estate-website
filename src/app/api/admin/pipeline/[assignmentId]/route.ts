@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { LeadAssignmentStatus } from '@prisma/client';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
 
 // Get pipeline stages for a specific assignment
 export async function GET(
@@ -98,6 +100,39 @@ export async function PUT(
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "You must be logged in to perform this action",
+        },
+        { status: 401 }
+      );
+    }
+
+    const { user } = session;
+    const assignmentId = (await params).assignmentId;
+
+    if (user.role !== 'ADMIN') {
+        const assignment = await prisma.leadAssignment.findUnique({
+            where: {
+                id: assignmentId,
+            },
+        });
+
+        if (!assignment || assignment.salesManagerId !== user.id) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "You are not authorized to perform this action",
+                },
+                { status: 403 }
+            );
+        }
+    }
+
     const {
       stage,
       probability,
