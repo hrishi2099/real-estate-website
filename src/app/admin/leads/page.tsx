@@ -3,19 +3,22 @@
 import { useState, useEffect } from "react";
 import LeadUploadForm from "@/components/LeadUploadForm"; // Import the new component
 
-// Updated Lead interface to reflect the new API structure
+// Updated Lead interface to reflect the new Lead model structure
 interface Lead {
-  id: string; // This is the actual Lead ID
+  id: string; // This will be the LeadAssignment ID
+  leadId: string; // The actual Lead ID
   name: string;
   email: string;
   phone?: string;
   score: number;
   grade: string;
+  priority: string; // Directly from LeadAssignment
   lastActivity?: Date;
   seriousBuyerIndicator: boolean;
   budgetEstimate?: number;
-  createdAt: Date;
-  hasActiveAssignments: boolean;
+  createdAt: Date; // From nested lead
+  salesManagerName?: string; // From nested salesManager
+  salesManagerEmail?: string; // From nested salesManager
 }
 
 // ScoreBreakdown interface might need to be updated based on the new API for breakdown
@@ -51,19 +54,22 @@ export default function LeadsManagement() {
       const data = await response.json();
 
       if (data.success) {
-        // The data.data is now an array of Lead objects with nested leadScore
+        // The data.data is now an array of LeadAssignment objects
         setLeads(data.data.map((item: any) => ({
-          id: item.lead.id, // Lead ID
-          name: item.lead.name,
-          email: item.lead.email,
-          phone: item.lead.phone,
-          score: item.leadScore.score,
-          grade: item.leadScore.grade,
-          lastActivity: item.leadScore.lastActivity,
-          seriousBuyerIndicator: item.leadScore.seriousBuyerIndicator,
-          budgetEstimate: item.leadScore.budgetEstimate,
-          createdAt: item.lead.createdAt,
-          hasActiveAssignments: item.hasActiveAssignments,
+          id: item.id, // LeadAssignment ID
+          leadId: item.lead?.id,
+          name: item.lead?.name,
+          email: item.lead?.email,
+          phone: item.lead?.phone,
+          score: item.lead?.score,
+          grade: item.lead?.grade,
+          priority: item.priority, // Directly from LeadAssignment
+          lastActivity: item.lead?.lastActivity,
+          seriousBuyerIndicator: item.lead?.seriousBuyerIndicator,
+          budgetEstimate: item.lead?.budgetEstimate,
+          createdAt: item.lead?.createdAt,
+          salesManagerName: item.salesManager?.name,
+          salesManagerEmail: item.salesManager?.email,
         })) || []);
       } else {
         setError(data.error || "Failed to load leads");
@@ -145,15 +151,15 @@ export default function LeadsManagement() {
 
   const filteredLeads = leads.filter(lead => {
     if (gradeFilter === "all") return true;
-    return lead.grade === gradeFilter;
+    return lead.grade === gradeFilter; // Directly access grade
   });
 
   const gradeStats = {
     total: leads.length,
-    qualified: leads.filter(l => l.grade === "QUALIFIED").length,
-    hot: leads.filter(l => l.grade === "HOT").length,
-    warm: leads.filter(l => l.grade === "WARM").length,
-    cold: leads.filter(l => l.grade === "COLD").length,
+    qualified: leads.filter(l => l.grade === "QUALIFIED").length, // Directly access grade
+    hot: leads.filter(l => l.grade === "HOT").length, // Directly access grade
+    warm: leads.filter(l => l.grade === "WARM").length, // Directly access grade
+    cold: leads.filter(l => l.grade === "COLD").length, // Directly access grade
   };
 
   if (loading) {
