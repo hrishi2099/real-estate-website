@@ -5,31 +5,19 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface Lead {
   id: string;
-  assignment: {
-    id: string;
-    assignedAt: string;
-    status: string;
-    priority: string;
-    notes?: string;
-    expectedCloseDate?: string;
-  };
+  assignedAt: string;
+  status: string;
+  priority: string;
+  notes?: string;
+  expectedCloseDate?: string;
   lead: {
     id: string;
     name: string;
     email: string;
     phone?: string;
-    leadScore?: {
-      score: number;
-      grade: string;
-      seriousBuyerIndicator: boolean;
-    };
-  };
-  currentStage?: {
-    stage: string;
-    probability?: number;
-    estimatedValue?: number;
-    nextAction?: string;
-    nextActionDate?: string;
+    score: number;
+    grade: string;
+    seriousBuyerIndicator: boolean;
   };
 }
 
@@ -111,10 +99,10 @@ export default function SalesLeads() {
                          lead.lead.email.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (selectedFilter === "all") return matchesSearch;
-    if (selectedFilter === "high_priority") return matchesSearch && lead.assignment.priority === "HIGH";
-    if (selectedFilter === "hot") return matchesSearch && lead.lead.leadScore?.grade === "HOT";
-    if (selectedFilter === "warm") return matchesSearch && lead.lead.leadScore?.grade === "WARM";
-    if (selectedFilter === "new") return matchesSearch && lead.currentStage?.stage === "NEW_LEAD";
+    if (selectedFilter === "high_priority") return matchesSearch && lead.priority === "HIGH";
+    if (selectedFilter === "hot") return matchesSearch && lead.lead.grade === "HOT";
+    if (selectedFilter === "warm") return matchesSearch && lead.lead.grade === "WARM";
+    if (selectedFilter === "new") return matchesSearch && lead.status === "ACTIVE";
     
     return matchesSearch;
   });
@@ -202,7 +190,7 @@ export default function SalesLeads() {
         
         <div className="divide-y divide-gray-200">
           {filteredLeads.map((lead) => (
-            <div key={lead.assignment.id} className="p-6 hover:bg-gray-50">
+            <div key={lead.id} className="p-6 hover:bg-gray-50">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
@@ -210,25 +198,21 @@ export default function SalesLeads() {
                       {lead.lead.name}
                     </h4>
                     
-                    {lead.lead.leadScore && (
+                    {lead.lead && (
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        gradeColors[lead.lead.leadScore.grade as keyof typeof gradeColors]
+                        gradeColors[lead.lead.grade as keyof typeof gradeColors]
                       }`}>
-                        {lead.lead.leadScore.grade} ({lead.lead.leadScore.score})
+                        {lead.lead.grade} ({lead.lead.score})
                       </span>
                     )}
                     
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      priorityColors[lead.assignment.priority as keyof typeof priorityColors]
+                      priorityColors[lead.priority as keyof typeof priorityColors]
                     }`}>
-                      {lead.assignment.priority}
+                      {lead.priority}
                     </span>
                     
-                    {lead.currentStage && (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {stageLabels[lead.currentStage.stage] || lead.currentStage.stage}
-                      </span>
-                    )}
+                    
                   </div>
                   
                   <div className="text-sm text-gray-600 mb-3">
@@ -239,49 +223,22 @@ export default function SalesLeads() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <p className="font-medium text-gray-900">Assigned</p>
-                      <p className="text-gray-600">{formatDate(lead.assignment.assignedAt)}</p>
+                      <p className="text-gray-600">{formatDate(lead.assignedAt)}</p>
                     </div>
                     
-                    {lead.assignment.expectedCloseDate && (
+                    {lead.expectedCloseDate && (
                       <div>
                         <p className="font-medium text-gray-900">Expected Close</p>
-                        <p className="text-gray-600">{formatDate(lead.assignment.expectedCloseDate)}</p>
+                        <p className="text-gray-600">{formatDate(lead.expectedCloseDate)}</p>
                       </div>
                     )}
                     
-                    {lead.currentStage?.probability && (
-                      <div>
-                        <p className="font-medium text-gray-900">Probability</p>
-                        <p className="text-gray-600">{lead.currentStage.probability}%</p>
-                      </div>
-                    )}
-                    
-                    {lead.currentStage?.estimatedValue && (
-                      <div>
-                        <p className="font-medium text-gray-900">Est. Value</p>
-                        <p className="text-green-600 font-semibold">
-                          {formatCurrency(lead.currentStage.estimatedValue)}
-                        </p>
-                      </div>
-                    )}
                   </div>
 
-                  {lead.currentStage?.nextAction && (
-                    <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-sm font-medium text-yellow-900">Next Action:</p>
-                      <p className="text-sm text-yellow-700">{lead.currentStage.nextAction}</p>
-                      {lead.currentStage.nextActionDate && (
-                        <p className="text-xs text-yellow-600 mt-1">
-                          Due: {formatDate(lead.currentStage.nextActionDate)}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {lead.assignment.notes && (
+                  {lead.notes && (
                     <div className="mt-3">
                       <p className="text-sm font-medium text-gray-900">Notes:</p>
-                      <p className="text-sm text-gray-600">{lead.assignment.notes}</p>
+                      <p className="text-sm text-gray-600">{lead.notes}</p>
                     </div>
                   )}
                 </div>
@@ -311,7 +268,7 @@ export default function SalesLeads() {
                   )}
 
                   <div className="text-xs text-gray-500 pt-2">
-                    {lead.lead.leadScore?.seriousBuyerIndicator && (
+                    {lead.lead.seriousBuyerIndicator && (
                       <div className="flex items-center text-green-600">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
