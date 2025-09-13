@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "Our privacy policy explains how we collect, use, and protect your personal information when you use our real estate platform.",
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com'}/privacy-policy`,
+  },
   robots: {
     index: true,
     follow: true,

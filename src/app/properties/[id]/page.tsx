@@ -108,7 +108,43 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     }).format(price);
   };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://zaminseva.com';
+  const getSchemaAvailability = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "https://schema.org/InStock";
+      case "SOLD":
+        return "https://schema.org/SoldOut";
+      case "PENDING":
+        return "https://schema.org/InStock";
+      case "INACTIVE":
+        return "https://schema.org/Discontinued";
+      default:
+        return "https://schema.org/InStock";
+    }
+  };
+
+  const getSchemaPropertyType = (type: string) => {
+    switch (type) {
+      case "APARTMENT":
+        return "Apartment";
+      case "HOUSE":
+        return "House";
+      case "VILLA":
+        return "House";
+      case "CONDO":
+        return "Apartment";
+      case "TOWNHOUSE":
+        return "House";
+      case "COMMERCIAL":
+        return "Place";
+      case "LAND":
+        return "Landform";
+      default:
+        return "Place";
+    }
+  };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
   const realEstateListingSchema = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
@@ -120,11 +156,13 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
       "@type": "Offer",
       "price": property.price,
       "priceCurrency": "INR",
-      "availability": property.status === "ACTIVE" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      "availability": getSchemaAvailability(property.status)
     },
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": property.location
+      "addressLocality": property.location,
+      "addressRegion": property.location,
+      "addressCountry": "IN"
     },
     "geo": property.latitude && property.longitude ? {
       "@type": "GeoCoordinates",
@@ -139,7 +177,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     "numberOfRooms": property.bedrooms,
     "numberOfBathroomsTotal": property.bathrooms,
     "yearBuilt": property.yearBuilt,
-    "propertyType": property.type,
+    "propertyType": getSchemaPropertyType(property.type),
   };
 
   return (

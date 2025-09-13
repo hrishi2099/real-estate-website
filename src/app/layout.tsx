@@ -38,7 +38,7 @@ export default async function RootLayout({
 }>) {
   const settings = await getSettings();
 
-  const siteUrl = settings?.website || process.env.NEXT_PUBLIC_SITE_URL || 'http://zaminseva.com';
+  const siteUrl = settings?.website || process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
 
   const organizationSchema = {
     "@context": "https://schema.org",
