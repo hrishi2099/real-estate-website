@@ -75,6 +75,8 @@ export default function Gallery({ images, propertyTitle = "Property", className 
             alt={`${propertyTitle} - Main Image`}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority
           />
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex items-center justify-center">
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -105,6 +107,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                 alt={`${propertyTitle} - Image ${index + 2}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-110"
+                sizes="(max-width: 768px) 25vw, 20vw"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-300"></div>
             </div>

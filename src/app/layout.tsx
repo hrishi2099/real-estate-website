@@ -67,6 +67,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body className={`${inter.className} antialiased force-light-mode`}>
         <StructuredData data={organizationSchema} />
         <StructuredData data={websiteSchema} />
