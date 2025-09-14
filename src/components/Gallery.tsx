@@ -20,8 +20,14 @@ export default function Gallery({ images, propertyTitle = "Property", className 
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // Debug: Log images and state
+  console.log('Gallery - images:', images);
+  console.log('Gallery - selectedImageIndex:', selectedImageIndex);
+  console.log('Gallery - isLightboxOpen:', isLightboxOpen);
+
 
   const openLightbox = (index: number) => {
+    console.log('Opening lightbox with index:', index);
     setSelectedImageIndex(index);
     setIsLightboxOpen(true);
   };
