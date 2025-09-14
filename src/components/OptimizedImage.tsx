@@ -42,6 +42,9 @@ export default function OptimizedImage({
   const isValidSrc = src && src !== 'undefined' && src !== 'null';
   const finalSrc = isValidSrc ? src : '/placeholder-property.svg';
   
+  // Debug: Log image source
+  console.log('OptimizedImage received src:', src, 'finalSrc:', finalSrc);
+  
   // If it's a local upload, use regular img tag for better compatibility
   if (finalSrc.startsWith('/uploads/') || finalSrc.startsWith('/placeholder')) {
     if (fill) {
