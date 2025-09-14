@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "./OptimizedImage";
 import { useState } from "react";
 
 interface PropertyImage {
@@ -70,7 +70,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
           className="relative h-96 rounded-lg overflow-hidden cursor-pointer group"
           onClick={() => openLightbox(images.findIndex(img => img.id === primaryImage.id))}
         >
-          <Image
+          <OptimizedImage
             src={primaryImage.url}
             alt={`${propertyTitle} - Main Image`}
             fill
@@ -102,7 +102,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               className="relative h-20 rounded-md overflow-hidden cursor-pointer group"
               onClick={() => openLightbox(images.findIndex(img => img.id === image.id))}
             >
-              <Image
+              <OptimizedImage
                 src={image.url}
                 alt={`${propertyTitle} - Image ${index + 2}`}
                 fill
@@ -118,7 +118,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               className="relative h-20 rounded-md overflow-hidden cursor-pointer group bg-gray-900"
               onClick={() => openLightbox(3)}
             >
-              <Image
+              <OptimizedImage
                 src={thumbnails[3].url}
                 alt={`${propertyTitle} - More images`}
                 fill
@@ -193,7 +193,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               className="relative max-w-full max-h-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <Image
+              <OptimizedImage
                 src={images[selectedImageIndex].url}
                 alt={`${propertyTitle} - Image ${selectedImageIndex + 1}`}
                 width={1200}
@@ -216,7 +216,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                       setSelectedImageIndex(index);
                     }}
                   >
-                    <Image
+                    <OptimizedImage
                       src={image.url}
                       alt={`Thumbnail ${index + 1}`}
                       fill
