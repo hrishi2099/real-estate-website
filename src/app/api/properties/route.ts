@@ -6,7 +6,7 @@ import { createPropertySchema } from '@/lib/validation';
 import { getProperties } from '@/lib/properties';
 import { getUserFromRequest } from '@/lib/auth';
 
-type PropertyType = 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
+type PropertyType = 'AGRICULTURAL_LAND' | 'NA_LAND';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

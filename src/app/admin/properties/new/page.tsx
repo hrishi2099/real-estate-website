@@ -19,9 +19,7 @@ export default function NewProperty() {
     location: '',
     latitude: '',
     longitude: '',
-    type: 'APARTMENT',
-    bedrooms: 1,
-    bathrooms: 1,
+    type: 'AGRICULTURAL_LAND',
     area: '',
     features: [] as string[],
     images: [] as File[]
@@ -30,19 +28,15 @@ export default function NewProperty() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const propertyTypes = [
-    { value: 'APARTMENT', label: 'Apartment' },
-    { value: 'HOUSE', label: 'House' },
-    { value: 'VILLA', label: 'Villa' },
-    { value: 'CONDO', label: 'Condo' },
-    { value: 'TOWNHOUSE', label: 'Townhouse' },
-    { value: 'COMMERCIAL', label: 'Commercial' },
-    { value: 'LAND', label: 'Land' }
+    { value: 'AGRICULTURAL_LAND', label: 'Agricultural Land' },
+    { value: 'NA_LAND', label: 'NA Land' }
   ];
 
   const availableFeatures = [
-    'Swimming Pool', 'Garage', 'Garden', 'Balcony', 'Fireplace',
-    'Air Conditioning', 'Heating', 'Dishwasher', 'Laundry Room',
-    'Walk-in Closet', 'Security System', 'Gym/Fitness Center'
+    'Water Connection', 'Electricity Connection', 'Road Access', 
+    'Boundary Wall', 'Clear Title', 'Approved Layout',
+    'Corner Plot', 'Near Highway', 'Fertile Soil',
+    'Irrigation Facility', 'Tree Plantation', 'Gated Community'
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -99,14 +93,6 @@ export default function NewProperty() {
       }
     }
     
-    // Bedrooms and bathrooms validation
-    if (isNaN(Number(formData.bedrooms)) || Number(formData.bedrooms) < 0) {
-      newErrors.bedrooms = 'Bedrooms must be a valid number 0 or greater';
-    }
-    
-    if (isNaN(Number(formData.bathrooms)) || Number(formData.bathrooms) < 0) {
-      newErrors.bathrooms = 'Bathrooms must be a valid number 0 or greater';
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -156,9 +142,7 @@ export default function NewProperty() {
         location: formData.location.trim(),
         latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
         longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
-        type: formData.type as 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND',
-        bedrooms: Number(formData.bedrooms),
-        bathrooms: Number(formData.bathrooms),
+        type: formData.type as 'AGRICULTURAL_LAND' | 'NA_LAND',
         area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
         features: formData.features,
         status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
@@ -288,40 +272,6 @@ export default function NewProperty() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bedrooms
-              </label>
-              <input
-                type="number"
-                name="bedrooms"
-                value={formData.bedrooms}
-                onChange={handleInputChange}
-                min="0"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.bedrooms ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.bedrooms && <p className="text-red-500 text-sm mt-1">{errors.bedrooms}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bathrooms
-              </label>
-              <input
-                type="number"
-                name="bathrooms"
-                value={formData.bathrooms}
-                onChange={handleInputChange}
-                min="0"
-                step="0.5"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                  errors.bathrooms ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.bathrooms && <p className="text-red-500 text-sm mt-1">{errors.bathrooms}</p>}
-            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

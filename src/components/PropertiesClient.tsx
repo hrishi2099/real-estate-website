@@ -163,13 +163,8 @@ export default function PropertiesClient() {
                 className="w-full border border-gray-300 rounded-md px-3 py-3 sm:py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation text-base"
               >
                 <option value="">Any Type</option>
-                <option value="LAND">Land</option>
-                <option value="COMMERCIAL">Commercial</option>
-                <option value="APARTMENT">Apartment</option>
-                <option value="HOUSE">House</option>
-                <option value="VILLA">Villa</option>
-                <option value="CONDO">Condo</option>
-                <option value="TOWNHOUSE">Townhouse</option>
+                <option value="AGRICULTURAL_LAND">Agricultural Land</option>
+                <option value="NA_LAND">NA Land</option>
               </select>
             </div>
 

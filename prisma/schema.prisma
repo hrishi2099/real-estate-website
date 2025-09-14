@@ -600,13 +600,8 @@ enum UserStatus {
 }
 
 enum PropertyType {
-  APARTMENT
-  HOUSE
-  VILLA
-  CONDO
-  TOWNHOUSE
-  COMMERCIAL
-  LAND
+  AGRICULTURAL_LAND
+  NA_LAND
 }
 
 enum PropertyStatus {
