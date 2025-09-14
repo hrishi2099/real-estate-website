@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     interface WhereClause {
   status?: 'ACTIVE' | 'SOLD' | 'PENDING';
-  type?: 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
+  type?: 'AGRICULTURAL_LAND' | 'NA_LAND';
   location?: {
     contains: string;
     mode: 'insensitive';
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     }
     
     if (type && type !== 'all') {
-      where.type = type as 'APARTMENT' | 'HOUSE' | 'VILLA' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL' | 'LAND';
+      where.type = type as 'AGRICULTURAL_LAND' | 'NA_LAND';
     }
     
     if (location) {
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       features: property.features,
       latitude: property.latitude ? Number(property.latitude) : undefined,
       longitude: property.longitude ? Number(property.longitude) : undefined,
-      owner: property.owner,
+      ownerId: property.ownerId,
       createdAt: property.createdAt.toISOString(),
       updatedAt: property.updatedAt.toISOString()
     }));

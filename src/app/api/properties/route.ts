@@ -5,8 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { createPropertySchema } from '@/lib/validation';
 import { getProperties } from '@/lib/properties';
 import { getUserFromRequest } from '@/lib/auth';
-
-type PropertyType = 'AGRICULTURAL_LAND' | 'NA_LAND';
+import { PropertyType } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
