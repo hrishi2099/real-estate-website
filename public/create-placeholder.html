@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder</title>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Fill background
+        ctx.fillStyle = '#e5e7eb';
+        ctx.fillRect(0, 0, 800, 600);
+        
+        // Draw text
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '32px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('No Image Available', 400, 300);
+        
+        // Draw border
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(1, 1, 798, 598);
+        
+        // Convert to image
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'placeholder-property.jpg';
+            document.body.appendChild(a);
+            a.click();
+        }, 'image/jpeg', 0.9);
+    </script>
+</body>
+</html>

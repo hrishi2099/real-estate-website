@@ -32,11 +32,18 @@ export default function OptimizedImage({
   // Handle image error by showing a fallback
   const handleError = () => {
     console.error(`Failed to load image: ${src}`);
-    setImgSrc('/placeholder-property.jpg');
+    // Don't change source if it's already a placeholder
+    if (!src.includes('placeholder')) {
+      setImgSrc('/placeholder-property.svg');
+    }
   };
 
+  // Check if source is valid
+  const isValidSrc = src && src !== 'undefined' && src !== 'null';
+  const finalSrc = isValidSrc ? src : '/placeholder-property.svg';
+  
   // If it's a local upload, use regular img tag for better compatibility
-  if (src.startsWith('/uploads/')) {
+  if (finalSrc.startsWith('/uploads/') || finalSrc.startsWith('/placeholder')) {
     if (fill) {
       return (
         <>
@@ -44,7 +51,7 @@ export default function OptimizedImage({
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
           )}
           <img
-            src={src}
+            src={finalSrc}
             alt={alt}
             className={className}
             onClick={onClick}
@@ -65,7 +72,7 @@ export default function OptimizedImage({
 
     return (
       <img
-        src={src}
+        src={finalSrc}
         alt={alt}
         width={width}
         height={height}
@@ -76,30 +83,40 @@ export default function OptimizedImage({
     );
   }
 
-  // For external images, use Next.js Image component
+  // For external images, use regular img tag as well for consistency
   if (fill) {
     return (
-      <Image
-        src={imgSrc}
-        alt={alt}
-        fill
-        className={className}
-        priority={priority}
-        sizes={sizes}
-        onClick={onClick}
-        onError={handleError}
-      />
+      <>
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        )}
+        <img
+          src={finalSrc}
+          alt={alt}
+          className={className}
+          onClick={onClick}
+          onLoad={() => setIsLoading(false)}
+          onError={handleError}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+        />
+      </>
     );
   }
 
   return (
-    <Image
-      src={imgSrc}
+    <img
+      src={finalSrc}
       alt={alt}
       width={width || 500}
       height={height || 300}
       className={className}
-      priority={priority}
       onClick={onClick}
       onError={handleError}
     />

@@ -122,23 +122,31 @@ export default function NewProperty() {
     setLoading(true);
     try {
       let imageUrls: string[] = [];
+      console.log('Starting property creation with images:', formData.images.length);
+      
       if (formData.images.length > 0) {
         const imageFormData = new FormData();
         formData.images.forEach(image => {
+          console.log('Adding image to upload:', image.name);
           imageFormData.append('files', image);
         });
 
+        console.log('Uploading images...');
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: imageFormData,
         });
 
         if (!uploadResponse.ok) {
-          throw new Error('Image upload failed');
+          const errorText = await uploadResponse.text();
+          console.error('Upload failed:', errorText);
+          throw new Error(`Image upload failed: ${errorText}`);
         }
 
         const uploadResult = await uploadResponse.json();
+        console.log('Upload result:', uploadResult);
         imageUrls = uploadResult.files.map((file: any) => file.url);
+        console.log('Image URLs:', imageUrls);
       }
 
       const propertyData = {
@@ -155,9 +163,10 @@ export default function NewProperty() {
         features: formData.features,
         status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
         isFeatured: false,
-        images: imageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
+        images: imageUrls.map(url => ({ url, filename: url.split('/').pop()!, isPrimary: imageUrls.indexOf(url) === 0 }))
       };
 
+      console.log('Creating property with data:', propertyData);
       const response = await api.createProperty(propertyData);
       if (response?.data) {
         alert('Property created successfully!');
@@ -437,6 +446,25 @@ export default function NewProperty() {
               }}
             />
           </div>
+          
+          {/* Image Preview */}
+          {formData.images.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Images:</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {formData.images.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-16 object-cover rounded border"
+                    />
+                    <div className="text-xs text-gray-500 mt-1 truncate">{file.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end space-x-4">

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
@@ -12,91 +9,80 @@ datasource db {
 }
 
 model User {
-  id               String     @id @default(cuid())
-  email            String     @unique
-  name             String
-  phone            String?
-  password         String
-  role             Role       @default(USER)
-  status           UserStatus @default(ACTIVE)
-  joinDate         DateTime   @default(now())
-  lastLogin        DateTime?
-  emailVerified    Boolean    @default(false)
-  resetToken       String?
-  resetTokenExpiry DateTime?
+  id                       String               @id @default(cuid())
+  email                    String               @unique
+  name                     String
+  phone                    String?
+  password                 String
+  role                     Role                 @default(USER)
+  status                   UserStatus           @default(ACTIVE)
+  joinDate                 DateTime             @default(now())
+  lastLogin                DateTime?
+  emailVerified            Boolean              @default(false)
+  resetToken               String?
+  resetTokenExpiry         DateTime?
+  territory                String?
+  commission               Decimal?             @db.Decimal(5, 2)
+  managerId                String?
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+  accounts                 Account[]
+  sessions                 Session[]
+  ABTest                   ABTest[]
+  auditLogs                AuditLog[]
+  leadCalendarEvents       CalendarEvent[]      @relation("CalendarLead")
+  calendarEvents           CalendarEvent[]
+  Campaign                 Campaign[]
+  assignedContactInquiries ContactInquiry[]     @relation("ContactInquirySalesManager")
+  favorites                Favorite[]
+  inquiries                Inquiry[]
+  leadActivities           LeadActivity[]
+  assignedLeads            LeadAssignment[]     @relation("SalesManagerToAssignment")
+  leadScore                LeadScore?
+  MessageAutomation        MessageAutomation[]
+  MessageInteraction       MessageInteraction[]
+  messageTemplates         MessageTemplate[]
+  properties               Property[]
+  analytics                PropertyAnalytics[]
+  createdMessages          RCSMessage[]
+  messageRecipients        RCSRecipient[]
+  SmartSegment             SmartSegment[]
+  manager                  User?                @relation("ManagerSubordinate", fields: [managerId], references: [id])
+  subordinates             User[]               @relation("ManagerSubordinate")
 
-  // Sales Manager specific fields
-  territory  String? // Geographic territory for sales manager
-  commission Decimal? @db.Decimal(5, 2) // Commission percentage
-  managerId  String? // Reference to supervising admin
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  properties     Property[]
-  inquiries      Inquiry[]
-  favorites      Favorite[]
-  analytics      PropertyAnalytics[]
-  auditLogs      AuditLog[]
-  leadScore      LeadScore?
-  leadActivities LeadActivity[]
-
-  // Sales Manager relations
-  manager                User?            @relation("ManagerSubordinate", fields: [managerId], references: [id])
-  subordinates           User[]           @relation("ManagerSubordinate")
-  assignedLeads          LeadAssignment[] @relation("SalesManagerToAssignment")
-  calendarEvents         CalendarEvent[]
-  leadCalendarEvents     CalendarEvent[]  @relation("CalendarLead")
-  assignedContactInquiries ContactInquiry[] @relation("ContactInquirySalesManager")
-
-  // RCS Messaging relations
-  createdMessages    RCSMessage[]
-  messageRecipients  RCSRecipient[]
-  messageTemplates   MessageTemplate[]
-  Campaign           Campaign[]
-  ABTest             ABTest[]
-  MessageInteraction MessageInteraction[]
-  SmartSegment       SmartSegment[]
-  MessageAutomation  MessageAutomation[]
-
-  // NextAuth.js relations
-  accounts Account[]
-  sessions Session[]
-
+  @@index([managerId], map: "users_managerId_fkey")
   @@map("users")
 }
 
 model Property {
-  id          String         @id @default(cuid())
-  title       String
-  description String?        @db.Text
-  price       Decimal        @db.Decimal(12, 2)
-  location    String
-  address     String?
-  latitude    Decimal?       @db.Decimal(10, 8)
-  longitude   Decimal?       @db.Decimal(11, 8)
-  type        PropertyType
-  status      PropertyStatus @default(ACTIVE)
-  isFeatured  Boolean        @default(false)
-  bedrooms    Int?
-  bathrooms   Int?
-  area        Decimal?       @db.Decimal(10, 2)
-  yearBuilt   Int?
-  features    String?        @db.Text
-  ownerId     String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
-  // Relations
-  owner          User?               @relation(fields: [ownerId], references: [id])
-  images         PropertyImage[]
-  inquiries      Inquiry[]
-  favorites      Favorite[]
-  analytics      PropertyAnalytics[]
-  leadActivities LeadActivity[]
+  id             String              @id @default(cuid())
+  title          String
+  description    String?             @db.Text
+  price          Decimal             @db.Decimal(12, 2)
+  location       String
+  address        String?
+  latitude       Decimal?            @db.Decimal(10, 8)
+  longitude      Decimal?            @db.Decimal(11, 8)
+  type           PropertyType
+  status         PropertyStatus      @default(ACTIVE)
+  isFeatured     Boolean             @default(false)
+  bedrooms       Int?
+  bathrooms      Int?
+  area           Decimal?            @db.Decimal(10, 2)
+  yearBuilt      Int?
+  features       String?             @db.Text
+  ownerId        String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   calendarEvents CalendarEvent[]     @relation("CalendarProperty")
+  favorites      Favorite[]
+  inquiries      Inquiry[]
+  leadActivities LeadActivity[]
+  owner          User?               @relation(fields: [ownerId], references: [id])
+  analytics      PropertyAnalytics[]
+  images         PropertyImage[]
 
+  @@index([ownerId], map: "properties_ownerId_fkey")
   @@map("properties")
 }
 
@@ -107,10 +93,9 @@ model PropertyImage {
   isPrimary  Boolean  @default(false)
   propertyId String
   createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  // Relations
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
+  @@index([propertyId], map: "property_images_propertyId_fkey")
   @@map("property_images")
 }
 
@@ -125,11 +110,11 @@ model Inquiry {
   propertyId String
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
+  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?         @relation(fields: [userId], references: [id])
 
-  // Relations
-  user     User?    @relation(fields: [userId], references: [id])
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
+  @@index([propertyId], map: "inquiries_propertyId_fkey")
+  @@index([userId], map: "inquiries_userId_fkey")
   @@map("inquiries")
 }
 
@@ -138,12 +123,11 @@ model Favorite {
   userId     String
   propertyId String
   createdAt  DateTime @default(now())
-
-  // Relations
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
+  @@index([propertyId], map: "favorites_propertyId_fkey")
   @@map("favorites")
 }
 
@@ -155,11 +139,11 @@ model PropertyAnalytics {
   userAgent  String?
   ipAddress  String?
   createdAt  DateTime       @default(now())
+  property   Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?          @relation(fields: [userId], references: [id])
 
-  // Relations
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  user     User?    @relation(fields: [userId], references: [id])
-
+  @@index([propertyId], map: "property_analytics_propertyId_fkey")
+  @@index([userId], map: "property_analytics_userId_fkey")
   @@map("property_analytics")
 }
 
@@ -171,54 +155,44 @@ model ContactInquiry {
   subject          String
   message          String               @db.Text
   status           ContactInquiryStatus @default(NEW)
-  salesManagerId   String?              // Assigned sales manager
-  assignedAt       DateTime?            // When it was assigned
-  priority         String?              @default("MEDIUM") // LOW, MEDIUM, HIGH
-  responseDeadline DateTime?            // Expected response deadline
-  notes            String?              @db.Text // Internal notes
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
+  assignedAt       DateTime?
+  notes            String?              @db.Text
+  priority         String?              @default("MEDIUM")
+  responseDeadline DateTime?
+  salesManagerId   String?
+  salesManager     User?                @relation("ContactInquirySalesManager", fields: [salesManagerId], references: [id])
 
-  // Relations
-  salesManager User? @relation("ContactInquirySalesManager", fields: [salesManagerId], references: [id])
-
+  @@index([salesManagerId], map: "contact_inquiries_salesManagerId_fkey")
   @@map("contact_inquiries")
 }
 
 model OfficeSettings {
-  id             String  @id @default(cuid())
-  companyName    String?
-  address        String?
-  phone          String?
-  email          String?
-  website        String?
-  logoUrl        String?
-  mondayHours    String?
-  tuesdayHours   String?
-  wednesdayHours String?
-  thursdayHours  String?
-  fridayHours    String?
-  saturdayHours  String?
-  sundayHours    String?
-
-  // Google Tag Manager Integration
-  gtmContainerId String? // GTM-XXXXXXX format
-  gtmEnabled     Boolean? @default(false)
-
-  // Google Analytics 4
-  ga4MeasurementId String? // G-XXXXXXXXXX format
-  ga4Enabled       Boolean? @default(false)
-
-  // Facebook Pixel
+  id                   String   @id @default(cuid())
+  companyName          String?
+  address              String?
+  phone                String?
+  email                String?
+  website              String?
+  logoUrl              String?
+  mondayHours          String?
+  tuesdayHours         String?
+  wednesdayHours       String?
+  thursdayHours        String?
+  fridayHours          String?
+  saturdayHours        String?
+  sundayHours          String?
+  gtmContainerId       String?
+  gtmEnabled           Boolean? @default(false)
+  ga4MeasurementId     String?
+  ga4Enabled           Boolean? @default(false)
   facebookPixelId      String?
   facebookPixelEnabled Boolean? @default(false)
-
-  // Google Ads
-  googleAdsId      String? // AW-XXXXXXXXXX format
-  googleAdsEnabled Boolean? @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  googleAdsEnabled     Boolean? @default(false)
+  googleAdsId          String?
 
   @@map("office_settings")
 }
@@ -235,90 +209,62 @@ model AuditLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 
-  // Relations
-  user User? @relation(fields: [userId], references: [id])
-
+  @@index([userId], map: "audit_logs_userId_fkey")
   @@map("audit_logs")
 }
 
 model Lead {
-  id     String @id @default(cuid())
-  name   String
-  email  String
-  phone  String?
-
-  // Lead Score fields (copied from LeadScore model)
-  score  Int       @default(0)
-  grade  LeadGrade @default(COLD)
-
-  // Engagement metrics
-  propertyViews          Int @default(0)
-  inquiriesMade          Int @default(0)
-  contactFormSubmissions Int @default(0)
-  favoritesSaved         Int @default(0)
-
-  // Behavior patterns
-  avgSessionDuration    Int? // in minutes
-  returnVisits          Int     @default(0)
-  priceRangeSearches    String? @db.Text // JSON array of price ranges
-  locationSearches      String? @db.Text // JSON array of locations
-  propertyTypeInterests String? @db.Text // JSON array of property types
-
-  // Temporal factors
-  lastActivity DateTime?
-  daysActive   Int       @default(0)
-
-  // Calculated factors
-  budgetEstimate        Decimal? @db.Decimal(12, 2)
-  seriousBuyerIndicator Boolean  @default(false)
-
-  // Timestamps
-  lastCalculated DateTime @default(now())
-
-  status String @default("NEW") // Example default status
-  source String @default("Excel Upload") // Example default source
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  leadAssignments LeadAssignment[] @relation("LeadToAssignment")
+  id                     String           @id @default(cuid())
+  name                   String
+  email                  String
+  phone                  String?
+  status                 String           @default("NEW")
+  source                 String           @default("Excel Upload")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  avgSessionDuration     Int?
+  budgetEstimate         Decimal?         @db.Decimal(12, 2)
+  contactFormSubmissions Int              @default(0)
+  daysActive             Int              @default(0)
+  favoritesSaved         Int              @default(0)
+  grade                  LeadGrade        @default(COLD)
+  inquiriesMade          Int              @default(0)
+  lastActivity           DateTime?
+  lastCalculated         DateTime         @default(now())
+  locationSearches       String?          @db.Text
+  priceRangeSearches     String?          @db.Text
+  propertyTypeInterests  String?          @db.Text
+  propertyViews          Int              @default(0)
+  returnVisits           Int              @default(0)
+  score                  Int              @default(0)
+  seriousBuyerIndicator  Boolean          @default(false)
+  leadAssignments        LeadAssignment[] @relation("LeadToAssignment")
 }
 
 model LeadScore {
-  id     String    @id @default(cuid())
-  userId String    @unique
-  score  Int       @default(0)
-  grade  LeadGrade @default(COLD)
-
-  // Engagement metrics
-  propertyViews          Int @default(0)
-  inquiriesMade          Int @default(0)
-  contactFormSubmissions Int @default(0)
-  favoritesSaved         Int @default(0)
-
-  // Behavior patterns
-  avgSessionDuration    Int? // in minutes
-  returnVisits          Int     @default(0)
-  priceRangeSearches    String? @db.Text // JSON array of price ranges
-  locationSearches      String? @db.Text // JSON array of locations
-  propertyTypeInterests String? @db.Text // JSON array of property types
-
-  // Temporal factors
-  lastActivity DateTime?
-  daysActive   Int       @default(0)
-
-  // Calculated factors
-  budgetEstimate        Decimal? @db.Decimal(12, 2)
-  seriousBuyerIndicator Boolean  @default(false)
-
-  // Timestamps
-  lastCalculated DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  score                  Int       @default(0)
+  grade                  LeadGrade @default(COLD)
+  propertyViews          Int       @default(0)
+  inquiriesMade          Int       @default(0)
+  contactFormSubmissions Int       @default(0)
+  favoritesSaved         Int       @default(0)
+  avgSessionDuration     Int?
+  returnVisits           Int       @default(0)
+  priceRangeSearches     String?   @db.Text
+  locationSearches       String?   @db.Text
+  propertyTypeInterests  String?   @db.Text
+  lastActivity           DateTime?
+  daysActive             Int       @default(0)
+  budgetEstimate         Decimal?  @db.Decimal(12, 2)
+  seriousBuyerIndicator  Boolean   @default(false)
+  lastCalculated         DateTime  @default(now())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("lead_scores")
 }
@@ -328,54 +274,52 @@ model LeadActivity {
   userId       String
   activityType LeadActivityType
   propertyId   String?
-  metadata     String?          @db.Text // JSON for additional data
-  score        Int              @default(0) // Points earned from this activity
+  metadata     String?          @db.Text
+  score        Int              @default(0)
   createdAt    DateTime         @default(now())
+  property     Property?        @relation(fields: [propertyId], references: [id])
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property? @relation(fields: [propertyId], references: [id])
-
+  @@index([propertyId], map: "lead_activities_propertyId_fkey")
+  @@index([userId], map: "lead_activities_userId_fkey")
   @@map("lead_activities")
 }
 
 model LeadAssignment {
   id                String               @id @default(cuid())
-  leadId            String // Reference to User (lead)
-  salesManagerId    String // Reference to User (sales manager)
+  leadId            String
+  salesManagerId    String
   assignedAt        DateTime             @default(now())
   status            LeadAssignmentStatus @default(ACTIVE)
   notes             String?              @db.Text
   expectedCloseDate DateTime?
   priority          LeadPriority         @default(MEDIUM)
-
-  // Relations
-  lead           Lead            @relation("LeadToAssignment", fields: [leadId], references: [id], onDelete: Cascade)
-  salesManager   User            @relation("SalesManagerToAssignment", fields: [salesManagerId], references: [id], onDelete: Cascade)
-  pipelineStages PipelineStage[]
+  lead              Lead                 @relation("LeadToAssignment", fields: [leadId], references: [id], onDelete: Cascade)
+  salesManager      User                 @relation("SalesManagerToAssignment", fields: [salesManagerId], references: [id], onDelete: Cascade)
+  pipelineStages    PipelineStage[]
 
   @@unique([leadId, salesManagerId])
+  @@index([salesManagerId], map: "lead_assignments_salesManagerId_fkey")
   @@map("lead_assignments")
 }
 
 model PipelineStage {
-  id             String     @id @default(cuid())
-  assignmentId   String
-  stage          SalesStage
-  enteredAt      DateTime   @default(now())
-  exitedAt       DateTime?
-  durationHours  Int? // Time spent in this stage (hours)
-  notes          String?    @db.Text
-  probability    Int? // Probability of closing (0-100%)
-  estimatedValue Decimal?   @db.Decimal(12, 2) // Expected deal value
-  nextAction     String? // Next planned action
-  nextActionDate DateTime? // When next action should happen
-  createdBy      String? // Sales manager who created this stage
-
-  // Relations
-  assignment      LeadAssignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  id              String             @id @default(cuid())
+  assignmentId    String
+  stage           SalesStage
+  enteredAt       DateTime           @default(now())
+  exitedAt        DateTime?
+  durationHours   Int?
+  notes           String?            @db.Text
+  probability     Int?
+  estimatedValue  Decimal?           @db.Decimal(12, 2)
+  nextAction      String?
+  nextActionDate  DateTime?
+  createdBy       String?
   stageActivities PipelineActivity[]
+  assignment      LeadAssignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 
+  @@index([assignmentId], map: "pipeline_stages_assignmentId_fkey")
   @@map("pipeline_stages")
 }
 
@@ -387,17 +331,262 @@ model PipelineActivity {
   outcome      String?              @db.Text
   scheduledAt  DateTime?
   completedAt  DateTime?
-  createdBy    String // Sales manager ID
+  createdBy    String
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
+  stage        PipelineStage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
 
-  // Relations
-  stage PipelineStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
-
+  @@index([stageId], map: "pipeline_activities_stageId_fkey")
   @@map("pipeline_activities")
 }
 
-// Enums
+model CalendarEvent {
+  id             String            @id @default(cuid())
+  title          String
+  description    String?           @db.Text
+  startTime      DateTime
+  endTime        DateTime
+  eventType      CalendarEventType @default(OTHER)
+  status         EventStatus       @default(SCHEDULED)
+  salesManagerId String
+  leadId         String?
+  propertyId     String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  lead           User?             @relation("CalendarLead", fields: [leadId], references: [id])
+  property       Property?         @relation("CalendarProperty", fields: [propertyId], references: [id])
+  salesManager   User              @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
+
+  @@index([leadId], map: "calendar_events_leadId_fkey")
+  @@index([propertyId], map: "calendar_events_propertyId_fkey")
+  @@index([salesManagerId], map: "calendar_events_salesManagerId_fkey")
+  @@map("calendar_events")
+}
+
+model RCSMessage {
+  id                  String                  @id @default(cuid())
+  title               String
+  content             String                  @db.Text
+  richContent         String?                 @db.Text
+  messageType         RCSMessageType          @default(TEXT)
+  templateId          String?
+  scheduledAt         DateTime?
+  sentAt              DateTime?
+  status              MessageStatus           @default(DRAFT)
+  targetAudience      MessageAudience         @default(ALL_USERS)
+  createdById         String
+  personalizationData String?                 @db.Text
+  aiGenerated         Boolean                 @default(false)
+  aiPrompt            String?                 @db.Text
+  priority            MessagePriority         @default(NORMAL)
+  campaignId          String?
+  abTestGroup         String?
+  abTestVariant       String?
+  conversionGoal      String?
+  geoTargeting        String?                 @db.Text
+  timezone            String?
+  expectedCTR         Decimal?                @db.Decimal(5, 2)
+  actualCTR           Decimal?                @db.Decimal(5, 2)
+  engagementScore     Decimal?                @db.Decimal(5, 2)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  deliveryReports     MessageDeliveryReport[]
+  interactions        MessageInteraction[]
+  abTest              ABTest?                 @relation(fields: [abTestGroup], references: [id])
+  campaign            Campaign?               @relation(fields: [campaignId], references: [id])
+  createdBy           User                    @relation(fields: [createdById], references: [id])
+  recipients          RCSRecipient[]
+
+  @@index([abTestGroup], map: "rcs_messages_abTestGroup_fkey")
+  @@index([campaignId], map: "rcs_messages_campaignId_fkey")
+  @@index([createdById], map: "rcs_messages_createdById_fkey")
+  @@map("rcs_messages")
+}
+
+model RCSRecipient {
+  id           String          @id @default(cuid())
+  messageId    String
+  userId       String
+  status       RecipientStatus @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  readAt       DateTime?
+  clickedAt    DateTime?
+  errorMessage String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  message      RCSMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId], map: "rcs_recipients_userId_fkey")
+  @@map("rcs_recipients")
+}
+
+model MessageTemplate {
+  id          String           @id @default(cuid())
+  name        String
+  description String?
+  content     String           @db.Text
+  richContent String?          @db.Text
+  messageType RCSMessageType   @default(TEXT)
+  category    TemplateCategory @default(GENERAL)
+  isActive    Boolean          @default(true)
+  createdById String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  createdBy   User             @relation(fields: [createdById], references: [id])
+
+  @@index([createdById], map: "message_templates_createdById_fkey")
+  @@map("message_templates")
+}
+
+model MessageDeliveryReport {
+  id             String     @id @default(cuid())
+  messageId      String
+  totalSent      Int        @default(0)
+  totalDelivered Int        @default(0)
+  totalRead      Int        @default(0)
+  totalClicked   Int        @default(0)
+  totalFailed    Int        @default(0)
+  deliveryRate   Decimal    @default(0.00) @db.Decimal(5, 2)
+  openRate       Decimal    @default(0.00) @db.Decimal(5, 2)
+  clickRate      Decimal    @default(0.00) @db.Decimal(5, 2)
+  generatedAt    DateTime   @default(now())
+  message        RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId], map: "message_delivery_reports_messageId_fkey")
+  @@map("message_delivery_reports")
+}
+
+model Campaign {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?        @db.Text
+  startDate     DateTime
+  endDate       DateTime?
+  status        CampaignStatus @default(ACTIVE)
+  budget        Decimal?       @db.Decimal(10, 2)
+  targetMetrics String?        @db.Text
+  createdById   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  abTests       ABTest[]
+  createdBy     User           @relation(fields: [createdById], references: [id])
+  messages      RCSMessage[]
+
+  @@index([createdById], map: "campaigns_createdById_fkey")
+  @@map("campaigns")
+}
+
+model ABTest {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?      @db.Text
+  variants        String       @db.Text
+  trafficSplit    String       @db.Text
+  startDate       DateTime
+  endDate         DateTime?
+  status          ABTestStatus @default(RUNNING)
+  winnerVariant   String?
+  confidenceLevel Decimal?     @db.Decimal(5, 2)
+  createdById     String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  campaignId      String?
+  campaign        Campaign?    @relation(fields: [campaignId], references: [id])
+  createdBy       User         @relation(fields: [createdById], references: [id])
+  messages        RCSMessage[]
+
+  @@index([campaignId], map: "ab_tests_campaignId_fkey")
+  @@index([createdById], map: "ab_tests_createdById_fkey")
+  @@map("ab_tests")
+}
+
+model MessageInteraction {
+  id              String          @id @default(cuid())
+  messageId       String
+  userId          String
+  interactionType InteractionType
+  data            String?         @db.Text
+  timestamp       DateTime        @default(now())
+  deviceInfo      String?         @db.Text
+  location        String?
+  message         RCSMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([messageId], map: "message_interactions_messageId_fkey")
+  @@index([userId], map: "message_interactions_userId_fkey")
+  @@map("message_interactions")
+}
+
+model SmartSegment {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?   @db.Text
+  criteria        String    @db.Text
+  estimatedSize   Int?
+  actualSize      Int?
+  refreshSchedule String?
+  lastRefreshed   DateTime?
+  createdById     String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdBy       User      @relation(fields: [createdById], references: [id])
+
+  @@index([createdById], map: "smart_segments_createdById_fkey")
+  @@map("smart_segments")
+}
+
+model MessageAutomation {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?           @db.Text
+  trigger         AutomationTrigger
+  triggerData     String            @db.Text
+  messageTemplate String            @db.Text
+  conditions      String?           @db.Text
+  isActive        Boolean           @default(true)
+  executionCount  Int               @default(0)
+  lastExecuted    DateTime?
+  createdById     String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  createdBy       User              @relation(fields: [createdById], references: [id])
+
+  @@index([createdById], map: "message_automations_createdById_fkey")
+  @@map("message_automations")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
+}
+
 enum Role {
   USER
   ADMIN
@@ -448,10 +637,10 @@ enum ContactInquiryStatus {
 }
 
 enum LeadGrade {
-  COLD // 0-30 points
-  WARM // 31-60 points  
-  HOT // 61-80 points
-  QUALIFIED // 81-100 points
+  COLD
+  WARM
+  HOT
+  QUALIFIED
 }
 
 enum LeadActivityType {
@@ -482,17 +671,17 @@ enum LeadPriority {
 }
 
 enum SalesStage {
-  NEW_LEAD // Just assigned to sales manager
-  CONTACTED // Initial contact made
-  QUALIFIED // Lead has been qualified (budget, authority, need, timeline)
-  PROPOSAL_SENT // Proposal or quote sent to lead
-  NEGOTIATION // In negotiation phase
-  PROPERTY_VIEWING // Scheduled or completed property viewings
-  APPLICATION // Application submitted/being processed
-  CLOSING // Final steps, contracts being signed
-  WON // Deal successfully closed
-  LOST // Deal lost/lead went cold
-  ON_HOLD // Temporarily paused
+  NEW_LEAD
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATION
+  PROPERTY_VIEWING
+  APPLICATION
+  CLOSING
+  WON
+  LOST
+  ON_HOLD
 }
 
 enum PipelineActivityType {
@@ -515,28 +704,6 @@ enum PipelineActivityType {
   NOTE_ADDED
 }
 
-model CalendarEvent {
-  id             String            @id @default(cuid())
-  title          String
-  description    String?           @db.Text
-  startTime      DateTime
-  endTime        DateTime
-  eventType      CalendarEventType @default(OTHER)
-  status         EventStatus       @default(SCHEDULED)
-  salesManagerId String
-  leadId         String?
-  propertyId     String?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-
-  // Relations
-  salesManager User      @relation(fields: [salesManagerId], references: [id], onDelete: Cascade)
-  lead         User?     @relation("CalendarLead", fields: [leadId], references: [id], onDelete: SetNull)
-  property     Property? @relation("CalendarProperty", fields: [propertyId], references: [id], onDelete: SetNull)
-
-  @@map("calendar_events")
-}
-
 enum CalendarEventType {
   MEETING
   PROPERTY_VIEWING
@@ -550,111 +717,6 @@ enum EventStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
-}
-
-model RCSMessage {
-  id             String          @id @default(cuid())
-  title          String
-  content        String          @db.Text
-  richContent    String?         @db.Text // JSON for rich media content
-  messageType    RCSMessageType  @default(TEXT)
-  templateId     String? // Reference to message template
-  scheduledAt    DateTime? // For scheduled messages
-  sentAt         DateTime? // When message was actually sent
-  status         MessageStatus   @default(DRAFT)
-  targetAudience MessageAudience @default(ALL_USERS)
-  createdById    String
-
-  // Advanced Features
-  personalizationData String?         @db.Text // JSON for personalization variables
-  aiGenerated         Boolean         @default(false) // AI-generated content
-  aiPrompt            String?         @db.Text // Original AI prompt used
-  priority            MessagePriority @default(NORMAL)
-  campaignId          String? // Link to marketing campaigns
-  abTestGroup         String? // A/B testing group identifier
-  abTestVariant       String? // A/B testing variant (A, B, C, etc.)
-  conversionGoal      String? // What action we want users to take
-
-  // Geolocation targeting
-  geoTargeting String? @db.Text // JSON for geographic targeting
-  timezone     String? // Timezone for scheduling
-
-  // Performance tracking
-  expectedCTR     Decimal? @db.Decimal(5, 2) // Expected click-through rate
-  actualCTR       Decimal? @db.Decimal(5, 2) // Actual click-through rate
-  engagementScore Decimal? @db.Decimal(5, 2) // Overall engagement score
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  createdBy       User                    @relation(fields: [createdById], references: [id])
-  recipients      RCSRecipient[]
-  deliveryReports MessageDeliveryReport[]
-  campaign        Campaign?               @relation(fields: [campaignId], references: [id])
-  abTest          ABTest?                 @relation(fields: [abTestGroup], references: [id])
-  interactions    MessageInteraction[]
-
-  @@map("rcs_messages")
-}
-
-model RCSRecipient {
-  id           String          @id @default(cuid())
-  messageId    String
-  userId       String
-  status       RecipientStatus @default(PENDING)
-  sentAt       DateTime?
-  deliveredAt  DateTime?
-  readAt       DateTime?
-  clickedAt    DateTime?
-  errorMessage String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-
-  // Relations
-  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([messageId, userId])
-  @@map("rcs_recipients")
-}
-
-model MessageTemplate {
-  id          String           @id @default(cuid())
-  name        String
-  description String?
-  content     String           @db.Text
-  richContent String?          @db.Text // JSON for rich media content
-  messageType RCSMessageType   @default(TEXT)
-  category    TemplateCategory @default(GENERAL)
-  isActive    Boolean          @default(true)
-  createdById String
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  // Relations
-  createdBy User @relation(fields: [createdById], references: [id])
-
-  @@map("message_templates")
-}
-
-model MessageDeliveryReport {
-  id             String   @id @default(cuid())
-  messageId      String
-  totalSent      Int      @default(0)
-  totalDelivered Int      @default(0)
-  totalRead      Int      @default(0)
-  totalClicked   Int      @default(0)
-  totalFailed    Int      @default(0)
-  deliveryRate   Decimal  @default(0) @db.Decimal(5, 2)
-  openRate       Decimal  @default(0) @db.Decimal(5, 2)
-  clickRate      Decimal  @default(0) @db.Decimal(5, 2)
-  generatedAt    DateTime @default(now())
-
-  // Relations
-  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-
-  @@map("message_delivery_reports")
 }
 
 enum RCSMessageType {
@@ -714,108 +776,6 @@ enum MessagePriority {
   CRITICAL
 }
 
-model Campaign {
-  id            String         @id @default(cuid())
-  name          String
-  description   String?        @db.Text
-  startDate     DateTime
-  endDate       DateTime?
-  status        CampaignStatus @default(ACTIVE)
-  budget        Decimal?       @db.Decimal(10, 2)
-  targetMetrics String?        @db.Text // JSON for KPIs
-  createdById   String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  // Relations
-  createdBy User         @relation(fields: [createdById], references: [id])
-  messages  RCSMessage[]
-  abTests   ABTest[]
-
-  @@map("campaigns")
-}
-
-model ABTest {
-  id              String       @id @default(cuid())
-  name            String
-  description     String?      @db.Text
-  variants        String       @db.Text // JSON array of variants
-  trafficSplit    String       @db.Text // JSON for traffic distribution
-  startDate       DateTime
-  endDate         DateTime?
-  status          ABTestStatus @default(RUNNING)
-  winnerVariant   String? // Winning variant
-  confidenceLevel Decimal?     @db.Decimal(5, 2)
-  createdById     String
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  // Relations
-  createdBy  User         @relation(fields: [createdById], references: [id])
-  messages   RCSMessage[]
-  campaign   Campaign?    @relation(fields: [campaignId], references: [id])
-  campaignId String?
-
-  @@map("ab_tests")
-}
-
-model MessageInteraction {
-  id              String          @id @default(cuid())
-  messageId       String
-  userId          String
-  interactionType InteractionType
-  data            String?         @db.Text // JSON for interaction data
-  timestamp       DateTime        @default(now())
-  deviceInfo      String?         @db.Text // JSON for device information
-  location        String? // Geographic location
-
-  // Relations
-  message RCSMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("message_interactions")
-}
-
-model SmartSegment {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?   @db.Text
-  criteria        String    @db.Text // JSON for segmentation criteria
-  estimatedSize   Int? // Estimated number of users
-  actualSize      Int? // Actual number of users when executed
-  refreshSchedule String? // Cron expression for auto-refresh
-  lastRefreshed   DateTime?
-  createdById     String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  // Relations
-  createdBy User @relation(fields: [createdById], references: [id])
-
-  @@map("smart_segments")
-}
-
-model MessageAutomation {
-  id              String            @id @default(cuid())
-  name            String
-  description     String?           @db.Text
-  trigger         AutomationTrigger
-  triggerData     String            @db.Text // JSON for trigger configuration
-  messageTemplate String            @db.Text // Message template with variables
-  conditions      String?           @db.Text // JSON for additional conditions
-  isActive        Boolean           @default(true)
-  executionCount  Int               @default(0)
-  lastExecuted    DateTime?
-  createdById     String
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  // Relations
-  createdBy User @relation(fields: [createdById], references: [id])
-
-  @@map("message_automations")
-}
-
 enum CampaignStatus {
   DRAFT
   ACTIVE
@@ -855,30 +815,4 @@ enum AutomationTrigger {
   BIRTHDAY
   ANNIVERSARY
   CUSTOM_EVENT
-}
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
