@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "./OptimizedImage";
 import Link from "next/link";
 
 interface Property {
@@ -52,7 +52,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
             {properties.map((property) => (
               <div key={property.id} className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow rounded-lg">
                 <div className="relative h-40 sm:h-48">
-                  <Image
+                  <OptimizedImage
                     src={getPropertyImage(property)}
                     alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
                     fill

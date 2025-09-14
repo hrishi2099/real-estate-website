@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "./OptimizedImage";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
@@ -230,7 +230,7 @@ export default function PropertiesClient() {
               {properties.map((property, index) => (
                 <article key={property.id} className="bg-white overflow-hidden shadow-md hover:shadow-xl transition-shadow rounded-lg">
                   <div className="relative h-48 sm:h-56 lg:h-64">
-                    <Image
+                    <OptimizedImage
                       src={getPropertyImage(property)}
                       alt={`${property.title} - ${property.type} in ${property.location}`}
                       fill
