@@ -89,7 +89,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
           onClick={() => openLightbox(images.findIndex(img => img.id === primaryImage.id))}
         >
           <img
-            src={primaryImage.url}
+            src={primaryImage.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${primaryImage.url}` : primaryImage.url}
             alt={`${propertyTitle} - Main Image`}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             style={{
@@ -120,7 +120,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={() => openLightbox(images.findIndex(img => img.id === image.id))}
             >
               <img
-                src={image.url}
+                src={image.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${image.url}` : image.url}
                 alt={`${propertyTitle} - Image ${index + 2}`}
                 className="w-full h-20 object-cover rounded-md transition-transform duration-300 group-hover:scale-105 shadow-sm border border-gray-200"
               />
@@ -207,7 +207,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={images[selectedImageIndex].url}
+                src={images[selectedImageIndex].url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${images[selectedImageIndex].url}` : images[selectedImageIndex].url}
                 alt={`${propertyTitle} - Image ${selectedImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain"
               />
