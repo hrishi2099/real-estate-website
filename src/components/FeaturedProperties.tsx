@@ -8,6 +8,7 @@ interface Property {
   location: string;
   area?: number;
   type: string;
+  status: string;
   images: { id: string; url: string; isPrimary: boolean }[];
 }
 
@@ -50,20 +51,32 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
         <div className="mt-6 sm:mt-10">
           <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {properties.map((property) => (
-              <div key={property.id} className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow rounded-lg">
+              <div key={property.id} className={`bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow rounded-lg ${property.status === 'SOLD' ? 'relative' : ''}`}>
                 <div className="relative h-40 sm:h-48">
                   <OptimizedImage
                     src={getPropertyImage(property)}
                     alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
+                    className={`object-cover ${property.status === 'SOLD' ? 'opacity-75 grayscale' : ''}`}
                   />
-                  <div className="absolute top-2 left-2 sm:top-4 sm:left-4">
+                  <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-2">
                     <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {property.type}
                     </span>
+                    {property.status === 'SOLD' && (
+                      <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-bold bg-red-600 text-white">
+                        SOLD OUT
+                      </span>
+                    )}
                   </div>
+                  {property.status === 'SOLD' && (
+                    <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                      <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-12 border-2 border-white shadow-lg">
+                        SOLD OUT
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
@@ -92,9 +105,13 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                   <div className="mt-4 sm:mt-6">
                     <Link
                       href={`/properties/${property.id}`}
-                      className="w-full flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 touch-manipulation transition-colors"
+                      className={`w-full flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 border border-transparent text-sm font-medium rounded-md touch-manipulation transition-colors ${
+                        property.status === 'SOLD'
+                          ? 'text-gray-600 bg-gray-100 hover:bg-gray-200'
+                          : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
+                      }`}
                     >
-                      View Details
+                      {property.status === 'SOLD' ? 'View Sold Property' : 'View Details'}
                     </Link>
                   </div>
                 </div>

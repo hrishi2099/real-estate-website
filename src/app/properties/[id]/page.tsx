@@ -213,7 +213,16 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
 
         <article>
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 sm:mb-0">{property.title}</h1>
+              {property.status === 'SOLD' && (
+                <div className="flex items-center space-x-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-600 text-white">
+                    SOLD OUT
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex items-center space-x-4 text-gray-600">
               <span className="flex items-center">
                 <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -221,15 +230,20 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                 </svg>
                 {property.location}
               </span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className={`text-2xl font-bold ${property.status === 'SOLD' ? 'text-gray-500 line-through' : 'text-blue-600'}`}>
                 {formatPrice(property.price)}
               </span>
+              {property.status === 'SOLD' && (
+                <span className="text-lg font-semibold text-red-600">
+                  SOLD
+                </span>
+              )}
             </div>
           </header>
 
-          <section className="mb-8 relative" aria-label="Property Images">
-            <Gallery 
-              images={property.images} 
+          <section className="mb-8" aria-label="Property Images">
+            <Gallery
+              images={property.images}
               propertyTitle={property.title}
               className="w-full"
             />

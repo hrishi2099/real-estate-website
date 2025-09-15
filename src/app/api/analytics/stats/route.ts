@@ -26,16 +26,16 @@ export async function GET() {
       },
       {
         id: 2,
-        number: Math.round((Number(totalArea._sum.area) || 0) / 1000000 * 10) / 10,
-        label: "Million Sq Ft Sold",
+        number: 90300,
+        label: "Acres Sold",
         prefix: "",
-        suffix: "M+",
-        icon: "📏",
-        description: "Total property area sold"
+        suffix: "+",
+        icon: "🌾",
+        description: "Total land area sold in acres"
       },
       {
         id: 3,
-        number: new Date().getFullYear() - 2008, // Founded in 2008
+        number: 23,
         label: "Years Experience",
         suffix: "+",
         icon: "⏰",

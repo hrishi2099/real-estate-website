@@ -5,21 +5,21 @@ import { Metadata } from "next";
 import PropertiesClient from "@/components/PropertiesClient";
 
 export const metadata: Metadata = generateMetadataHelper(
-  "Properties & Land for Sale",
-  "Browse our extensive collection of premium real estate properties. Find apartments, houses, villas, and commercial spaces for sale and rent. Advanced filters to help you find exactly what you're looking for.",
+  "Land Properties by Zaminseva Prime",
+  "Explore our exclusive collection of premium agricultural land and NA plots. All properties are directly owned by Zaminseva Prime, ensuring clear titles and hassle-free transactions.",
   null,
   {
     canonical: "/properties",
     keywords: [
-      'real estate properties',
-      'houses for sale',
-      'apartments for rent',
-      'commercial properties',
-      'luxury homes',
-      'property search',
-      'real estate listings',
-      'buy property',
-      'rent property'
+      'agricultural land for sale',
+      'NA plots for sale',
+      'land properties',
+      'zaminseva prime properties',
+      'agricultural plots',
+      'NA land plots',
+      'land investment',
+      'farmland for sale',
+      'development plots'
     ]
   }
 );

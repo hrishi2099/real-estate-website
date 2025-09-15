@@ -12,6 +12,7 @@ interface GetPropertiesOptions {
     minPrice?: number;
     maxPrice?: number;
     minArea?: number;
+    status?: string;
     salesManagerId?: string;
   };
   sortBy?: 'createdAt' | 'price';
@@ -29,7 +30,7 @@ export async function getProperties(options: GetPropertiesOptions = {}) {
 
   try {
     const where: Prisma.PropertyWhereInput = {
-      status: PropertyStatus.ACTIVE,
+      status: filters.status ? filters.status as PropertyStatus : { in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] },
     };
 
     if (filters.type) where.type = filters.type;
@@ -84,7 +85,10 @@ export async function getProperties(options: GetPropertiesOptions = {}) {
 export const getFeaturedProperties = unstable_cache(
   async () => {
     let properties = await prisma.property.findMany({
-      where: { isFeatured: true, status: PropertyStatus.ACTIVE },
+      where: {
+        isFeatured: true,
+        status: { in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] }
+      },
       take: 3,
       orderBy: {
         createdAt: 'desc',
@@ -99,7 +103,7 @@ export const getFeaturedProperties = unstable_cache(
     if (properties.length === 0) {
       isFeatured = false;
       properties = await prisma.property.findMany({
-        where: { status: PropertyStatus.ACTIVE },
+        where: { status: { in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } },
         take: 3,
         orderBy: { createdAt: 'desc' },
         include: { images: true },

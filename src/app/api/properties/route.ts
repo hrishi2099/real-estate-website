@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
   const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
   const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
   const minArea = searchParams.get('minArea') ? parseFloat(searchParams.get('minArea')!) : undefined;
+  const status = searchParams.get('status') || undefined;
 
   const user = await getUserFromRequest(req);
   const isSalesManager = user?.role === 'SALES_MANAGER';
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest) {
         minPrice,
         maxPrice,
         minArea,
+        status,
         ...(isSalesManager && { salesManagerId: user.userId }),
       },
     });

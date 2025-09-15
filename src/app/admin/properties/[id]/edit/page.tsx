@@ -56,6 +56,8 @@ export default function EditProperty() {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     title: '',
@@ -238,17 +240,50 @@ export default function EditProperty() {
     }
 
     setSaving(true);
+    setUploadProgress(0);
     try {
       let newImageUrls: string[] = [];
       if (formData.newImages.length > 0) {
+        setUploadingImages(true);
         const imageFormData = new FormData();
         formData.newImages.forEach(image => {
           imageFormData.append('files', image);
         });
 
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: imageFormData,
+        // Create XMLHttpRequest for progress tracking
+        const uploadResponse = await new Promise<Response>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(percentComplete);
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(new Response(xhr.response, {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                headers: new Headers(Object.fromEntries(
+                  xhr.getAllResponseHeaders()
+                    .split('\r\n')
+                    .filter(line => line.includes(':'))
+                    .map(line => line.split(': ', 2) as [string, string])
+                ))
+              }));
+            } else {
+              reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            reject(new Error('Upload failed: Network error'));
+          });
+
+          xhr.open('POST', '/api/upload');
+          xhr.send(imageFormData);
         });
 
         if (!uploadResponse.ok) {
@@ -260,6 +295,9 @@ export default function EditProperty() {
           const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
           return new URL(file.url, baseUrl).href;
         });
+
+        setUploadingImages(false);
+        setUploadProgress(100);
       }
 
       const allImageUrls = [...formData.existingImages.map(img => img.url), ...newImageUrls];
@@ -304,6 +342,8 @@ export default function EditProperty() {
       }
     } finally {
       setSaving(false);
+      setUploadingImages(false);
+      setUploadProgress(0);
     }
   };
 
@@ -558,14 +598,70 @@ export default function EditProperty() {
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Images</h2>
+
+          {/* Upload Progress */}
+          {uploadingImages && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-blue-800">Uploading Images...</span>
+                <span className="text-sm text-blue-600">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              {formData.newImages.length > 0 && (
+                <p className="text-sm text-blue-700 mt-2">
+                  Uploading {formData.newImages.length} image{formData.newImages.length !== 1 ? 's' : ''}...
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {formData.existingImages.map(image => (
-              <div key={image.url} className="relative">
-                <img src={image.url} alt={image.alt} className="w-full h-32 object-cover rounded-lg" />
+              <div key={image.url} className="relative group">
+                <img
+                  src={image.url}
+                  alt={image.alt}
+                  className="w-full h-32 object-cover rounded-lg transition-transform group-hover:scale-105"
+                />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(image.url)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+
+            {/* New Images Preview */}
+            {formData.newImages.map((image, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt={`New image ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg opacity-70"
+                />
+                <div className="absolute inset-0 bg-blue-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <div className="text-blue-800 text-xs font-medium bg-blue-100 px-2 py-1 rounded">
+                    New
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      newImages: prev.newImages.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -613,10 +709,10 @@ export default function EditProperty() {
           </button>
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || uploadingImages}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : 'Update Property'}
+            {uploadingImages ? `Uploading... ${uploadProgress}%` : saving ? 'Saving...' : 'Update Property'}
           </button>
         </div>
       </form>

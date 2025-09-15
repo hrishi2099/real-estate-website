@@ -22,6 +22,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
 
 
 
+
   const openLightbox = (index: number) => {
     setSelectedImageIndex(index);
     setIsLightboxOpen(true);
@@ -61,32 +62,45 @@ export default function Gallery({ images, propertyTitle = "Property", className 
     );
   }
 
+  // Find primary image or use the first one
   const primaryImage = images.find(img => img.isPrimary) || images[0];
-  const thumbnails = images.filter(img => img.id !== primaryImage.id);
+  const thumbnails = images.filter(img => img.id !== primaryImage?.id);
+
+
+  if (!primaryImage) {
+    return (
+      <div className={`${className} bg-gray-200 rounded-lg flex items-center justify-center min-h-[300px]`}>
+        <div className="text-center text-gray-500">
+          <svg className="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p>No primary image found</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
       {/* Main Image */}
       <div className="relative mb-4">
-        <div 
+        <div
           className="relative h-96 rounded-lg overflow-hidden cursor-pointer group"
           onClick={() => openLightbox(images.findIndex(img => img.id === primaryImage.id))}
         >
-          <OptimizedImage
+          <img
             src={primaryImage.url}
             alt={`${propertyTitle} - Main Image`}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300 flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <svg className="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-              </svg>
-            </div>
-          </div>
           {images.length > 1 && (
             <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
               {images.findIndex(img => img.id === primaryImage.id) + 1} / {images.length}
@@ -95,38 +109,35 @@ export default function Gallery({ images, propertyTitle = "Property", className 
         </div>
       </div>
 
+
       {/* Thumbnails */}
       {thumbnails.length > 0 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 mt-4">
           {thumbnails.slice(0, 3).map((image, index) => (
-            <div 
+            <div
               key={image.id}
-              className="relative h-20 rounded-md overflow-hidden cursor-pointer group"
+              className="cursor-pointer group"
               onClick={() => openLightbox(images.findIndex(img => img.id === image.id))}
             >
-              <OptimizedImage
+              <img
                 src={image.url}
                 alt={`${propertyTitle} - Image ${index + 2}`}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-110"
-                sizes="(max-width: 768px) 25vw, 20vw"
+                className="w-full h-20 object-cover rounded-md transition-transform duration-300 group-hover:scale-105 shadow-sm border border-gray-200"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-300"></div>
             </div>
           ))}
-          
+
           {thumbnails.length > 3 && (
-            <div 
-              className="relative h-20 rounded-md overflow-hidden cursor-pointer group bg-gray-900"
+            <div
+              className="relative cursor-pointer group"
               onClick={() => openLightbox(3)}
             >
-              <OptimizedImage
+              <img
                 src={thumbnails[3].url}
                 alt={`${propertyTitle} - More images`}
-                fill
-                className="object-cover opacity-60"
+                className="w-full h-20 object-cover rounded-md opacity-60"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
                 <span className="text-white font-semibold text-sm">
                   +{thumbnails.length - 3} more
                 </span>
@@ -191,15 +202,13 @@ export default function Gallery({ images, propertyTitle = "Property", className 
             )}
 
             {/* Main Image */}
-            <div 
+            <div
               className="relative max-w-full max-h-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <OptimizedImage
+              <img
                 src={images[selectedImageIndex].url}
                 alt={`${propertyTitle} - Image ${selectedImageIndex + 1}`}
-                width={1200}
-                height={800}
                 className="max-w-full max-h-full object-contain"
               />
             </div>
@@ -218,11 +227,10 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                       setSelectedImageIndex(index);
                     }}
                   >
-                    <OptimizedImage
+                    <img
                       src={image.url}
                       alt={`Thumbnail ${index + 1}`}
-                      fill
-                      className="object-cover rounded"
+                      className="w-full h-full object-cover rounded"
                     />
                   </div>
                 ))}
