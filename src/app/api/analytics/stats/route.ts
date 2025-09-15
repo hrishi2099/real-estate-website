@@ -43,7 +43,7 @@ export async function GET() {
       },
       {
         id: 4,
-        number: Math.min(Math.round((totalSoldProperties / Math.max(totalProperties, 1)) * 100), 97),
+        number: 99,
         label: "Client Satisfaction",
         suffix: "%",
         icon: "⭐",

@@ -44,7 +44,7 @@ export default function Header({ settings }: HeaderProps) {
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               {/* Logo Image - Dynamic from office settings */}
               {settings?.logoUrl && (
-                <div className="relative h-6 w-24 sm:h-8 sm:w-32">
+                <div className="relative h-8 w-32 sm:h-10 sm:w-40">
                   <Image
                     src="/logos/logo.png"
                     alt={`${settings?.companyName || "Company"} Logo`}
