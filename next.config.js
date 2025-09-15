@@ -9,7 +9,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['localhost', 'zaminseva.com'],
+    domains: ['localhost', 'zaminseva.com', 'www.zaminseva.com'],
     remotePatterns: [
       {
         protocol: 'https',

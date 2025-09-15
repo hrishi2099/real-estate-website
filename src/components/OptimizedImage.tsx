@@ -26,14 +26,26 @@ export default function OptimizedImage({
   sizes,
   onClick
 }: OptimizedImageProps) {
-  // Simplified - just return a regular img tag like the working test
+  const [imgError, setImgError] = useState(false);
+
+  // Fallback image for production
+  const fallbackImage = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
+
+  const handleImageError = () => {
+    console.warn(`Image failed to load: ${src}`);
+    setImgError(true);
+  };
+
+  const imageSrc = imgError ? fallbackImage : src;
+
   if (fill) {
     return (
       <img
-        src={src}
+        src={imageSrc}
         alt={alt}
         className={`w-full h-full object-cover ${className}`}
         onClick={onClick}
+        onError={handleImageError}
         style={{
           position: 'absolute',
           top: 0,
@@ -48,12 +60,13 @@ export default function OptimizedImage({
 
   return (
     <img
-      src={src}
+      src={imageSrc}
       alt={alt}
       width={width || 500}
       height={height || 300}
       className={className}
       onClick={onClick}
+      onError={handleImageError}
     />
   );
 }
