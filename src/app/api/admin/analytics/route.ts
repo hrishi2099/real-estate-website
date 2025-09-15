@@ -197,13 +197,13 @@ export async function GET(request: NextRequest) {
         recentViews,
         conversionRate: parseFloat(conversionRate),
       },
-      topProperties: topProperties.map(property => ({
+      topProperties: topProperties.map((property: any) => ({
         ...property,
         viewCount: property._count.analytics,
         inquiryCount: property._count.inquiries,
       })),
       monthlyStats,
-      recentActivity: recentActivity.map(activity => ({
+      recentActivity: recentActivity.map((activity: any) => ({
         id: activity.id,
         event: activity.event,
         propertyTitle: activity.property.title,
