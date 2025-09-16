@@ -133,7 +133,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={() => openLightbox(3)}
             >
               <img
-                src={thumbnails[3].url}
+                src={thumbnails[3].url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${thumbnails[3].url}` : thumbnails[3].url}
                 alt={`${propertyTitle} - More images`}
                 className="w-full h-20 object-cover rounded-md opacity-60"
               />
@@ -228,7 +228,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                     }}
                   >
                     <img
-                      src={image.url}
+                      src={image.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${image.url}` : image.url}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded"
                     />

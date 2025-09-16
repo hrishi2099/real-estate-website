@@ -47,6 +47,14 @@ export default function GalleryPage() {
     totalPages: 0,
   });
 
+  const getImageUrl = (url: string) => {
+    if (url && url.startsWith('/uploads/')) {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || '';
+      return `${baseUrl}${url}`;
+    }
+    return url;
+  };
+
   const fetchImages = useCallback(async () => {
     setLoading(true);
     try {
@@ -332,7 +340,7 @@ export default function GalleryPage() {
                   onClick={() => openLightbox(image)}
                 >
                   <Image
-                    src={image.url}
+                    src={getImageUrl(image.url)}
                     alt={image.property.title}
                     fill={viewMode !== "masonry"}
                     width={viewMode === "masonry" ? 400 : undefined}
@@ -590,7 +598,7 @@ export default function GalleryPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={selectedImage.url}
+                src={getImageUrl(selectedImage.url)}
                 alt={selectedImage.property.title}
                 width={1200}
                 height={800}
