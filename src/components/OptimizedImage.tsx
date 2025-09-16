@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface OptimizedImageProps {
   src: string;
@@ -36,7 +37,7 @@ export default function OptimizedImage({
     setImgError(true);
   };
 
-  const imageSrc = imgError ? fallbackImage : src;
+  const imageSrc = imgError ? fallbackImage : getImageUrl(src);
 
   if (fill) {
     return (

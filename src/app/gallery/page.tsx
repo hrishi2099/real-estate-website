@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface PropertyImage {
   id: string;
@@ -47,13 +48,6 @@ export default function GalleryPage() {
     totalPages: 0,
   });
 
-  const getImageUrl = (url: string) => {
-    if (url && url.startsWith('/uploads/')) {
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || '';
-      return `${baseUrl}${url}`;
-    }
-    return url;
-  };
 
   const fetchImages = useCallback(async () => {
     setLoading(true);

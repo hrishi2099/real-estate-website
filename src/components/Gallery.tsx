@@ -2,6 +2,7 @@
 
 import OptimizedImage from "./OptimizedImage";
 import { useState } from "react";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface PropertyImage {
   id: string;
@@ -89,7 +90,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
           onClick={() => openLightbox(images.findIndex(img => img.id === primaryImage.id))}
         >
           <img
-            src={primaryImage.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${primaryImage.url}` : primaryImage.url}
+            src={getImageUrl(primaryImage.url)}
             alt={`${propertyTitle} - Main Image`}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             style={{
@@ -120,7 +121,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={() => openLightbox(images.findIndex(img => img.id === image.id))}
             >
               <img
-                src={image.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${image.url}` : image.url}
+                src={getImageUrl(image.url)}
                 alt={`${propertyTitle} - Image ${index + 2}`}
                 className="w-full h-20 object-cover rounded-md transition-transform duration-300 group-hover:scale-105 shadow-sm border border-gray-200"
               />
@@ -133,7 +134,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={() => openLightbox(3)}
             >
               <img
-                src={thumbnails[3].url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${thumbnails[3].url}` : thumbnails[3].url}
+                src={getImageUrl(thumbnails[3].url)}
                 alt={`${propertyTitle} - More images`}
                 className="w-full h-20 object-cover rounded-md opacity-60"
               />
@@ -228,7 +229,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                     }}
                   >
                     <img
-                      src={image.url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${image.url}` : image.url}
+                      src={getImageUrl(image.url)}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded"
                     />

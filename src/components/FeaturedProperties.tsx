@@ -1,5 +1,6 @@
 import OptimizedImage from "./OptimizedImage";
 import Link from "next/link";
+import { getPropertyImageUrl } from "@/lib/imageUtils";
 
 interface Property {
   id: string;
@@ -29,16 +30,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
   };
 
   const getPropertyImage = (property: Property) => {
-    const primaryImage = property.images?.find(img => img.isPrimary);
-    const imageUrl = primaryImage?.url || property.images?.[0]?.url;
-
-    // Handle relative URLs in production
-    if (imageUrl && imageUrl.startsWith('/uploads/')) {
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || '';
-      return `${baseUrl}${imageUrl}`;
-    }
-
-    return imageUrl || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
+    return getPropertyImageUrl(property);
   };
 
   return (
