@@ -38,7 +38,7 @@ export default function AboutPage() {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900">About Zaminseva Prime</h1>
             <p className="mt-4 text-xl text-gray-600">
-              Your trusted partner in real estate since 2000
+              Your trusted partner in real estate for more than 23 years
             </p>
           </div>
         </div>
@@ -49,13 +49,13 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <p className="text-gray-600 mb-4">
-              Our journey started with a simple, yet powerful idea: to build a real estate experience that’s not just about transactions, but about transformations. Back in 2000, our founder, Dattatray Ghore, saw a gap in the market. People weren't just looking for properties; they were looking for a place to call home, a smart investment for their future, and a trusted guide to help them navigate the often-complex world of real estate.
+              Zaminseva Prime is a highly respected and trusted real estate company, well known in the market for more than 23 years. Our area of expertise is in Premium Non-agricultural land (plotted development), Gated Communities, Farmhouse plots and Eco-estates.
             </p>
             <p className="text-gray-600 mb-4">
-              And so, Zaminseva Prime was born. We began as a small, passionate team with a big vision. We wanted to create a place where clients felt heard, understood, and empowered. We’ve always believed that buying or selling a property is one of life's most significant moments, and we’re honored to be a part of that journey.
+              Our properties are at premium locations, with unique views and features. We use this knowledge to create vibrant communities. But our services extend beyond the land itself. As a trusted real estate developer in Maharashtra, we offer comprehensive support and guidance throughout your property journey.
             </p>
             <p className="text-gray-600">
-              Over the years, we've grown, but our core values have remained the same. We’re still that same dedicated team, committed to providing you with unparalleled service, expert advice, and a personal touch that makes all the difference. We're not just here to close a deal; we're here to open doors to your future.
+              Over the years, we've built a reputation for excellence, transparency, and customer satisfaction. We're not just here to sell properties; we're here to help you make informed investment decisions and find the perfect piece of land that matches your vision and requirements.
             </p>
           </div>
           <div className="relative h-96 rounded-lg overflow-hidden">
