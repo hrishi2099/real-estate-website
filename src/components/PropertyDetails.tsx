@@ -208,18 +208,22 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
           <div className="prose prose-gray max-w-none">
-            <div
-              className="text-gray-700 text-sm sm:text-base leading-relaxed space-y-3"
-              style={{ whiteSpace: 'pre-wrap' }}
-              dangerouslySetInnerHTML={{
-                __html: property.description
-                  .split('\n\n')
-                  .map(paragraph => paragraph.trim())
-                  .filter(paragraph => paragraph.length > 0)
-                  .map(paragraph => `<p class="mb-4 last:mb-0">${paragraph.replace(/\n/g, '<br>')}</p>`)
-                  .join('')
-              }}
-            />
+            <div className="text-gray-700 text-sm sm:text-base leading-relaxed">
+              {property.description
+                .split('\n\n')
+                .map(paragraph => paragraph.trim())
+                .filter(paragraph => paragraph.length > 0)
+                .map((paragraph, index) => (
+                  <p key={index} className="mb-4 last:mb-0">
+                    {paragraph.split('\n').map((line, lineIndex) => (
+                      <span key={lineIndex}>
+                        {line}
+                        {lineIndex < paragraph.split('\n').length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
+                ))}
+            </div>
           </div>
         </div>
       )}
