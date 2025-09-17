@@ -22,7 +22,7 @@ const sqlInjectionPatterns = [
   /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi,
   /(\b(or|and)\b\s*\d+\s*=\s*\d+)/gi,
   /(--|\/\*|\*\/|;)/g,
-  /(["`)]/g, // Allow single quotes/apostrophes, block double quotes and backticks
+  /["`]/g, // Block double quotes and backticks, allow single quotes/apostrophes
 ];
 
 export function containsSqlInjection(input: string): boolean {
