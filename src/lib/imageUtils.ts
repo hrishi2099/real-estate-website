@@ -41,13 +41,21 @@ export function getImageUrl(url: string | null | undefined): string {
 export function getPropertyImageUrl(property: {
   images?: { id: string; url: string; isPrimary: boolean }[];
 }): string {
+  if (!property.images || property.images.length === 0) {
+    console.log('No images found for property:', property);
+    // Fallback to placeholder when no images
+    return 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
+  }
+
   const primaryImage = property.images?.find(img => img.isPrimary);
   const imageUrl = primaryImage?.url || property.images?.[0]?.url;
 
   if (imageUrl) {
+    console.log('Using image URL:', imageUrl, 'for property images:', property.images);
     return getImageUrl(imageUrl);
   }
 
   // Fallback to placeholder
+  console.log('No valid image URL found, using placeholder for property:', property);
   return 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
 }

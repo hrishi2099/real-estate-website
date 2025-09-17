@@ -49,7 +49,15 @@ export async function getProperties(options: GetPropertiesOptions = {}) {
         take: limit,
         skip: (page - 1) * limit,
         orderBy: { [sortBy]: sortOrder },
-        include: { images: { where: { isPrimary: true }, take: 1 } },
+        include: {
+          images: {
+            orderBy: [
+              { isPrimary: 'desc' },  // Primary images first
+              { createdAt: 'asc' }     // Then by creation date
+            ],
+            take: 3  // Get a few images for fallback
+          }
+        },
       }),
       prisma.property.count({ where }),
     ]);
