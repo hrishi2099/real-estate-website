@@ -209,14 +209,31 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
         {property.description ? (
           <div className="bg-gray-50 rounded-lg p-6">
-            <div
-              className="prose prose-gray prose-sm sm:prose-base max-w-none
-                         prose-p:mb-4 prose-p:last:mb-0
-                         prose-ul:mb-4 prose-ol:mb-4
-                         prose-li:mb-1
-                         prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 prose-h3:text-lg"
-              dangerouslySetInnerHTML={{ __html: sanitizeHTML(property.description) }}
-            />
+            {(() => {
+              const sanitized = sanitizeHTML(property.description);
+              const isPlainText = !sanitized.includes('<') || sanitized === property.description.replace(/<[^>]*>/g, '');
+
+              if (isPlainText) {
+                return (
+                  <div
+                    className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line"
+                  >
+                    {sanitized}
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    className="prose prose-gray prose-sm sm:prose-base max-w-none
+                               prose-p:mb-4 prose-p:last:mb-0
+                               prose-ul:mb-4 prose-ol:mb-4
+                               prose-li:mb-1
+                               prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 prose-h3:text-lg"
+                    dangerouslySetInnerHTML={{ __html: sanitized }}
+                  />
+                );
+              }
+            })()}
           </div>
         ) : (
           <div className="bg-gray-50 rounded-lg p-4">
