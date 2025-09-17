@@ -126,6 +126,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
 
   const getSchemaPropertyType = (type: string) => {
     switch (type) {
+      case "AGRICULTURAL_LAND":
+        return "Landform";
+      case "NA_LAND":
+        return "Landform";
       case "APARTMENT":
         return "Apartment";
       case "HOUSE":

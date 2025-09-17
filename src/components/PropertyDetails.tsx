@@ -107,7 +107,8 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                   {property.status}
                 </span>
                 <span className="bg-purple-100 text-purple-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                  {property.type}
+                  {property.type === 'AGRICULTURAL_LAND' ? 'Agricultural Land' :
+                   property.type === 'NA_LAND' ? 'NA Land' : property.type}
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 leading-tight">{property.title}</h1>
@@ -202,10 +203,22 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         </div>
       </div>
 
+      {/* Property Description */}
+      {property.description && (
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
+          <div className="prose prose-sm sm:prose max-w-none">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{property.description}</p>
+          </div>
+        </div>
+      )}
+
       {/* Property Features */}
       {property.features && property.features.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Property Features</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">
+            {property.type === 'AGRICULTURAL_LAND' || property.type === 'NA_LAND' ? 'Land Features' : 'Property Features'}
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {property.features.map((feature, index) => (
               <div key={index} className="flex items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg">
