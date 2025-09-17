@@ -304,7 +304,7 @@ export default function EditProperty() {
       const allImageUrls = [...formData.existingImages.map(img => img.url), ...newImageUrls];
 
       // Clean the description to remove any problematic content
-      let cleanDescription = formData.description;
+      let cleanDescription: string | undefined = formData.description;
       if (cleanDescription) {
         // Remove empty HTML tags and clean up
         cleanDescription = cleanDescription
