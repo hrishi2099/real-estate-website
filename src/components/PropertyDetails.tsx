@@ -204,19 +204,29 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
       </div>
 
       {/* Property Description */}
-      {property.description && (
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div
-              className="text-gray-700 text-sm sm:text-base leading-7 sm:leading-8"
-              style={{ whiteSpace: 'pre-line' }}
-            >
-              {property.description}
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
+        {property.description ? (
+          <div className="bg-gray-50 rounded-lg p-6">
+            <div className="prose prose-gray prose-sm sm:prose-base max-w-none">
+              {property.description.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="mb-4 text-gray-700 leading-relaxed last:mb-0">
+                  {paragraph.split('\n').map((line, lineIndex) => (
+                    <span key={lineIndex}>
+                      {line}
+                      {lineIndex < paragraph.split('\n').length - 1 && <br />}
+                    </span>
+                  ))}
+                </p>
+              ))}
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <p className="text-gray-500 italic">No description available for this property.</p>
+          </div>
+        )}
+      </div>
 
       {/* Property Features */}
       {property.features && property.features.length > 0 && (
