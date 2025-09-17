@@ -302,6 +302,7 @@ export default function EditProperty() {
         price: Number(formData.price),
         location: formData.location.trim(),
         type: formData.type,
+        status: formData.status,
         bedrooms: Number(formData.bedrooms),
         bathrooms: Number(formData.bathrooms),
         features: formData.features,

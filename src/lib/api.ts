@@ -145,13 +145,14 @@ class ApiClient {
     description?: string;
     price?: number;
     location?: string;
-    address?: string;
+    latitude?: number;
+    longitude?: number;
     type?: string;
+    status?: string;
     isFeatured?: boolean;
     bedrooms?: number;
     bathrooms?: number;
     area?: number;
-    yearBuilt?: number;
     features?: string[];
     images?: { url: string; filename: string }[];
   }) {
