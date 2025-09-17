@@ -314,6 +314,7 @@ export default function EditProperty() {
         images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
       };
 
+      console.log('Sending property data:', propertyData);
       const response = await api.updateProperty(propertyId, propertyData);
       if (response?.data) {
         alert('Property updated successfully!');

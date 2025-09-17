@@ -22,7 +22,7 @@ const sqlInjectionPatterns = [
   /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi,
   /(\b(or|and)\b\s*\d+\s*=\s*\d+)/gi,
   /(--|\/\*|\*\/|;)/g,
-  /('|\"|`)/g,
+  /(["`)]/g, // Allow single quotes/apostrophes, block double quotes and backticks
 ];
 
 export function containsSqlInjection(input: string): boolean {
@@ -58,7 +58,7 @@ export const emailSchema = z.string()
   .email('Invalid email format')
   .min(5, 'Email must be at least 5 characters')
   .max(254, 'Email must not exceed 254 characters')
-  .refine((email) => !/[<>'"&]/.test(email), 'Email contains invalid characters')
+  .refine((email) => !/[<>"&]/.test(email), 'Email contains invalid characters')
   .transform(sanitizeEmail);
 
 export const phoneSchema = z.string()

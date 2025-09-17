@@ -28,6 +28,8 @@ export const PUT = requireAdmin(async (req, { params }: { params: { id: string }
 
   const validation = updatePropertySchema.safeParse(body);
   if (!validation.success) {
+    console.error('Validation failed:', validation.error.issues);
+    console.error('Request body:', body);
     return NextResponse.json({ error: 'Invalid input', details: validation.error.issues }, { status: 400 });
   }
 
