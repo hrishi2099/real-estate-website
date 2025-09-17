@@ -320,14 +320,29 @@ export default function EditProperty() {
         images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
       };
 
-      console.log('Sending property data:', propertyData);
       const response = await api.updateProperty(propertyId, propertyData);
       if (response?.data) {
-        alert('Property updated successfully!');
-        router.push('/admin/properties');
+        // Show success message
+        setErrors({});
+
+        // Use a more user-friendly notification
+        const successDiv = document.createElement('div');
+        successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        successDiv.textContent = 'Property updated successfully!';
+        document.body.appendChild(successDiv);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+          document.body.removeChild(successDiv);
+        }, 3000);
+
+        // Redirect after a short delay
+        setTimeout(() => {
+          router.push('/admin/properties');
+        }, 1000);
       } else {
         const errorMessage = response?.error || 'Failed to update property. Please check all fields and try again.';
-        alert(errorMessage);
+        setErrors({ general: errorMessage });
       }
     } catch (error: any) {
       console.error('Error updating property:', error);
@@ -335,13 +350,13 @@ export default function EditProperty() {
       if (error?.response?.data?.details) {
         const validationErrors: ValidationError[] = error.response.data.details;
         const errorMessages = validationErrors.map((err: ValidationError) => `${err.path?.join('.')}: ${err.message}`);
-        alert(`Validation Error:\n${errorMessages.join('\n')}`);
+        setErrors({ general: `Validation Error: ${errorMessages.join(', ')}` });
       } else if (error?.response?.data?.error) {
-        alert(`Error: ${error.response.data.error}`);
+        setErrors({ general: error.response.data.error });
       } else if (error?.message) {
-        alert(`Error: ${error.message}`);
+        setErrors({ general: error.message });
       } else {
-        alert('Failed to update property. Please check your internet connection and try again.');
+        setErrors({ general: 'Failed to update property. Please check your internet connection and try again.' });
       }
     } finally {
       setSaving(false);
@@ -380,6 +395,22 @@ export default function EditProperty() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {errors.general && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Update Error</h3>
+                <p className="mt-1 text-sm text-red-700">{errors.general}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
           

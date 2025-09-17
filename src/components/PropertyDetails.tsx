@@ -209,7 +209,11 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         {property.description ? (
           <div className="bg-gray-50 rounded-lg p-6">
             <div
-              className="prose prose-gray prose-sm sm:prose-base max-w-none"
+              className="prose prose-gray prose-sm sm:prose-base max-w-none
+                         prose-p:mb-4 prose-p:last:mb-0
+                         prose-ul:mb-4 prose-ol:mb-4
+                         prose-li:mb-1
+                         prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 prose-h3:text-lg"
               dangerouslySetInnerHTML={{ __html: property.description }}
             />
           </div>
