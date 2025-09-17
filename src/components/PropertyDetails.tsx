@@ -5,6 +5,7 @@ import PropertyMap from "./PropertyMapSimple";
 
 import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
+import { sanitizeHTML } from "@/lib/html-sanitizer";
 
 interface PropertyDetailsProps {
   property: {
@@ -214,7 +215,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                          prose-ul:mb-4 prose-ol:mb-4
                          prose-li:mb-1
                          prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 prose-h3:text-lg"
-              dangerouslySetInnerHTML={{ __html: property.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHTML(property.description) }}
             />
           </div>
         ) : (

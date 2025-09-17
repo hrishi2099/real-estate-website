@@ -53,8 +53,20 @@ export default function RichTextEditor({
     ],
     content,
     onUpdate: ({ editor }) => {
-      // Clean up the HTML output
-      const html = editor.getHTML();
+      // Clean up the HTML output and ensure it's valid
+      let html = editor.getHTML();
+
+      // Basic validation and cleanup
+      if (html && html !== '<p></p>') {
+        // Ensure proper list structure
+        html = html.replace(/<li><\/li>/g, '');
+        html = html.replace(/<p><\/p>/g, '');
+        html = html.replace(/\s{2,}/g, ' ');
+        html = html.trim();
+      } else {
+        html = '';
+      }
+
       onChange(html);
     },
   });
