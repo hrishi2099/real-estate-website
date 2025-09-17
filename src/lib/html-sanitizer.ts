@@ -5,6 +5,9 @@ export function sanitizeHTML(html: string): string {
     return '';
   }
 
+  // Remove unwanted debug text first
+  html = html.replace(/Query successful\.?\s*/gi, '');
+
   // Check if the HTML is too malformed and should be converted to plain text
   if (shouldConvertToPlainText(html)) {
     return stripHTML(html);
@@ -60,8 +63,11 @@ function shouldConvertToPlainText(html: string): boolean {
 
 function fixMalformedHTML(html: string): string {
   return html
+    // Remove unwanted debug/system text first
+    .replace(/Query successful\.?\s*/gi, '')
+    .replace(/ullipQuery successful\/p\/li\/ul/g, '')
+
     // Fix specific known malformed patterns
-    .replace(/ullipQuery successful\/p\/li\/ul/g, '<ul><li>Query successful</li></ul>')
     .replace(/ullip/g, '<ul><li>')
     .replace(/\/li\/ul/g, '</li></ul>')
     .replace(/\/ulp/g, '</ul>')
@@ -92,8 +98,11 @@ export function stripHTML(html: string): string {
     // Remove HTML tags first
     .replace(/<[^>]*>/g, ' ')
 
+    // Remove unwanted debug/system text
+    .replace(/Query successful\.?\s*/gi, '')
+    .replace(/ullipQuery successful\/p\/li\/ul/g, '')
+
     // Fix specific malformed patterns
-    .replace(/ullipQuery successful\/p\/li\/ul/g, 'Query successful')
     .replace(/ullip/g, '\n• ')
     .replace(/lip/g, '\n• ')
     .replace(/\/ulp/g, '')
