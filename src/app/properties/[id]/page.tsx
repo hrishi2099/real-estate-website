@@ -6,6 +6,7 @@ import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
 import type { Metadata } from "next";
 import { getProperty } from "@/lib/properties";
 import StructuredData from "@/components/StructuredData";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface Property {
   id: string;
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title = `${property.title} - ${formatPrice(property.price)}`;
   const description = `${property.description || `${property.type} in ${property.location}`}. ${property.area ? `${property.area} sqft. ` : ''}${property.bedrooms ? `${property.bedrooms} bedrooms. ` : ''}${property.bathrooms ? `${property.bathrooms} bathrooms. ` : ''}Price: ${formatPrice(property.price)}`;
-  const images = property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url;
+  const images = getImageUrl(property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url);
 
   return generateMetadataHelper(title, description, {
     companyName: "Zaminseva Prime Pvt. Ltd.",
@@ -151,7 +152,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     "name": property.title,
     "description": property.description || `${property.type} in ${property.location}`,
     "url": `${siteUrl}/properties/${property.id}`,
-    "image": property.images?.map(img => img.url) || [],
+    "image": property.images?.map(img => getImageUrl(img.url)) || [],
     "offers": {
       "@type": "Offer",
       "price": property.price,

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface Property {
   id: string;
@@ -153,7 +154,7 @@ export default function FavoritesPage() {
                 <div className="relative">
                   <img
                     className="w-full h-48 object-cover"
-                    src={property.image}
+                    src={getImageUrl(property.image)}
                     alt={property.title}
                   />
                   <button

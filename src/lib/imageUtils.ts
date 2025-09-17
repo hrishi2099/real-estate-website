@@ -4,8 +4,10 @@
  */
 
 export function getImageUrl(url: string | null | undefined): string {
-  if (!url) {
-    return '/placeholder-property.jpg';
+  const fallbackImage = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
+
+  if (!url || url.trim() === '') {
+    return fallbackImage;
   }
 
   // If URL already starts with http/https, return as-is
@@ -14,19 +16,22 @@ export function getImageUrl(url: string | null | undefined): string {
   }
 
   // Handle relative uploads paths
-  if (url.startsWith('/uploads/')) {
-    const baseUrl = typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_SITE_URL || '';
-    return `${baseUrl}${url}`;
-  }
+  if (url.startsWith('/uploads/') || url.startsWith('/')) {
+    let baseUrl = '';
 
-  // Handle other relative paths
-  if (url.startsWith('/')) {
-    const baseUrl = typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_SITE_URL || '';
-    return `${baseUrl}${url}`;
+    if (typeof window !== 'undefined') {
+      // Client-side: use window.location.origin
+      baseUrl = window.location.origin;
+    } else {
+      // Server-side: use environment variable with production fallback
+      baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
+    }
+
+    // Ensure no double slashes
+    const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+    const fullUrl = `${baseUrl}${cleanUrl}`;
+
+    return fullUrl;
   }
 
   // Return URL as-is if it doesn't match any patterns
@@ -44,5 +49,5 @@ export function getPropertyImageUrl(property: {
   }
 
   // Fallback to placeholder
-  return '/placeholder-property.jpg';
+  return 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80';
 }

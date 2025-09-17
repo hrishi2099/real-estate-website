@@ -39,6 +39,11 @@ export default function OptimizedImage({
 
   const imageSrc = imgError ? fallbackImage : getImageUrl(src);
 
+  // Add onLoad handler to ensure image loads properly
+  const handleImageLoad = () => {
+    // Image loaded successfully, no action needed
+  };
+
   if (fill) {
     return (
       <img
@@ -47,6 +52,7 @@ export default function OptimizedImage({
         className={`w-full h-full object-cover ${className}`}
         onClick={onClick}
         onError={handleImageError}
+        onLoad={handleImageLoad}
         style={{
           position: 'absolute',
           top: 0,
@@ -68,6 +74,7 @@ export default function OptimizedImage({
       className={className}
       onClick={onClick}
       onError={handleImageError}
+      onLoad={handleImageLoad}
     />
   );
 }

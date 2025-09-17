@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface DashboardStats {
   savedProperties: number;
@@ -271,7 +272,7 @@ export default function DashboardPage() {
                   <div key={property.id} className="flex space-x-3">
                     <div className="relative h-16 w-16 rounded-lg overflow-hidden">
                       <Image
-                        src={property.image}
+                        src={getImageUrl(property.image)}
                         alt={property.title}
                         fill
                         className="object-cover"

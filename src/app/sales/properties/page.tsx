@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import Image from "next/image";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface Property {
   id: string;
@@ -270,11 +270,10 @@ export default function SalesProperties() {
             {/* Property Image */}
             <div className="relative h-48">
               {property.images.length > 0 ? (
-                <Image
-                  src={property.images[0].url}
+                <img
+                  src={getImageUrl(property.images[0].url)}
                   alt={property.title}
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">

@@ -208,7 +208,7 @@ export default function Gallery({ images, propertyTitle = "Property", className 
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={images[selectedImageIndex].url?.startsWith('/uploads/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${images[selectedImageIndex].url}` : images[selectedImageIndex].url}
+                src={getImageUrl(images[selectedImageIndex].url)}
                 alt={`${propertyTitle} - Image ${selectedImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain"
               />
