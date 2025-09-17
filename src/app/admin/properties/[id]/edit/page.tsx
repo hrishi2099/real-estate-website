@@ -66,7 +66,7 @@ export default function EditProperty() {
     location: '',
     latitude: '',
     longitude: '',
-    type: 'APARTMENT',
+    type: 'NA_LAND',
     status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
     bedrooms: 1,
     bathrooms: 1,
@@ -78,13 +78,8 @@ export default function EditProperty() {
   });
 
   const propertyTypes = [
-    { value: 'APARTMENT', label: 'Apartment' },
-    { value: 'HOUSE', label: 'House' },
-    { value: 'VILLA', label: 'Villa' },
-    { value: 'CONDO', label: 'Condo' },
-    { value: 'TOWNHOUSE', label: 'Townhouse' },
-    { value: 'COMMERCIAL', label: 'Commercial' },
-    { value: 'LAND', label: 'Land' }
+    { value: 'NA_LAND', label: 'NA Land' },
+    { value: 'AGRICULTURAL_LAND', label: 'Agricultural Land' }
   ];
 
   const statusOptions = [
@@ -122,7 +117,7 @@ export default function EditProperty() {
               location: propertyData.location || '',
               latitude: propertyData.latitude?.toString() || '',
               longitude: propertyData.longitude?.toString() || '',
-              type: propertyData.type || 'APARTMENT',
+              type: propertyData.type || 'NA_LAND',
               status: propertyData.status || 'ACTIVE',
               bedrooms: propertyData.bedrooms || 1,
               bathrooms: propertyData.bathrooms || 1,

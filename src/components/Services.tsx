@@ -99,7 +99,7 @@ export default function Services() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
             >
               {/* Icon */}
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white mb-6 group-hover:scale-110 transition-transform duration-300 mx-auto">
                 {service.icon}
               </div>
 
