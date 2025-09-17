@@ -75,14 +75,7 @@ export default function Header({ settings }: HeaderProps) {
               className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
               onClick={() => trackNavigation('Properties', '/properties', 'main-navigation')}
             >
-              View Properties
-            </Link>
-            <Link 
-              href="/search" 
-              className="text-base font-medium text-gray-600 sm:text-gray-500 hover:text-gray-900"
-              onClick={() => trackNavigation('Search', '/search', 'main-navigation')}
-            >
-              Search Properties
+              Properties
             </Link>
             <Link 
               href="/gallery" 
@@ -211,14 +204,7 @@ export default function Header({ settings }: HeaderProps) {
                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
-                View Properties
-              </Link>
-              <Link 
-                href="/search" 
-                className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md touch-manipulation"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Search Properties
+                Properties
               </Link>
               <Link 
                 href="/gallery" 

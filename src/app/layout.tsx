@@ -60,7 +60,7 @@ export default async function RootLayout({
     "url": siteUrl,
     "potentialAction": {
       "@type": "SearchAction",
-      "target": `${siteUrl}/search?q={search_term_string}`,
+      "target": `${siteUrl}/properties?q={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   };
