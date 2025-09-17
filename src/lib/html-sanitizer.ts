@@ -5,56 +5,13 @@ export function sanitizeHTML(html: string): string {
     return '';
   }
 
-  // First, clean up any malformed HTML patterns
-  let cleanHTML = html
-    // Fix specific malformed patterns we've seen
-    .replace(/ullipQuery successful\/p\/li\/ul/g, '<ul><li>Query successful</li></ul>')
-    .replace(/ullip/g, '<ul><li>')
-    .replace(/\/li\/ul/g, '</li></ul>')
-    .replace(/\/p\/li/g, '</li>')
-    .replace(/li\/ul/g, '</li></ul>')
+  // Check if the HTML is too malformed and should be converted to plain text
+  if (shouldConvertToPlainText(html)) {
+    return stripHTML(html);
+  }
 
-    // Fix broken paragraph patterns
-    .replace(/\/pp/g, '</p><p>')
-    .replace(/pp/g, '<p>')
-    .replace(/p \/p/g, '</p><p>')
-    .replace(/\/p\/p/g, '</p><p>')
-
-    // Fix standalone text with /p at the end
-    .replace(/([^>])\/p(?!\w)/g, '$1</p>')
-    .replace(/^p([A-Z])/g, '<p>$1') // Fix paragraphs that start with pCapital
-
-    // Fix broken list patterns
-    .replace(/\/p\s*<ul>/g, '</p><ul>')
-    .replace(/<\/ul>\s*p/g, '</ul><p>')
-
-    // Clean up multiple consecutive paragraph tags
-    .replace(/<\/p>\s*<\/p>/g, '</p>')
-    .replace(/<p>\s*<p>/g, '<p>')
-
-    // Remove empty paragraphs
-    .replace(/<p>\s*<\/p>/g, '')
-    .replace(/<p><\/p>/g, '')
-
-    // Fix any remaining malformed tags
-    .replace(/[a-zA-Z]*lip/g, '<li>')
-    .replace(/\/p\s*\/li/g, '</li>')
-    .replace(/\/p\s*li/g, '</p><li>')
-
-    // Fix broken list endings
-    .replace(/li$/g, '</li>')
-
-    // Fix text that looks like broken HTML at the start
-    .replace(/^[a-z]+lip/gi, '<li>')
-
-    // Fix orphaned closing tags
-    .replace(/^\/p/g, '')
-    .replace(/\/p$/g, '</p>')
-
-    // Fix words that got merged with tags
-    .replace(/([a-z])\/p([A-Z])/g, '$1</p><p>$2')
-
-    .trim();
+  // Try to fix the HTML first
+  let cleanHTML = fixMalformedHTML(html);
 
   // Configure DOMPurify to allow safe HTML tags
   const config = {
@@ -73,25 +30,57 @@ export function sanitizeHTML(html: string): string {
   // Sanitize the HTML
   const sanitized = DOMPurify.sanitize(cleanHTML, config);
 
-  // Final cleanup to ensure proper structure
+  // Final cleanup
   let result = sanitized
     .replace(/\s+/g, ' ')
     .replace(/>\s+</g, '><')
     .trim();
 
-  // If we still have malformed HTML after sanitization, fall back to plain text
-  if (result.includes('ullip') ||
-      result.includes('/p/p') ||
-      result.includes('/p') ||
-      result.includes('lip') && !result.includes('<li>') ||
-      result.includes('ortunity') || // This suggests broken text
-      /[a-z]\/p[A-Z]/.test(result) || // Text merged with /p
-      /^p[A-Z]/.test(result.trim()) // Paragraph starting with pCapital
-  ) {
+  // If we still have malformed patterns after all processing, fall back to plain text
+  if (shouldConvertToPlainText(result)) {
     result = stripHTML(html);
   }
 
   return result;
+}
+
+function shouldConvertToPlainText(html: string): boolean {
+  const malformedPatterns = [
+    /ullip/,
+    /\/p(?!>)/,  // /p not followed by >
+    /\blip(?!\s|>)/,  // lip not followed by space or >
+    /p\s+[A-Z]/,  // p followed by space and capital letter
+    /\/ulp/,
+    /oppopportunity/,  // doubled words
+    /[a-z]\/p[A-Z]/,  // text/pText pattern
+  ];
+
+  return malformedPatterns.some(pattern => pattern.test(html));
+}
+
+function fixMalformedHTML(html: string): string {
+  return html
+    // Fix specific known malformed patterns
+    .replace(/ullipQuery successful\/p\/li\/ul/g, '<ul><li>Query successful</li></ul>')
+    .replace(/ullip/g, '<ul><li>')
+    .replace(/\/li\/ul/g, '</li></ul>')
+    .replace(/\/ulp/g, '</ul>')
+    .replace(/lip/g, '<li>')
+
+    // Fix paragraph patterns
+    .replace(/\/pp/g, '</p><p>')
+    .replace(/\bp\s+([A-Z])/g, '<p>$1')  // p followed by space and capital
+    .replace(/([.!?])\s*\/p\s*/g, '$1</p>')  // sentence followed by /p
+    .replace(/\/p([A-Z])/g, '</p><p>$1')  // /p followed by capital letter
+
+    // Fix broken words
+    .replace(/oppopportunity/g, 'opportunity')
+    .replace(/farmho$/g, 'farmhouse')  // Cut off words
+
+    // Clean up extra spaces and malformed tags
+    .replace(/\s+/g, ' ')
+    .replace(/(<\/?)p\s+/g, '$1p')  // Remove spaces after opening tags
+    .trim();
 }
 
 export function stripHTML(html: string): string {
@@ -100,34 +89,50 @@ export function stripHTML(html: string): string {
   }
 
   let text = html
-    // Remove HTML tags
+    // Remove HTML tags first
     .replace(/<[^>]*>/g, ' ')
-    // Fix broken patterns before cleaning
-    .replace(/ullipQuery successful\/p\/li\/ul/g, 'Query successful. ')
-    .replace(/ullip/g, '• ')
-    .replace(/\/p\/li/g, '. ')
-    .replace(/\/p/g, '. ')
-    .replace(/li\/ul/g, '. ')
-    // Clean up entities
+
+    // Fix specific malformed patterns
+    .replace(/ullipQuery successful\/p\/li\/ul/g, 'Query successful')
+    .replace(/ullip/g, '\n• ')
+    .replace(/lip/g, '\n• ')
+    .replace(/\/ulp/g, '')
+    .replace(/\/p\/li/g, '')
+    .replace(/\/p/g, '')
+    .replace(/li\/ul/g, '')
+
+    // Fix specific text patterns we see
+    .replace(/p\s+([A-Z])/g, '\n\n$1')  // "p Zamin" -> paragraph break + "Zamin"
+    .replace(/\.\s*p\s+/g, '.\n\n')      // ". p " -> paragraph break
+    .replace(/:\s*\.\s*/g, ':\n')        // ": ." -> colon + line break
+
+    // Fix broken words and duplicates
+    .replace(/oppopportunity/g, 'opportunity')
+    .replace(/farmho\b/g, 'farmhouse')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space between merged words
+
+    // Clean up HTML entities
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    // Fix broken words
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between merged words
-    .replace(/ortunity/g, 'opportunity') // Fix specific broken word
-    // Clean up spacing
-    .replace(/\s+/g, ' ')
-    .replace(/\.\s*\./g, '.')
-    .replace(/\s*\.\s*/g, '. ')
+
+    // Clean up punctuation and spacing
+    .replace(/\s*\.\s*\./g, '.')         // Remove double periods
+    .replace(/\s*\.\s*/g, '. ')          // Normalize period spacing
+    .replace(/\s+/g, ' ')                // Normalize white space
+    .replace(/\s*\n\s*/g, '\n')          // Clean line breaks
+    .replace(/\n{3,}/g, '\n\n')          // Max 2 consecutive line breaks
     .trim();
 
-  // Format as simple paragraphs by adding line breaks after sentences
+  // Format into proper paragraphs
   text = text
-    .replace(/\.\s+([A-Z])/g, '.\n\n$1') // Add paragraph breaks after sentences
-    .replace(/:\s*([A-Z])/g, ':\n\n$1') // Add breaks after colons
+    .replace(/\.\s*([A-Z])/g, '.\n\n$1')  // Paragraph breaks after sentences
+    .replace(/:\s*([A-Z])/g, ':\n\n$1')   // Paragraph breaks after colons
+    .replace(/\n•/g, '\n\n•')             // Ensure bullet points have space above
+    .replace(/\n\n\n+/g, '\n\n')          // Clean up extra line breaks
     .trim();
 
   return text;
