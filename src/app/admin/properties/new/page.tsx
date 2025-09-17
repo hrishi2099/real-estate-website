@@ -3,6 +3,12 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
+  ssr: false,
+  loading: () => <div className="border border-gray-300 rounded-lg p-3 h-32 bg-gray-50 animate-pulse">Loading editor...</div>
+});
 
 interface ValidationError {
   path: (string | number)[];
@@ -337,13 +343,11 @@ export default function NewProperty() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-              placeholder="Describe the property..."
+            <RichTextEditor
+              content={formData.description}
+              onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
+              placeholder="Describe the property... Use the toolbar above to format text, add lists, etc."
+              className="w-full"
             />
           </div>
         </div>

@@ -208,18 +208,10 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">About This Property</h3>
         {property.description ? (
           <div className="bg-gray-50 rounded-lg p-6">
-            <div className="prose prose-gray prose-sm sm:prose-base max-w-none">
-              {property.description.split('\n\n').map((paragraph, index) => (
-                <p key={index} className="mb-4 text-gray-700 leading-relaxed last:mb-0">
-                  {paragraph.split('\n').map((line, lineIndex) => (
-                    <span key={lineIndex}>
-                      {line}
-                      {lineIndex < paragraph.split('\n').length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              ))}
-            </div>
+            <div
+              className="prose prose-gray prose-sm sm:prose-base max-w-none"
+              dangerouslySetInnerHTML={{ __html: property.description }}
+            />
           </div>
         ) : (
           <div className="bg-gray-50 rounded-lg p-4">
