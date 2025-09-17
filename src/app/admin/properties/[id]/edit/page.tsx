@@ -303,6 +303,21 @@ export default function EditProperty() {
 
       const allImageUrls = [...formData.existingImages.map(img => img.url), ...newImageUrls];
 
+      // Clean the description to remove any problematic content
+      let cleanDescription = formData.description;
+      if (cleanDescription) {
+        // Remove empty HTML tags and clean up
+        cleanDescription = cleanDescription
+          .replace(/<p><\/p>/g, '')
+          .replace(/<p>\s*<\/p>/g, '')
+          .trim();
+
+        // If only empty HTML remains, set to undefined
+        if (cleanDescription === '<p></p>' || cleanDescription === '') {
+          cleanDescription = undefined;
+        }
+      }
+
       const propertyData = {
         title: formData.title.trim(),
         price: Number(formData.price),
@@ -313,12 +328,14 @@ export default function EditProperty() {
         bathrooms: Number(formData.bathrooms),
         features: formData.features,
         isFeatured: formData.isFeatured,
-        description: formData.description.trim() || undefined,
+        description: cleanDescription,
         latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
         longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
         area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
         images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
       };
+
+      console.log('Description being sent:', cleanDescription);
 
       const response = await api.updateProperty(propertyId, propertyData);
       if (response?.data) {

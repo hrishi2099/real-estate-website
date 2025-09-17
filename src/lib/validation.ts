@@ -53,6 +53,22 @@ export function createSecureTextSchema(minLength: number, maxLength: number, fie
     .transform(sanitizeText);
 }
 
+// HTML-safe validation for rich text content
+export function createSecureHTMLSchema(minLength: number, maxLength: number, fieldName: string) {
+  return z.string()
+    .min(minLength, `${fieldName} must be at least ${minLength} characters`)
+    .max(maxLength, `${fieldName} must not exceed ${maxLength} characters`)
+    .refine((value) => {
+      // Allow basic HTML tags but still check for SQL injection in the text content
+      const textContent = value.replace(/<[^>]*>/g, '');
+      return !containsSqlInjection(textContent);
+    }, `${fieldName} contains potentially dangerous content`)
+    .refine((value) => {
+      // Check for dangerous script tags and events
+      return !/<script|javascript:|on\w+\s*=/i.test(value);
+    }, `${fieldName} contains potentially dangerous scripts`);
+}
+
 // Common validation schemas with enhanced security
 export const emailSchema = z.string()
   .email('Invalid email format')
@@ -103,7 +119,7 @@ export const loginSchema = z.object({
 // Property validation schemas
 export const createPropertySchema = z.object({
   title: createSecureTextSchema(1, 200, 'Title'),
-  description: createSecureTextSchema(0, 2000, 'Description').optional(),
+  description: createSecureHTMLSchema(0, 5000, 'Description').optional(), // Increased limit for HTML content
   price: z.number().min(0, 'Price must be positive'),
   location: createSecureTextSchema(1, 200, 'Location'),
   type: z.enum(['AGRICULTURAL_LAND', 'NA_LAND']),
