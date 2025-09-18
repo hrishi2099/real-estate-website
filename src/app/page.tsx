@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import FeaturedProperties from "@/components/FeaturedProperties";
 import PropertyStats from "@/components/PropertyStats";
 import Services from "@/components/Services";
+import PastEventsShowcase from "@/components/PastEventsShowcase";
 import { getFeaturedProperties } from "@/lib/properties";
 import type { Metadata } from "next";
 
@@ -21,6 +22,7 @@ export default async function Home() {
       <Hero />
       <FeaturedProperties properties={properties} isFeatured={isFeatured} />
       <PropertyStats />
+      <PastEventsShowcase />
       <Services />
     </div>
   );
