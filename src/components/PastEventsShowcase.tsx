@@ -64,11 +64,11 @@ export default function PastEventsShowcase() {
             </svg>
             {sectionInfo.subtitle}
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl md:text-6xl font-heading font-bold text-gray-900 mb-6">
             {sectionInfo.title.split(' ')[0]}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> {sectionInfo.title.split(' ').slice(1).join(' ')}</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-sans">
             {sectionInfo.description}
           </p>
         </div>

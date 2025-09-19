@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Montserrat, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import "../styles/editor.css";
 import Header from "@/components/Header";
@@ -12,8 +12,22 @@ import AnalyticsScripts from "@/components/AnalyticsScripts";
 import StructuredData from "@/components/StructuredData";
 import { Suspense } from "react";
 
-const inter = Inter({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-source-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -71,7 +85,7 @@ export default async function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className={`${inter.className} antialiased force-light-mode`}>
+      <body className={`${sourceSans.variable} ${montserrat.variable} ${playfairDisplay.variable} font-sans antialiased force-light-mode`}>
         <StructuredData data={organizationSchema} />
         <StructuredData data={websiteSchema} />
         {settings && <AnalyticsScripts settings={settings} />}
