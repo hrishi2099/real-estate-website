@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import memorableMomentsData from "@/data/memorableMoments.json";
 
 interface EventPhoto {
   id: string;
@@ -12,68 +13,26 @@ interface EventPhoto {
   category: string;
 }
 
-const pastEvents: EventPhoto[] = [
-  {
-    id: "1",
-    url: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Grand Opening Ceremony",
-    date: "March 2024",
-    description: "Celebrating the launch of our newest residential project with investors and community leaders",
-    category: "Launch Event"
-  },
-  {
-    id: "2",
-    url: "https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Property Exhibition",
-    date: "February 2024",
-    description: "Showcasing premium land parcels and development opportunities to prospective buyers",
-    category: "Exhibition"
-  },
-  {
-    id: "3",
-    url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Client Appreciation Gala",
-    date: "January 2024",
-    description: "Honoring our valued clients and celebrating successful property investments",
-    category: "Appreciation"
-  },
-  {
-    id: "4",
-    url: "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Industry Summit",
-    date: "December 2023",
-    description: "Leading discussions on sustainable land development and future market trends",
-    category: "Summit"
-  },
-  {
-    id: "5",
-    url: "https://images.unsplash.com/photo-1515378791036-0648a814c963?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Community Meetup",
-    date: "November 2023",
-    description: "Connecting with local residents and stakeholders to discuss upcoming developments",
-    category: "Community"
-  },
-  {
-    id: "6",
-    url: "https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    title: "Award Ceremony",
-    date: "October 2023",
-    description: "Receiving recognition for excellence in sustainable real estate development",
-    category: "Recognition"
-  }
-];
+interface SectionInfo {
+  title: string;
+  subtitle: string;
+  description: string;
+}
 
 export default function PastEventsShowcase() {
   const [selectedEvent, setSelectedEvent] = useState<EventPhoto | null>(null);
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  const pastEvents: EventPhoto[] = memorableMomentsData.events;
+  const sectionInfo: SectionInfo = memorableMomentsData.sectionInfo;
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % pastEvents.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [pastEvents.length]);
 
   const handleEventClick = (event: EventPhoto) => {
     setSelectedEvent(event);
@@ -103,15 +62,14 @@ export default function PastEventsShowcase() {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Our Journey
+            {sectionInfo.subtitle}
           </div>
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Memorable
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Moments</span>
+            {sectionInfo.title.split(' ')[0]}
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> {sectionInfo.title.split(' ').slice(1).join(' ')}</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Explore the highlights of our journey through captivating moments that showcase our commitment to excellence,
-            community engagement, and industry leadership.
+            {sectionInfo.description}
           </p>
         </div>
 

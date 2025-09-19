@@ -1,0 +1,57 @@
+{
+  "sectionInfo": {
+    "title": "Memorable Moments",
+    "subtitle": "Our Journey",
+    "description": "Explore the highlights of our journey through captivating moments that showcase our commitment to excellence, community engagement, and industry leadership."
+  },
+  "events": [
+    {
+      "id": "1",
+      "url": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Grand Opening Ceremony",
+      "date": "March 2024",
+      "description": "Celebrating the launch of our newest residential project with investors and community leaders",
+      "category": "Launch Event"
+    },
+    {
+      "id": "2",
+      "url": "https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Property Exhibition",
+      "date": "February 2024",
+      "description": "Showcasing premium land parcels and development opportunities to prospective buyers",
+      "category": "Exhibition"
+    },
+    {
+      "id": "3",
+      "url": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Client Appreciation Gala",
+      "date": "January 2024",
+      "description": "Honoring our valued clients and celebrating successful property investments",
+      "category": "Appreciation"
+    },
+    {
+      "id": "4",
+      "url": "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Industry Summit",
+      "date": "December 2023",
+      "description": "Leading discussions on sustainable land development and future market trends",
+      "category": "Summit"
+    },
+    {
+      "id": "5",
+      "url": "https://images.unsplash.com/photo-1515378791036-0648a814c963?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Community Meetup",
+      "date": "November 2023",
+      "description": "Connecting with local residents and stakeholders to discuss upcoming developments",
+      "category": "Community"
+    },
+    {
+      "id": "6",
+      "url": "https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "title": "Award Ceremony",
+      "date": "October 2023",
+      "description": "Receiving recognition for excellence in sustainable real estate development",
+      "category": "Recognition"
+    }
+  ]
+}
