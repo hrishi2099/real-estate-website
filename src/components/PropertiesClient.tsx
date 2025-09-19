@@ -9,6 +9,7 @@ import {
   trackPropertyListInteraction,
 } from "@/lib/tracking";
 import { getPropertyImageUrl } from "@/lib/imageUtils";
+import { getPropertyTypeLabel } from "@/lib/propertyFeatures";
 const ExportButton = dynamic(() => import('@/components/ExportButton'), { ssr: false });
 
 interface Property {
@@ -315,7 +316,7 @@ export default function PropertiesClient() {
                           ? 'bg-green-500 text-white'
                           : 'bg-blue-500 text-white'
                       }`}>
-                        {property.type === 'AGRICULTURAL_LAND' ? 'Agricultural' : 'NA Land'}
+                        {getPropertyTypeLabel(property.type)}
                       </span>
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
                         property.status === 'SOLD'
