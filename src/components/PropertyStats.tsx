@@ -123,10 +123,10 @@ export default function PropertyStats() {
           },
           {
             id: 2,
-            number: 5.2,
-            label: "Million Sq Ft Sold",
+            number: 90300,
+            label: "Acres of Land Sold",
             prefix: "",
-            suffix: "M+",
+            suffix: "+",
             icon: "📏",
             description: "Vast expanse of land successfully transferred to our clients."
           },
