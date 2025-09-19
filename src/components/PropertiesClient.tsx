@@ -327,8 +327,8 @@ export default function PropertiesClient() {
                       </span>
                     </div>
                     {property.status === 'SOLD' && (
-                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                        <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-12 border-2 border-white shadow-lg">
+                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                        <div className="bg-red-600/90 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-12 border-2 border-white shadow-lg">
                           SOLD OUT
                         </div>
                       </div>
