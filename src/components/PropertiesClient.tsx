@@ -307,7 +307,7 @@ export default function PropertiesClient() {
                       src={getPropertyImage(property)}
                       alt={`${property.title} - ${property.type} in ${property.location}`}
                       fill
-                      className={`object-cover transition-transform duration-300 group-hover:scale-105 ${property.status === 'SOLD' ? 'grayscale opacity-75' : ''}`}
+                      className={`object-cover transition-transform duration-300 group-hover:scale-105 ${property.status === 'SOLD' ? 'grayscale' : ''}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">

@@ -59,7 +59,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                     alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className={`object-cover ${property.status === 'SOLD' ? 'opacity-75 grayscale' : ''}`}
+                    className={`object-cover ${property.status === 'SOLD' ? 'grayscale' : ''}`}
                   />
                   <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-2">
                     <span className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium ${
