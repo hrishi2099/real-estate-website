@@ -1,6 +1,7 @@
 import OptimizedImage from "./OptimizedImage";
 import Link from "next/link";
 import { getPropertyImageUrl } from "@/lib/imageUtils";
+import { getPropertyTypeLabel } from "@/lib/propertyFeatures";
 
 interface Property {
   id: string;
@@ -61,8 +62,12 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                     className={`object-cover ${property.status === 'SOLD' ? 'opacity-75 grayscale' : ''}`}
                   />
                   <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-2">
-                    <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {property.type}
+                    <span className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium ${
+                      property.type === 'AGRICULTURAL_LAND'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {getPropertyTypeLabel(property.type)}
                     </span>
                     {property.status === 'SOLD' && (
                       <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-bold bg-red-600 text-white">
