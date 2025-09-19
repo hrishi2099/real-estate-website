@@ -88,6 +88,7 @@ export default function PropertyStats() {
   const [stats, setStats] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     setIsHydrated(true);
@@ -115,11 +116,11 @@ export default function PropertyStats() {
         setStats([
           {
             id: 1,
-            number: 250,
-            label: "Properties Sold",
-            suffix: "+",
-            icon: "🏠",
-            description: "Successfully closed deals and happy new landowners."
+            number: 0,
+            label: "Transparent Deals",
+            suffix: "",
+            icon: "🤝",
+            description: "Every transaction built on trust, clarity, and complete transparency."
           },
           {
             id: 2,
@@ -195,6 +196,38 @@ export default function PropertyStats() {
     };
   }, []);
 
+  // Auto-flip animation effect
+  useEffect(() => {
+    if (!isVisible || loading) return;
+
+    const flipInterval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * stats.length);
+      setFlippedCards(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(randomIndex)) {
+          newSet.delete(randomIndex);
+        } else {
+          newSet.add(randomIndex);
+        }
+        return newSet;
+      });
+    }, 3000); // Flip a random card every 3 seconds
+
+    return () => clearInterval(flipInterval);
+  }, [isVisible, loading, stats.length]);
+
+  const handleCardClick = (index: number) => {
+    setFlippedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div id="property-stats" className="py-8 sm:py-12 lg:py-16 bg-blue-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -222,33 +255,64 @@ export default function PropertyStats() {
             stats.map((stat, index) => (
               <div
                 key={stat.id}
-                className={`text-center p-3 sm:p-4 lg:p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-500 hover:scale-105 hover:bg-white/20 ${
-                  isVisible 
-                    ? 'translate-y-0 opacity-100' 
+                className={`flip-card cursor-pointer transform transition-all duration-500 ${
+                  isVisible
+                    ? 'translate-y-0 opacity-100'
                     : 'translate-y-8 opacity-0'
                 }`}
                 style={{
-                  transitionDelay: `${index * 100}ms`
+                  transitionDelay: `${index * 100}ms`,
+                  perspective: '1000px'
                 }}
+                onClick={() => handleCardClick(index)}
               >
-                <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-4">{stat.icon}</div>
-                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 sm:mb-2">
-                  {isVisible && isHydrated ? (
-                    <CountUp 
-                      end={stat.number} 
-                      prefix={stat.prefix || ""} 
-                      suffix={stat.suffix}
-                      duration={2000 + index * 200}
-                    />
-                  ) : (
-                    <span>{stat.prefix || ""}0{stat.suffix}</span>
-                  )}
-                </div>
-                <div className="text-xs sm:text-sm lg:text-lg font-semibold text-blue-100 mb-1 sm:mb-2">
-                  {stat.label}
-                </div>
-                <div className="text-xs sm:text-sm text-blue-200 hidden sm:block">
-                  {stat.description}
+                <div
+                  className={`flip-card-inner relative w-full h-full transition-transform duration-700 ${
+                    flippedCards.has(index) ? 'rotate-y-180' : ''
+                  }`}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* Front Side */}
+                  <div
+                    className="flip-card-front absolute w-full h-full backface-hidden text-center p-3 sm:p-4 lg:p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 hover:bg-white/20"
+                    style={{ backfaceVisibility: 'hidden' }}
+                  >
+                    <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-4">{stat.icon}</div>
+                    <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 sm:mb-2">
+                      {isVisible && isHydrated && stat.number > 0 ? (
+                        <CountUp
+                          end={stat.number}
+                          prefix={stat.prefix || ""}
+                          suffix={stat.suffix}
+                          duration={2000 + index * 200}
+                        />
+                      ) : (
+                        <span>{stat.prefix || ""}{stat.number > 0 ? '0' : '✓'}{stat.suffix}</span>
+                      )}
+                    </div>
+                    <div className="text-xs sm:text-sm lg:text-lg font-semibold text-blue-100 mb-1 sm:mb-2">
+                      {stat.label}
+                    </div>
+                  </div>
+
+                  {/* Back Side */}
+                  <div
+                    className="flip-card-back absolute w-full h-full backface-hidden text-center p-3 sm:p-4 lg:p-6 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm border border-white/30"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)'
+                    }}
+                  >
+                    <div className="flex flex-col justify-center items-center h-full">
+                      <div className="text-3xl sm:text-4xl mb-3">{stat.icon}</div>
+                      <div className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+                        {stat.description}
+                      </div>
+                      <div className="mt-2 text-xs text-blue-200 opacity-75">
+                        Click to flip back
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))
@@ -280,6 +344,55 @@ export default function PropertyStats() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .flip-card {
+          background-color: transparent;
+          height: 200px;
+          perspective: 1000px;
+        }
+
+        .flip-card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          transition: transform 0.7s;
+          transform-style: preserve-3d;
+        }
+
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          border-radius: 0.5rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .flip-card-back {
+          transform: rotateY(180deg);
+        }
+
+        @media (min-width: 640px) {
+          .flip-card {
+            height: 220px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .flip-card {
+            height: 240px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
