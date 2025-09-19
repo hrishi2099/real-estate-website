@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import dynamic from 'next/dynamic';
+import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -34,22 +35,19 @@ export default function NewProperty() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const propertyTypes = [
-    { value: 'AGRICULTURAL_LAND', label: 'Agricultural Land' },
-    { value: 'NA_LAND', label: 'NA Land' }
+    { value: 'AGRICULTURAL_LAND', label: getPropertyTypeLabel('AGRICULTURAL_LAND') },
+    { value: 'NA_LAND', label: getPropertyTypeLabel('NA_LAND') }
   ];
 
-  const availableFeatures = [
-    'Water Connection', 'Electricity Connection', 'Road Access', 
-    'Boundary Wall', 'Clear Title', 'Approved Layout',
-    'Corner Plot', 'Near Highway', 'Fertile Soil',
-    'Irrigation Facility', 'Tree Plantation', 'Gated Community'
-  ];
+  const availableFeatures = getFeaturesByPropertyType(formData.type);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Clear features when property type changes
+      ...(name === 'type' ? { features: [] } : {})
     }));
   };
 
@@ -353,21 +351,50 @@ export default function NewProperty() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Features</h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {availableFeatures.map(feature => (
-              <label key={feature} className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.features.includes(feature)}
-                  onChange={() => handleFeatureToggle(feature)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-                />
-                <span className="text-sm text-gray-700">{feature}</span>
-              </label>
-            ))}
-          </div>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">
+            Features for {getPropertyTypeLabel(formData.type)}
+          </h2>
+
+          {availableFeatures.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {availableFeatures.map(feature => (
+                <label key={feature} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.features.includes(feature)}
+                    onChange={() => handleFeatureToggle(feature)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                  />
+                  <span className="text-sm text-gray-700">{feature}</span>
+                </label>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">Select a property type to see available features</p>
+          )}
+
+          {formData.features.length > 0 && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800 font-medium">Selected Features:</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.features.map(feature => (
+                  <span
+                    key={feature}
+                    className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                  >
+                    {feature}
+                    <button
+                      type="button"
+                      onClick={() => handleFeatureToggle(feature)}
+                      className="ml-1 text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
