@@ -121,6 +121,7 @@ export const createPropertySchema = z.object({
   title: createSecureTextSchema(1, 200, 'Title'),
   description: createSecureHTMLSchema(0, 5000, 'Description').optional(), // Increased limit for HTML content
   price: z.number().min(0, 'Price must be positive'),
+  pricePerSqft: z.number().min(0, 'Price per sqft must be positive').optional(),
   location: createSecureTextSchema(1, 200, 'Location'),
   type: z.enum(['AGRICULTURAL_LAND', 'NA_LAND']),
   status: z.enum(['ACTIVE', 'SOLD', 'PENDING', 'INACTIVE']).default('ACTIVE'),

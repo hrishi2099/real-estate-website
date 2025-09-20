@@ -65,6 +65,7 @@ export async function getProperties(options: GetPropertiesOptions = {}) {
     const serializedProperties = properties.map((p) => ({
       ...p,
       price: p.price.toNumber(),
+      pricePerSqft: p.pricePerSqft?.toNumber(),
       area: p.area?.toNumber(),
     }));
 
@@ -124,6 +125,7 @@ export const getFeaturedProperties = unstable_cache(
     const serializedProperties = properties.map((p) => ({
       ...p,
       price: p.price.toNumber(),
+      pricePerSqft: p.pricePerSqft?.toNumber(),
       area: p.area?.toNumber(),
     }));
 

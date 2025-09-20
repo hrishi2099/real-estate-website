@@ -16,6 +16,7 @@ interface Property {
   id: string;
   title: string;
   price: number;
+  pricePerSqft?: number;
   location: string;
   area?: number;
   type: string;
@@ -351,7 +352,7 @@ export default function PropertiesClient() {
                           {formatPrice(property.price)}
                         </p>
                         <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                          ₹{Math.round(property.price / (property.area || 1))} /sqft
+                          ₹{property.pricePerSqft || Math.round(property.price / (property.area || 1))} /sqft
                         </span>
                       </div>
                     </header>
