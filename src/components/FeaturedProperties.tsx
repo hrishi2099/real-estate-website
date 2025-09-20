@@ -53,7 +53,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
           <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {properties.map((property) => (
               <div key={property.id} className={`bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow rounded-lg ${property.status === 'SOLD' ? 'relative' : ''}`}>
-                <div className="relative h-40 sm:h-48">
+                <div className="relative h-40 sm:h-48 bg-gray-200">
                   <OptimizedImage
                     src={getPropertyImage(property)}
                     alt={`Image of ${property.title}, a ${property.type} in ${property.location}`}
@@ -76,8 +76,8 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                     )}
                   </div>
                   {property.status === 'SOLD' && (
-                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                      <div className="bg-red-600/90 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-12 border-2 border-white shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                      <div className="bg-red-600/95 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-12 border-2 border-white shadow-lg">
                         SOLD OUT
                       </div>
                     </div>
