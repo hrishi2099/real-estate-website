@@ -13,7 +13,7 @@ interface Ad {
   ctaLink: string;
   backgroundColor?: string;
   textColor?: string;
-  type: 'banner' | 'card' | 'featured';
+  type: 'BANNER' | 'CARD' | 'FEATURED' | 'banner' | 'card' | 'featured';
 }
 
 const defaultAds: Ad[] = [
@@ -97,9 +97,9 @@ export default function CreativeAdsSection({
     }
   };
 
-  const bannerAds = ads.filter(ad => ad.type === 'BANNER' || ad.type === 'banner');
-  const cardAds = ads.filter(ad => ad.type === 'CARD' || ad.type === 'card');
-  const featuredAds = ads.filter(ad => ad.type === 'FEATURED' || ad.type === 'featured');
+  const bannerAds = ads.filter(ad => ad.type.toUpperCase() === 'BANNER');
+  const cardAds = ads.filter(ad => ad.type.toUpperCase() === 'CARD');
+  const featuredAds = ads.filter(ad => ad.type.toUpperCase() === 'FEATURED');
 
   if (loading) {
     return (
