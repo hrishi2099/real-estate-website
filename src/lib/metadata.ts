@@ -83,11 +83,11 @@ export function generateMetadata(
 // Default metadata for the main layout
 export const defaultMetadata: Metadata = {
   title: {
-    default: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
-    template: "%s | Zaminseva Prime Pvt. Ltd."
+    default: "Zaminseva - Premium NA Plots & Farmhouse Land | Zaminseva Prime Pvt. Ltd.",
+    template: "%s | Zaminseva"
   },
-  description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
-  keywords: ["real estate", "properties", "homes", "luxury", "investment", "condos", "apartments", "villas", "buy", "sell"],
+  description: "Zaminseva - Your trusted partner for premium NA plots and farmhouse land investments. Discover exclusive real estate opportunities with Zaminseva Prime Pvt. Ltd.",
+  keywords: ["zaminseva", "Zaminseva Prime", "NA plots", "farmhouse land", "real estate", "properties", "investment", "agricultural land", "zaminseva.com"],
   authors: [{ name: "Zaminseva Prime Pvt. Ltd." }],
   creator: "Zaminseva Prime Pvt. Ltd.",
   publisher: "Zaminseva Prime Pvt. Ltd.",
@@ -103,10 +103,10 @@ export const defaultMetadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com",
-    siteName: "Zaminseva Prime Pvt. Ltd.",
-    title: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
-    description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://zaminseva.com",
+    siteName: "Zaminseva",
+    title: "Zaminseva - Premium NA Plots & Farmhouse Land",
+    description: "Zaminseva - Your trusted partner for premium NA plots and farmhouse land investments. Discover exclusive real estate opportunities with Zaminseva Prime Pvt. Ltd.",
     images: [
       {
         url: "/og-image.jpg",
@@ -118,8 +118,8 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Zaminseva Prime Pvt. Ltd. - NA Plots & Farmhouse Land",
-    description: "Zaminseva Prime Pvt. Ltd. - Your trusted partner for NA plots and farmhouse land. We specialize in providing premium properties for investment and personal use.",
+    title: "Zaminseva - Premium NA Plots & Farmhouse Land",
+    description: "Zaminseva - Your trusted partner for premium NA plots and farmhouse land investments. Discover exclusive real estate opportunities.",
     images: ["/og-image.jpg"],
     creator: "@zaminseva",
   },
@@ -134,8 +134,8 @@ export const defaultMetadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://zaminseva.com"),
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://zaminseva.com",
   },
 };

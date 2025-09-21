@@ -59,14 +59,25 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": settings?.companyName || "Zaminseva Prime Pvt. Ltd.",
+    "alternateName": "Zaminseva",
     "url": siteUrl,
     "logo": settings?.logoUrl,
+    "description": "Zaminseva - Premium real estate company specializing in NA plots and farmhouse land investments",
+    "foundingDate": "2024",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "India",
+      "addressCountry": "IN"
+    },
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": settings?.phone,
       "contactType": "Customer Service",
       "email": settings?.email
-    }
+    },
+    "sameAs": [
+      "https://zaminseva.com"
+    ]
   };
 
   const websiteSchema = {

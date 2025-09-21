@@ -19,11 +19,11 @@ export default function Hero() {
           <main className="mt-6 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
             <div className="text-center sm:text-center lg:text-left">
               <div className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl lg:text-6xl">
-                <h1 className="block font-heading">Find Your Perfect Plot</h1>
+                <h1 className="block font-heading">Find Your Perfect Plot with Zaminseva</h1>
                 <p className="block text-blue-600 mt-1 font-display">Invest in Your Future</p>
               </div>
               <p className="mt-3 text-sm text-gray-500 sm:mt-5 sm:text-base md:text-lg sm:max-w-xl sm:mx-auto lg:mx-0 lg:text-xl leading-relaxed font-sans">
-                Discover a wide range of premium properties and exclusive investment opportunities in the most sought-after locations. Whether you're looking for a place to call home or a strategic investment, our curated collection has something for everyone.
+                Zaminseva offers premium NA plots and farmhouse land investments in the most sought-after locations. Whether you're looking for agricultural land or investment opportunities, Zaminseva's curated collection has the perfect property for you.
               </p>
               <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
                 <Link

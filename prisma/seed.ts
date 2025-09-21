@@ -87,7 +87,7 @@ async function main() {
     update: {},
     create: {
       id: 'default',
-      companyName: 'Premium Real Estate',
+      companyName: 'Zaminseva Prime Pvt. Ltd.',
       address: '123 Business District, City Center',
       phone: '+1 (555) 123-4567',
       email: 'info@premiumrealestate.com',
