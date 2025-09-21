@@ -49,6 +49,7 @@ model User {
   SmartSegment             SmartSegment[]
   manager                  User?                @relation("ManagerSubordinate", fields: [managerId], references: [id])
   subordinates             User[]               @relation("ManagerSubordinate")
+  ads                      Ad[]
 
   @@index([managerId], map: "users_managerId_fkey")
   @@map("users")
@@ -811,4 +812,37 @@ enum AutomationTrigger {
   BIRTHDAY
   ANNIVERSARY
   CUSTOM_EVENT
+}
+
+model Ad {
+  id              String    @id @default(cuid())
+  title           String
+  subtitle        String?
+  description     String    @db.Text
+  imageUrl        String?
+  ctaText         String
+  ctaLink         String
+  backgroundColor String?
+  textColor       String?
+  type            AdType    @default(CARD)
+  isActive        Boolean   @default(true)
+  displayOrder    Int       @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  clickCount      Int       @default(0)
+  impressionCount Int       @default(0)
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  creator         User      @relation(fields: [createdBy], references: [id])
+
+  @@index([type, isActive, displayOrder])
+  @@index([startDate, endDate])
+  @@map("ads")
+}
+
+enum AdType {
+  BANNER
+  CARD
+  FEATURED
 }
