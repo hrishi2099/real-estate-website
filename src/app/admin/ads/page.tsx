@@ -35,6 +35,7 @@ export default function AdsManagement() {
   const router = useRouter();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState({
     type: '',
     active: ''
@@ -51,6 +52,7 @@ export default function AdsManagement() {
 
   const fetchAds = async () => {
     try {
+      setError(null);
       const params = new URLSearchParams();
       if (filter.type) params.append('type', filter.type);
       if (filter.active) params.append('active', filter.active);
@@ -59,9 +61,13 @@ export default function AdsManagement() {
       if (response.ok) {
         const data = await response.json();
         setAds(data);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        setError(`Failed to fetch ads: ${response.status} - ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error fetching ads:", error);
+      setError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -109,6 +115,50 @@ export default function AdsManagement() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        {/* Error Header */}
+        <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 -mx-6 -mt-6 px-6 py-8 mb-8">
+          <div className="text-white">
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="bg-white/20 p-2 rounded-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold">Error Loading Ads</h1>
+            </div>
+            <p className="text-red-100 text-lg">Something went wrong while loading the ads management page</p>
+          </div>
+        </div>
+
+        {/* Error Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-red-200 p-8">
+          <div className="text-center">
+            <div className="text-red-600 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Application Error</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setLoading(true);
+                fetchAds();
+              }}
+              className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

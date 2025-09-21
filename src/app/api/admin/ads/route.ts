@@ -7,15 +7,22 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("GET /api/admin/ads - Starting request");
+
     const session = await getServerSession(authOptions);
+    console.log("Session:", session ? { userId: session.user?.id, role: session.user?.role } : null);
+
     if (!session?.user || session.user.role !== "ADMIN") {
+      console.log("Unauthorized access attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const isActive = searchParams.get('active');
+    console.log("Search params:", { type, isActive });
 
+    console.log("Attempting to fetch ads from database...");
     const ads = await prisma.ad.findMany({
       where: {
         ...(type && { type: type as any }),
@@ -36,11 +43,21 @@ export async function GET(request: NextRequest) {
       ]
     });
 
+    console.log(`Successfully fetched ${ads.length} ads`);
     return NextResponse.json(ads);
   } catch (error) {
     console.error("Error fetching ads:", error);
+    console.error("Error details:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+
     return NextResponse.json(
-      { error: "Failed to fetch ads" },
+      {
+        error: "Failed to fetch ads",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
