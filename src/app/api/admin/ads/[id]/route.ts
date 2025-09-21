@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getUserFromRequest } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -10,8 +9,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true }
+    });
+
+    if (!user || user.status !== "ACTIVE" || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -48,8 +56,17 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true }
+    });
+
+    if (!user || user.status !== "ACTIVE" || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -114,8 +131,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true }
+    });
+
+    if (!user || user.status !== "ACTIVE" || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

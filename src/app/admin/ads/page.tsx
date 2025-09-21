@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 interface Ad {
@@ -31,7 +31,7 @@ interface Ad {
 }
 
 export default function AdsManagement() {
-  const { data: session, status } = useSession();
+  const { user, isAdmin, isLoading, isHydrated } = useAuth();
   const router = useRouter();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,13 +42,13 @@ export default function AdsManagement() {
   });
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (!session?.user || session.user.role !== "ADMIN") {
-      router.push("/admin");
+    if (!isHydrated || isLoading) return;
+    if (!user || !isAdmin) {
+      router.push("/login");
       return;
     }
     fetchAds();
-  }, [session, status, router, filter]);
+  }, [user, isAdmin, isLoading, isHydrated, router, filter]);
 
   const fetchAds = async () => {
     try {

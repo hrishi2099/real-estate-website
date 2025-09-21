@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getUserFromRequest } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -9,11 +8,24 @@ export async function GET(request: NextRequest) {
   try {
     console.log("GET /api/admin/ads - Starting request");
 
-    const session = await getServerSession(authOptions);
-    console.log("Session:", session ? { userId: session.user?.id, role: session.user?.role } : null);
+    const userPayload = getUserFromRequest(request);
+    console.log("User payload:", userPayload);
 
-    if (!session?.user || session.user.role !== "ADMIN") {
-      console.log("Unauthorized access attempt");
+    if (!userPayload) {
+      console.log("No authentication token found");
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Get user data to check role
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true }
+    });
+
+    console.log("User data:", user);
+
+    if (!user || user.status !== "ACTIVE" || user.role !== "ADMIN") {
+      console.log("Unauthorized access attempt - not admin or inactive");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -65,8 +77,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Get user data to check role
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true }
+    });
+
+    if (!user || user.status !== "ACTIVE" || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -109,7 +131,7 @@ export async function POST(request: NextRequest) {
         displayOrder: displayOrder ?? 0,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
-        createdBy: session.user.id
+        createdBy: userPayload.userId
       },
       include: {
         creator: {
