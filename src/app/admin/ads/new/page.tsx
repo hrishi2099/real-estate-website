@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function NewAd() {
-  const { data: session } = useSession();
+  const { user, isAdmin, isLoading, isHydrated } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,6 +24,14 @@ export default function NewAd() {
     startDate: '',
     endDate: ''
   });
+
+  useEffect(() => {
+    if (!isHydrated || isLoading) return;
+    if (!user || !isAdmin) {
+      router.push("/login");
+      return;
+    }
+  }, [user, isAdmin, isLoading, isHydrated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +67,23 @@ export default function NewAd() {
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
   };
+
+  // Show loading state while checking authentication
+  if (!isHydrated || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated/authorized
+  if (!user || !isAdmin) {
+    return null;
+  }
 
   return (
     <div className="space-y-8">
