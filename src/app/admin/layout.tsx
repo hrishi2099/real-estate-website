@@ -170,7 +170,7 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
       <div className="flex">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
@@ -188,25 +188,34 @@ export default function AdminLayout({
             desktopSidebarOpen ? "lg:w-64" : "lg:w-20"
           }`}
         >
-          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-200">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <h2
-                className={`text-xl font-bold text-gray-900 ${
-                  !desktopSidebarOpen && "hidden"
-                }`}
-              >
-                Admin Panel
-              </h2>
+          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-100 shadow-lg">
+            <div className="flex items-center flex-shrink-0 px-4 pb-4 border-b border-gray-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h2
+                  className={`text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent ${
+                    !desktopSidebarOpen && "hidden"
+                  }`}
+                >
+                  Admin Panel
+                </h2>
+              </div>
             </div>
-            <nav className="mt-8 flex-1 px-3 space-y-1">
+            <nav className="mt-6 flex-1 px-3 space-y-1">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="group flex items-center px-4 py-3 text-sm font-medium rounded-xl text-gray-600 hover:text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 transform hover:scale-[1.02] border border-transparent hover:border-blue-100"
                 >
-                  {item.icon}
-                  {desktopSidebarOpen && <span>{item.label}</span>}
+                  <div className="text-gray-400 group-hover:text-blue-600 transition-colors">
+                    {item.icon}
+                  </div>
+                  {desktopSidebarOpen && <span className="ml-3">{item.label}</span>}
                 </a>
               ))}
             </nav>
@@ -255,11 +264,11 @@ export default function AdminLayout({
             desktopSidebarOpen ? "lg:pl-64" : "lg:pl-20"
           }`}
         >
-          <header className="bg-white shadow-sm z-20 pt-16">
+          <header className="bg-white/80 backdrop-blur-sm shadow-sm z-20 pt-16 border-b border-gray-100">
             <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 lg:hidden"
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 lg:hidden transition-colors"
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -267,7 +276,7 @@ export default function AdminLayout({
               </button>
               <button
                 onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
-                className="hidden lg:block p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="hidden lg:block p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -276,8 +285,10 @@ export default function AdminLayout({
             </div>
           </header>
           {/* Page content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
-            {children}
+          <main className="flex-1 p-6 sm:p-8 lg:p-10">
+            <div className="bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-6 min-h-[calc(100vh-12rem)]">
+              {children}
+            </div>
           </main>
         </div>
       </div>
