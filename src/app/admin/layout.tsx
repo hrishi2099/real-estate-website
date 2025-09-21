@@ -171,7 +171,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
-      <div className="flex">
+      <div className="flex h-screen">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div
@@ -184,11 +184,11 @@ export default function AdminLayout({
 
         {/* Desktop sidebar */}
         <aside
-          className={`hidden lg:flex lg:flex-col lg:fixed lg:top-16 transition-all duration-300 z-30 ${
+          className={`hidden lg:flex lg:flex-col lg:fixed lg:top-16 lg:bottom-0 transition-all duration-300 z-30 ${
             desktopSidebarOpen ? "lg:w-64" : "lg:w-20"
           }`}
         >
-          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-100 shadow-lg">
+          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-100 shadow-lg h-full">
             <div className="flex items-center flex-shrink-0 px-4 pb-4 border-b border-gray-100">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -205,7 +205,7 @@ export default function AdminLayout({
                 </h2>
               </div>
             </div>
-            <nav className="mt-6 flex-1 px-3 space-y-1">
+            <nav className="mt-6 flex-1 px-3 space-y-1 pb-6">
               {navItems.map((item) => (
                 <a
                   key={item.href}
@@ -224,7 +224,7 @@ export default function AdminLayout({
 
         {/* Mobile sidebar */}
         <aside
-          className={`fixed top-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${
+          className={`fixed top-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden h-full ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -242,7 +242,7 @@ export default function AdminLayout({
                 </svg>
               </button>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto pb-6">
               {navItems.map((item) => (
                 <a
                   key={item.href}
@@ -260,11 +260,11 @@ export default function AdminLayout({
 
         {/* Main content */}
         <div
-          className={`flex flex-col flex-1 transition-all duration-300 ${
+          className={`flex flex-col flex-1 transition-all duration-300 h-screen overflow-hidden ${
             desktopSidebarOpen ? "lg:pl-64" : "lg:pl-20"
           }`}
         >
-          <header className="bg-white/80 backdrop-blur-sm shadow-sm z-20 pt-16 border-b border-gray-100">
+          <header className="bg-white/80 backdrop-blur-sm shadow-sm z-20 pt-16 border-b border-gray-100 flex-shrink-0">
             <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -285,8 +285,8 @@ export default function AdminLayout({
             </div>
           </header>
           {/* Page content */}
-          <main className="flex-1 p-6 sm:p-8 lg:p-10">
-            <div className="bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-6 min-h-[calc(100vh-12rem)]">
+          <main className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10 pb-20">
+            <div className="bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-6">
               {children}
             </div>
           </main>
