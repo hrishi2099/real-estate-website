@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import dynamic from 'next/dynamic';
 import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
+import KMLUploader from "@/components/KMLUploader";
+import { FEATURE_FLAGS } from "@/lib/features";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -30,7 +32,8 @@ export default function NewProperty() {
     type: 'AGRICULTURAL_LAND',
     area: '',
     features: [] as string[],
-    images: [] as File[]
+    images: [] as File[],
+    kmlFileUrl: '' as string
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -159,7 +162,8 @@ export default function NewProperty() {
         features: formData.features,
         status: 'ACTIVE' as 'ACTIVE' | 'SOLD' | 'PENDING' | 'INACTIVE',
         isFeatured: false,
-        images: imageUrls.map(url => ({ url, filename: url.split('/').pop()!, isPrimary: imageUrls.indexOf(url) === 0 }))
+        images: imageUrls.map(url => ({ url, filename: url.split('/').pop()!, isPrimary: imageUrls.indexOf(url) === 0 })),
+        kmlFileUrl: formData.kmlFileUrl && formData.kmlFileUrl.trim() ? formData.kmlFileUrl.trim() : undefined
       };
 
       console.log('Creating property with data:', propertyData);
@@ -473,6 +477,33 @@ export default function NewProperty() {
             </div>
           )}
         </div>
+
+        {/* KML File Upload - Only show if feature is enabled */}
+        {FEATURE_FLAGS.KML_UPLOAD_ENABLED && (
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">
+              Plot Boundaries (KML File)
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Upload a KML file to show detailed plot boundaries and property information in Google Earth view.
+            </p>
+            <KMLUploader
+              onUploadSuccess={(url) => {
+                setFormData(prev => ({ ...prev, kmlFileUrl: url }));
+              }}
+              onUploadError={(error) => {
+                console.error('KML upload error:', error);
+                alert(`KML upload failed: ${error}`);
+              }}
+            />
+            {formData.kmlFileUrl && (
+              <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                <p className="text-sm text-green-800 font-medium">✓ KML file uploaded successfully</p>
+                <p className="text-xs text-green-600 mt-1">File: {formData.kmlFileUrl.split('/').pop()}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end space-x-4">
           <button

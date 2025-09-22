@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
+import GoogleEarthViewer from "./GoogleEarthViewer";
 
 import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
 import { sanitizeHTML } from "@/lib/html-sanitizer";
+import { FEATURE_FLAGS } from "@/lib/features";
 
 interface PropertyDetailsProps {
   property: {
@@ -24,6 +26,7 @@ interface PropertyDetailsProps {
     bedrooms?: number;
     bathrooms?: number;
     yearBuilt?: number;
+    kmlFileUrl?: string | null;
     owner?: {
       id: string;
       name: string;
@@ -34,6 +37,7 @@ interface PropertyDetailsProps {
 
 export default function PropertyDetails({ property }: PropertyDetailsProps) {
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [mapView, setMapView] = useState<'standard' | 'earth'>('standard');
   const [enquiryForm, setEnquiryForm] = useState({
     name: "",
     email: "",
@@ -264,21 +268,73 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
       {/* Interactive Map */}
       {property.latitude && property.longitude && (
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Location & Property Boundaries</h3>
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <PropertyMap
-              latitude={property.latitude}
-              longitude={property.longitude}
-              propertyTitle={property.title}
-              className="h-64 sm:h-80 lg:h-96 w-full"
-            />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">Location & Property View</h3>
+            {FEATURE_FLAGS.GOOGLE_EARTH_ENABLED && (
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setMapView('standard')}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    mapView === 'standard'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  📍 Standard Map
+                </button>
+                <button
+                  onClick={() => setMapView('earth')}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    mapView === 'earth'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  🌍 Earth View
+                </button>
+              </div>
+            )}
           </div>
+
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            {mapView === 'standard' || !FEATURE_FLAGS.GOOGLE_EARTH_ENABLED ? (
+              <PropertyMap
+                latitude={property.latitude}
+                longitude={property.longitude}
+                propertyTitle={property.title}
+                className="h-64 sm:h-80 lg:h-96 w-full"
+              />
+            ) : (
+              <GoogleEarthViewer
+                latitude={property.latitude}
+                longitude={property.longitude}
+                propertyTitle={property.title}
+                kmlUrl={property.kmlFileUrl}
+                className="w-full"
+                height="384px"
+              />
+            )}
+          </div>
+
           <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">Map Features</h4>
+            <h4 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">
+              {mapView === 'earth' && FEATURE_FLAGS.GOOGLE_EARTH_ENABLED ? 'Earth View Features' : 'Map Features'}
+            </h4>
             <ul className="text-xs sm:text-sm text-blue-800 space-y-1">
-              <li>• Switch between Street, Satellite, and Terrain views</li>
-              <li>• Toggle property boundaries on/off</li>
-              <li>• Interactive map with zoom and pan controls</li>
+              {mapView === 'earth' && FEATURE_FLAGS.GOOGLE_EARTH_ENABLED ? (
+                <>
+                  <li>• 3D satellite view with terrain details</li>
+                  <li>• Interactive plot boundaries from KML data</li>
+                  <li>• Zoom, rotate, and tilt controls</li>
+                  {property.kmlFileUrl && <li>• 📊 Detailed plot information available</li>}
+                </>
+              ) : (
+                <>
+                  <li>• Switch between Street, Satellite, and Terrain views</li>
+                  <li>• Toggle property boundaries on/off</li>
+                  <li>• Interactive map with zoom and pan controls</li>
+                </>
+              )}
               <li className="hidden sm:block">• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
             </ul>
           </div>

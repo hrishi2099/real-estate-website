@@ -22,6 +22,7 @@
     "setup:hostinger": "npm install --production && npx prisma generate && npx prisma db push"
   },
   "dependencies": {
+    "@google/model-viewer": "^4.1.0",
     "@googlemaps/js-api-loader": "^1.16.10",
     "@googlemaps/react-wrapper": "^1.2.0",
     "@prisma/client": "^6.13.0",
