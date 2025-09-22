@@ -488,13 +488,10 @@ export default function NewProperty() {
               Upload a KML file to show detailed plot boundaries and property information in Google Earth view.
             </p>
             <KMLUploader
-              onUploadSuccess={(url) => {
+              onKMLUploaded={(url, content) => {
                 setFormData(prev => ({ ...prev, kmlFileUrl: url }));
               }}
-              onUploadError={(error) => {
-                console.error('KML upload error:', error);
-                alert(`KML upload failed: ${error}`);
-              }}
+              currentKMLUrl={formData.kmlFileUrl || undefined}
             />
             {formData.kmlFileUrl && (
               <div className="mt-4 p-3 bg-green-50 rounded-lg">
