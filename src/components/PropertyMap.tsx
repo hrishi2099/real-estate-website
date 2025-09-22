@@ -1,16 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-// Fix Leaflet marker icons - will be handled in useEffect
-
-// Dynamically import the map to avoid SSR issues
-const MapContainer = dynamic(() => import("react-leaflet").then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then(mod => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import("react-leaflet").then(mod => mod.Marker), { ssr: false });
-const Popup = dynamic(() => import("react-leaflet").then(mod => mod.Popup), { ssr: false });
-const Polygon = dynamic(() => import("react-leaflet").then(mod => mod.Polygon), { ssr: false });
+import { useEffect, useState, useRef, useCallback } from "react";
+import { Wrapper } from "@googlemaps/react-wrapper";
 
 interface PropertyMapProps {
   latitude: number;
@@ -20,58 +11,150 @@ interface PropertyMapProps {
   className?: string;
 }
 
-// Tile layer configurations
-const TILE_LAYERS = {
-  street: {
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  },
-  satellite: {
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-  },
-  terrain: {
-    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-  }
-};
+interface GoogleMapProps {
+  center: google.maps.LatLngLiteral;
+  zoom: number;
+  propertyTitle: string;
+  propertyBoundary?: [number, number][];
+  mapType: google.maps.MapTypeId;
+  showBoundaries: boolean;
+}
 
-export default function PropertyMap({ 
-  latitude, 
-  longitude, 
-  propertyTitle, 
+function GoogleMapComponent({
+  center,
+  zoom,
+  propertyTitle,
   propertyBoundary,
-  className = "h-96 w-full" 
-}: PropertyMapProps) {
-  const [isClient, setIsClient] = useState(false);
-  const [mapLayer, setMapLayer] = useState<'street' | 'satellite' | 'terrain'>('street');
-  const [showBoundaries, setShowBoundaries] = useState(true);
+  mapType,
+  showBoundaries
+}: GoogleMapProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<google.maps.Map>();
+  const [marker, setMarker] = useState<google.maps.Marker>();
+  const [polygon, setPolygon] = useState<google.maps.Polygon>();
+  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow>();
 
   useEffect(() => {
-    setIsClient(true);
-    
-    // Fix Leaflet marker icons
-    if (typeof window !== "undefined") {
-      import("leaflet").then((L) => {
-        delete (L as any).Icon.Default.prototype._getIconUrl;
-        (L as any).Icon.Default.mergeOptions({
-          iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-          iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-          shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-        });
+    if (ref.current && !map) {
+      const newMap = new window.google.maps.Map(ref.current, {
+        center,
+        zoom,
+        mapTypeId: mapType,
+        styles: [
+          {
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "on" }]
+          }
+        ]
       });
+      setMap(newMap);
     }
-  }, []);
+  }, [ref, map, center, zoom, mapType]);
 
-  if (!isClient) {
+  useEffect(() => {
+    if (map) {
+      map.setMapTypeId(mapType);
+    }
+  }, [map, mapType]);
+
+  useEffect(() => {
+    if (map) {
+      if (marker) {
+        marker.setMap(null);
+      }
+      if (infoWindow) {
+        infoWindow.close();
+      }
+
+      const newMarker = new google.maps.Marker({
+        position: center,
+        map,
+        title: propertyTitle,
+        icon: {
+          url: 'data:image/svg+xml;base64,' + btoa(`
+            <svg width="24" height="32" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z" fill="#3B82F6"/>
+              <circle cx="12" cy="12" r="6" fill="white"/>
+            </svg>
+          `),
+          scaledSize: new google.maps.Size(24, 32),
+          anchor: new google.maps.Point(12, 32)
+        }
+      });
+
+      const newInfoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="padding: 8px; font-family: system-ui, -apple-system, sans-serif;">
+            <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600;">${propertyTitle}</h3>
+            <p style="margin: 0; font-size: 12px; color: #6b7280;">
+              ${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}
+            </p>
+          </div>
+        `
+      });
+
+      newMarker.addListener('click', () => {
+        newInfoWindow.open(map, newMarker);
+      });
+
+      setMarker(newMarker);
+      setInfoWindow(newInfoWindow);
+    }
+  }, [map, center, propertyTitle]);
+
+  useEffect(() => {
+    if (map) {
+      if (polygon) {
+        polygon.setMap(null);
+      }
+
+      if (showBoundaries && propertyBoundary && propertyBoundary.length > 0) {
+        const boundaryCoords = propertyBoundary.map(([lat, lng]) => ({ lat, lng }));
+
+        const newPolygon = new google.maps.Polygon({
+          paths: boundaryCoords,
+          strokeColor: '#3B82F6',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#3B82F6',
+          fillOpacity: 0.2
+        });
+
+        newPolygon.setMap(map);
+        setPolygon(newPolygon);
+      }
+    }
+  }, [map, propertyBoundary, showBoundaries]);
+
+  return <div ref={ref} style={{ width: '100%', height: '100%' }} />;
+}
+
+export default function PropertyMap({
+  latitude,
+  longitude,
+  propertyTitle,
+  propertyBoundary,
+  className = "h-96 w-full"
+}: PropertyMapProps) {
+  const [mapType, setMapType] = useState<google.maps.MapTypeId>(google.maps.MapTypeId.ROADMAP);
+  const [showBoundaries, setShowBoundaries] = useState(true);
+
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
     return (
-      <div className={`${className} bg-gray-200 flex items-center justify-center rounded-lg`}>
-        <div className="text-gray-500">Loading map...</div>
+      <div className={`${className} bg-red-50 border border-red-200 flex items-center justify-center rounded-lg`}>
+        <div className="text-red-600 text-center p-4">
+          <p className="font-semibold">Google Maps API Key Required</p>
+          <p className="text-sm mt-1">Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env file</p>
+        </div>
       </div>
     );
   }
 
-  // Default boundary if none provided (sample rectangular boundary around the property)
+  const center = { lat: latitude, lng: longitude };
+
   const defaultBoundary: [number, number][] = propertyBoundary || [
     [latitude + 0.001, longitude - 0.001],
     [latitude + 0.001, longitude + 0.001],
@@ -79,21 +162,54 @@ export default function PropertyMap({
     [latitude - 0.001, longitude - 0.001],
   ];
 
+  const render = (status: any) => {
+    if (status === 'LOADING') {
+      return (
+        <div className={`${className} bg-gray-200 flex items-center justify-center rounded-lg`}>
+          <div className="text-gray-500">Loading Google Maps...</div>
+        </div>
+      );
+    }
+
+    if (status === 'FAILURE') {
+      return (
+        <div className={`${className} bg-red-50 border border-red-200 flex items-center justify-center rounded-lg`}>
+          <div className="text-red-600 text-center p-4">
+            <p className="font-semibold">Failed to load Google Maps</p>
+            <p className="text-sm mt-1">Please check your API key and internet connection</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <GoogleMapComponent
+        center={center}
+        zoom={16}
+        propertyTitle={propertyTitle}
+        propertyBoundary={defaultBoundary}
+        mapType={mapType}
+        showBoundaries={showBoundaries}
+      />
+    );
+  };
+
   return (
     <div className="relative">
       {/* Map Controls */}
       <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-2 space-y-2">
-        {/* Layer Selection */}
+        {/* Map Type Selection */}
         <div className="space-y-1">
           <label className="block text-xs font-medium text-gray-700">Map Type</label>
           <select
-            value={mapLayer}
-            onChange={(e) => setMapLayer(e.target.value as 'street' | 'satellite' | 'terrain')}
+            value={mapType}
+            onChange={(e) => setMapType(e.target.value as google.maps.MapTypeId)}
             className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
-            <option value="street">Street</option>
-            <option value="satellite">Satellite</option>
-            <option value="terrain">Terrain</option>
+            <option value={google.maps.MapTypeId.ROADMAP}>Road</option>
+            <option value={google.maps.MapTypeId.SATELLITE}>Satellite</option>
+            <option value={google.maps.MapTypeId.HYBRID}>Hybrid</option>
+            <option value={google.maps.MapTypeId.TERRAIN}>Terrain</option>
           </select>
         </div>
 
@@ -113,53 +229,12 @@ export default function PropertyMap({
       </div>
 
       {/* Map Container */}
-      <div className={className}>
-        <MapContainer
-          center={[latitude, longitude]}
-          zoom={16}
-          className="h-full w-full rounded-lg"
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            url={TILE_LAYERS[mapLayer].url}
-            attribution={TILE_LAYERS[mapLayer].attribution}
-          />
-          
-          {/* Property Marker */}
-          <Marker position={[latitude, longitude]}>
-            <Popup>
-              <div className="text-center">
-                <h3 className="font-semibold text-sm">{propertyTitle}</h3>
-                <p className="text-xs text-gray-600">
-                  {latitude.toFixed(6)}, {longitude.toFixed(6)}
-                </p>
-              </div>
-            </Popup>
-          </Marker>
-
-          {/* Property Boundaries */}
-          {showBoundaries && (
-            <Polygon
-              positions={defaultBoundary}
-              pathOptions={{
-                color: '#3B82F6',
-                fillColor: '#3B82F6',
-                fillOpacity: 0.2,
-                weight: 2,
-                opacity: 0.8
-              }}
-            >
-              <Popup>
-                <div className="text-center">
-                  <h3 className="font-semibold text-sm">Property Boundary</h3>
-                  <p className="text-xs text-gray-600">
-                    Approximate property limits
-                  </p>
-                </div>
-              </Popup>
-            </Polygon>
-          )}
-        </MapContainer>
+      <div className={`${className} rounded-lg overflow-hidden`}>
+        <Wrapper
+          apiKey={apiKey}
+          render={render}
+          libraries={['places', 'geometry']}
+        />
       </div>
 
       {/* Map Legend */}

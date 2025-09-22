@@ -5,6 +5,7 @@ import "../styles/editor.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ContactPopupWrapper from "@/components/ContactPopupWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { defaultMetadata } from "@/lib/metadata";
 import { getSettings } from "@/lib/settings";
@@ -105,6 +106,7 @@ export default async function RootLayout({
           <main>{children}</main>
           <Footer settings={settings} />
           {settings?.phone && <WhatsAppButton settings={settings} />}
+          <ContactPopupWrapper />
         </AuthProvider>
       </body>
     </html>
