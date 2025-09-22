@@ -106,7 +106,7 @@ export default async function RootLayout({
           <main>{children}</main>
           <Footer settings={settings} />
           {settings?.phone && <WhatsAppButton settings={settings} />}
-          <ContactPopupWrapper />
+          <ContactPopupWrapper settings={settings} />
         </AuthProvider>
       </body>
     </html>

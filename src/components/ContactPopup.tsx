@@ -6,9 +6,22 @@ import { X, Phone, Mail, MapPin, Clock } from "lucide-react";
 interface ContactPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  settings?: {
+    companyName?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+    mondayHours?: string | null;
+    tuesdayHours?: string | null;
+    wednesdayHours?: string | null;
+    thursdayHours?: string | null;
+    fridayHours?: string | null;
+    saturdayHours?: string | null;
+    sundayHours?: string | null;
+  } | null;
 }
 
-export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
+export default function ContactPopup({ isOpen, onClose, settings }: ContactPopupProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -108,8 +121,8 @@ export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Call Us</h3>
-                  <p className="text-blue-100">+1 (555) 123-4567</p>
-                  <p className="text-blue-100 text-sm">Mon-Fri 9AM-6PM</p>
+                  <p className="text-blue-100">{settings?.phone || '+1 (555) 123-4567'}</p>
+                  <p className="text-blue-100 text-sm">Mon-Fri Business Hours</p>
                 </div>
               </div>
 
@@ -119,7 +132,7 @@ export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Email Us</h3>
-                  <p className="text-blue-100">info@premiumrealestate.com</p>
+                  <p className="text-blue-100">{settings?.email || 'info@premiumrealestate.com'}</p>
                   <p className="text-blue-100 text-sm">24/7 Support</p>
                 </div>
               </div>
@@ -130,8 +143,7 @@ export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Visit Us</h3>
-                  <p className="text-blue-100">123 Business District</p>
-                  <p className="text-blue-100">City Center</p>
+                  <p className="text-blue-100">{settings?.address || '123 Business District, City Center'}</p>
                 </div>
               </div>
 
@@ -141,9 +153,23 @@ export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Office Hours</h3>
-                  <p className="text-blue-100">Monday - Friday: 9AM - 6PM</p>
-                  <p className="text-blue-100">Saturday: 10AM - 4PM</p>
-                  <p className="text-blue-100">Sunday: Closed</p>
+                  {settings ? (
+                    <>
+                      <p className="text-blue-100">Monday: {settings.mondayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Tuesday: {settings.tuesdayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Wednesday: {settings.wednesdayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Thursday: {settings.thursdayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Friday: {settings.fridayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Saturday: {settings.saturdayHours || 'Closed'}</p>
+                      <p className="text-blue-100">Sunday: {settings.sundayHours || 'Closed'}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-blue-100">Monday - Friday: 9AM - 6PM</p>
+                      <p className="text-blue-100">Saturday: 10AM - 4PM</p>
+                      <p className="text-blue-100">Sunday: Closed</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
