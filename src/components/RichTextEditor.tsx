@@ -52,6 +52,7 @@ export default function RichTextEditor({
       }),
     ],
     content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       // Clean up the HTML output and ensure it's valid
       let html = editor.getHTML();

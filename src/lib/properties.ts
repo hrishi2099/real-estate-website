@@ -168,7 +168,18 @@ export async function getProperty(id: string) {
     area: property.area?.toNumber(),
     latitude: property.latitude?.toNumber(),
     longitude: property.longitude?.toNumber(),
-    features: property.features ? JSON.parse(property.features) : [],
+    features: property.features ? (
+      typeof property.features === 'string' ?
+        (() => {
+          try {
+            return JSON.parse(property.features);
+          } catch {
+            // If JSON parse fails, split by comma as fallback
+            return property.features.split(',').map(f => f.trim()).filter(f => f);
+          }
+        })()
+        : property.features
+    ) : [],
   };
 }
 

@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
 import KMLUploader from "@/components/KMLUploader";
 import { FEATURE_FLAGS } from "@/lib/features";
+import ClientOnly from "@/components/ClientOnly";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -21,6 +22,9 @@ interface ValidationError {
 export default function NewProperty() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Debug: Log feature flags
+  console.log('🚀 Feature Flags in Admin:', FEATURE_FLAGS);
   const [formData, setFormData] = useState({
     title: '',
     description: '',

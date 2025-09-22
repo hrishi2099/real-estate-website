@@ -8,6 +8,7 @@ import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
 import { sanitizeHTML } from "@/lib/html-sanitizer";
 import { FEATURE_FLAGS } from "@/lib/features";
+import ClientOnly from "./ClientOnly";
 
 interface PropertyDetailsProps {
   property: {
@@ -270,30 +271,32 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">Location & Property View</h3>
-            {FEATURE_FLAGS.GOOGLE_EARTH_ENABLED && (
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setMapView('standard')}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    mapView === 'standard'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  📍 Standard Map
-                </button>
-                <button
-                  onClick={() => setMapView('earth')}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    mapView === 'earth'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  🌍 Earth View
-                </button>
-              </div>
-            )}
+            <ClientOnly>
+              {FEATURE_FLAGS.GOOGLE_EARTH_ENABLED && (
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setMapView('standard')}
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      mapView === 'standard'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    📍 Standard Map
+                  </button>
+                  <button
+                    onClick={() => setMapView('earth')}
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      mapView === 'earth'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    🌍 Earth View
+                  </button>
+                </div>
+              )}
+            </ClientOnly>
           </div>
 
           <div className="border border-gray-200 rounded-lg overflow-hidden">
