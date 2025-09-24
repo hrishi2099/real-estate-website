@@ -1,6 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /signup
 
 # Sitemap location
 Sitemap: https://zaminseva.com/sitemap.xml

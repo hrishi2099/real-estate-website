@@ -20,7 +20,7 @@ export function generateMetadata(
   const companyName = officeSettings?.companyName || "Real Estate Platform";
   const baseTitle = title ? `${title} | ${companyName}` : `${companyName} - Premium Properties`;
   const baseDescription = description || `Professional real estate platform for buying, selling, and investing in premium properties. Browse luxury homes, condos, and apartments with expert guidance.`;
-  const siteUrl = officeSettings?.website || process.env.NEXT_PUBLIC_SITE_URL || "http://zaminseva.com";
+  const siteUrl = officeSettings?.website || process.env.NEXT_PUBLIC_SITE_URL || "https://zaminseva.com";
 
   return {
     title: baseTitle,

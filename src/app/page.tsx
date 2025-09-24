@@ -11,8 +11,22 @@ export const metadata: Metadata = {
   title: "Zaminseva - Premium NA Plots & Farmhouse Land Investments",
   description: "Zaminseva offers premium NA plots and farmhouse land for investment. Discover exclusive real estate opportunities with India's trusted property partner - Zaminseva Prime Pvt. Ltd.",
   keywords: ["zaminseva", "Zaminseva Prime", "NA plots", "farmhouse land", "real estate investment", "agricultural land", "property investment", "zaminseva.com"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://zaminseva.com",
+  },
+  other: {
+    'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION || '',
   },
 };
 

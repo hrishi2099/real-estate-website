@@ -93,8 +93,8 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center pt-2 pb-2 px-1 sm:p-2 lg:p-4 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-[96vw] max-h-none sm:max-h-[96vh] bg-white rounded-lg shadow-2xl overflow-hidden" style={{maxWidth: 'min(96vw, 1280px)', maxHeight: 'min(96vh, 800px)'}}>
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -104,57 +104,57 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex flex-col lg:flex-row max-h-[90vh] overflow-y-auto">
+        <div className="flex flex-col lg:flex-row h-auto max-h-full overflow-y-auto">
           {/* Left Side - Company Info */}
-          <div className="lg:w-2/5 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold mb-2">Get In Touch</h2>
-              <p className="text-blue-100 text-lg">
+          <div className="w-full lg:w-2/5 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-3 md:p-4 lg:p-6 flex flex-col justify-center shrink-0">
+            <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">Get In Touch</h2>
+              <p className="text-blue-100 text-xs sm:text-sm md:text-base lg:text-lg leading-tight sm:leading-normal">
                 Ready to find your dream property? We're here to help you every step of the way.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <Phone className="w-5 h-5" />
+            <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+              <div className="flex items-start space-x-2 sm:space-x-3">
+                <div className="bg-blue-500 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                  <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Call Us</h3>
-                  <p className="text-blue-100">{settings?.phone || '+1 (555) 123-4567'}</p>
-                  <p className="text-blue-100 text-sm">Mon-Fri Business Hours</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Email Us</h3>
-                  <p className="text-blue-100">{settings?.email || 'info@premiumrealestate.com'}</p>
-                  <p className="text-blue-100 text-sm">24/7 Support</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm">Call Us</h3>
+                  <p className="text-blue-100 text-xs truncate">{settings?.phone || '+1 (555) 123-4567'}</p>
+                  <p className="text-blue-100 text-xs">Mon-Fri Business Hours</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <MapPin className="w-5 h-5" />
+              <div className="flex items-start space-x-2 sm:space-x-3">
+                <div className="bg-blue-500 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                  <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Visit Us</h3>
-                  <p className="text-blue-100">{settings?.address || '123 Business District, City Center'}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm">Email Us</h3>
+                  <p className="text-blue-100 text-xs truncate">{settings?.email || 'info@premiumrealestate.com'}</p>
+                  <p className="text-blue-100 text-xs">24/7 Support</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <Clock className="w-5 h-5" />
+              <div className="flex items-start space-x-2 sm:space-x-3">
+                <div className="bg-blue-500 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Office Hours</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm">Visit Us</h3>
+                  <p className="text-blue-100 text-xs">{settings?.address || '123 Business District, City Center'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2 sm:space-x-3">
+                <div className="bg-blue-500 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm">Office Hours</h3>
                   {settings ? (
-                    <>
+                    <div className="text-xs space-y-0.5">
                       <p className="text-blue-100">Monday: {settings.mondayHours || 'Closed'}</p>
                       <p className="text-blue-100">Tuesday: {settings.tuesdayHours || 'Closed'}</p>
                       <p className="text-blue-100">Wednesday: {settings.wednesdayHours || 'Closed'}</p>
@@ -162,54 +162,49 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                       <p className="text-blue-100">Friday: {settings.fridayHours || 'Closed'}</p>
                       <p className="text-blue-100">Saturday: {settings.saturdayHours || 'Closed'}</p>
                       <p className="text-blue-100">Sunday: {settings.sundayHours || 'Closed'}</p>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="text-xs space-y-0.5">
                       <p className="text-blue-100">Monday - Friday: 9AM - 6PM</p>
                       <p className="text-blue-100">Saturday: 10AM - 4PM</p>
                       <p className="text-blue-100">Sunday: Closed</p>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-blue-700 bg-opacity-50 rounded-lg">
-              <p className="text-sm text-blue-100">
-                <strong>Special Offer:</strong> Schedule a consultation today and get a free property valuation!
-              </p>
-            </div>
           </div>
 
           {/* Right Side - Contact Form */}
-          <div className="lg:w-3/5 p-8">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Send us a Message</h3>
-              <p className="text-gray-600">
+          <div className="w-full lg:w-3/5 p-3 md:p-4 lg:p-6 flex-1">
+            <div className="mb-3 sm:mb-4">
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1">Send us a Message</h3>
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Fill out the form below and we'll get back to you within 24 hours.
               </p>
             </div>
 
             {submitStatus === 'success' && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium text-sm sm:text-base">
                   ✅ Thank you! Your message has been sent successfully. We'll get back to you soon.
                 </p>
               </div>
             )}
 
             {submitStatus === 'error' && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-medium">
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 font-medium text-sm sm:text-base">
                   ❌ Sorry, there was an error sending your message. Please try again.
                 </p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Full Name *
                   </label>
                   <input
@@ -219,13 +214,13 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Your full name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Email Address *
                   </label>
                   <input
@@ -235,15 +230,15 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="your.email@example.com"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="phone" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Phone Number
                   </label>
                   <input
@@ -252,13 +247,13 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="(555) 123-4567"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Subject *
                   </label>
                   <select
@@ -267,7 +262,7 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="General Inquiry">General Inquiry</option>
                     <option value="Property Viewing">Property Viewing</option>
@@ -281,7 +276,7 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Message *
                 </label>
                 <textarea
@@ -290,17 +285,17 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                   value={formData.message}
                   onChange={handleInputChange}
                   required
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={3}
+                  className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder="Tell us about your property needs, preferred location, budget, or any questions you have..."
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="flex-1 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
@@ -318,14 +313,14 @@ export default function ContactPopup({ isOpen, onClose, settings }: ContactPopup
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium"
+                  className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium"
                 >
                   Close
                 </button>
               </div>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
               <p className="text-xs text-gray-500">
                 By submitting this form, you agree to our privacy policy and terms of service.
               </p>
