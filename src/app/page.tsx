@@ -5,7 +5,7 @@ import Services from "@/components/Services";
 import PastEventsShowcase from "@/components/PastEventsShowcase";
 import CreativeAdsSection from "@/components/CreativeAdsSection";
 import PartnersAndResources from "@/components/PartnersAndResources";
-import EnhancedStructuredData from "@/components/StructuredData";
+import EnhancedStructuredData from "@/components/EnhancedStructuredData";
 import { getFeaturedProperties } from "@/lib/properties";
 import type { Metadata } from "next";
 

@@ -149,8 +149,8 @@ export default function PartnersAndResources() {
 
   const handleLinkClick = (linkName: string, url: string) => {
     // Track outbound link clicks for analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'click', {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as any).gtag('event', 'click', {
         event_category: 'outbound_link',
         event_label: linkName,
         transport_type: 'beacon'
