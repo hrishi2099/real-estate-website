@@ -4,6 +4,8 @@ import PropertyStats from "@/components/PropertyStats";
 import Services from "@/components/Services";
 import PastEventsShowcase from "@/components/PastEventsShowcase";
 import CreativeAdsSection from "@/components/CreativeAdsSection";
+import PartnersAndResources from "@/components/PartnersAndResources";
+import StructuredData from "@/components/StructuredData";
 import { getFeaturedProperties } from "@/lib/properties";
 import type { Metadata } from "next";
 
@@ -35,10 +37,12 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
+      <StructuredData type="homepage" />
       <Hero />
       <FeaturedProperties properties={properties} isFeatured={isFeatured} />
       <CreativeAdsSection />
       <PropertyStats />
+      <PartnersAndResources />
       <PastEventsShowcase />
       <Services />
     </div>
