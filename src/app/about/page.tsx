@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 
 export const metadata: Metadata = {
   title: "About Us | Zaminseva Prime - Your Partner in Property",
@@ -83,7 +84,9 @@ const milestones = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <>
+      <ZaminsevaSchema pageType="homepage" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Unique Creative Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated Background Elements */}
@@ -761,6 +764,7 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

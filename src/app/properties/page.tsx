@@ -3,6 +3,8 @@ import Link from "next/link";
 import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
 import { Metadata } from "next";
 import PropertiesClient from "@/components/PropertiesClient";
+import Script from "next/script";
+import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 
 export const metadata: Metadata = generateMetadataHelper(
   "Land Properties by Zaminseva Prime",
@@ -25,5 +27,10 @@ export const metadata: Metadata = generateMetadataHelper(
 );
 
 export default function PropertiesPage() {
-  return <PropertiesClient />;
+  return (
+    <>
+      <ZaminsevaSchema pageType="properties" />
+      <PropertiesClient />
+    </>
+  );
 }

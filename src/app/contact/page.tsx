@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { trackContactSubmission } from "@/lib/analytics-gtm";
+import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 
 interface OfficeSettings {
   id: string;
@@ -120,7 +121,9 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <>
+      <ZaminsevaSchema pageType="homepage" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
         {/* Animated Background Elements */}
@@ -560,6 +563,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
