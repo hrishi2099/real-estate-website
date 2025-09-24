@@ -1,6 +1,5 @@
 import Script from 'next/script';
 import type { OfficeSettings } from '@prisma/client';
-import { useEffect } from 'react';
 
 type AnalyticsProps = {
   // Pass only the required properties from the settings object
