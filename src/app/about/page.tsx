@@ -14,17 +14,18 @@ export const metadata: Metadata = {
   },
 };
 
-const teamMembers = [
-  {
+const leadership = {
+  founder: {
     name: "Dattatray Ghore",
     role: "Founder & CEO",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-    bio: "A true visionary in the real estate world, Dattatray’s passion for property is contagious. With over 25 years of hands-on experience, he founded Zaminseva Prime with the mission to create a more personal, client-focused real estate experience. He’s not just the CEO; he’s the heart and soul of our company, inspiring us all to be better every day."
+    vision: "Transforming real estate investments through transparency and trust",
+    achievements: ["25+ Years Experience", "1200+ Successful Projects", "Industry Pioneer"]
   }
-];
+};
 
 const stats = [
-  { number: "1247+", label: "Properties Sold" },
+  { number: "✓", label: "Clear Title Guarantee" },
   { number: "3.2M+", label: "Sq Ft Developed" },
   { number: "25+", label: "Years Experience" },
   { number: "97%", label: "Client Satisfaction" }
@@ -34,20 +35,16 @@ const testimonials = [
   {
     name: "Rajesh Sharma",
     location: "Pune",
-    text: "Zaminseva Prime helped us find our dream farmhouse plot. Their transparency and expert guidance throughout the process was exceptional. Highly recommended!",
-    rating: 5
+    text: "Found our perfect farmhouse plot through Zaminseva Prime. Their transparent process and expert guidance made our investment journey smooth and stress-free.",
+    rating: 5,
+    investment: "Farmhouse Plot"
   },
   {
     name: "Priya Patel",
     location: "Mumbai",
-    text: "Professional service and clear documentation. They made our NA land purchase hassle-free. The legal support was particularly impressive.",
-    rating: 5
-  },
-  {
-    name: "Amit Kumar",
-    location: "Nashik",
-    text: "25 years of experience really shows. They understood our requirements perfectly and delivered exactly what we were looking for.",
-    rating: 5
+    text: "Outstanding legal support and clear documentation process. Their professional team handled our NA land purchase with complete transparency.",
+    rating: 5,
+    investment: "NA Plot"
   }
 ];
 
@@ -226,16 +223,16 @@ export default function AboutPage() {
 
               {/* Achievement Badges */}
               <div className="mt-10 flex flex-wrap gap-4">
-                <div className="bg-white rounded-2xl p-4 shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300">
+                <div className="bg-white rounded-2xl p-4 shadow-lg border border-orange-100 hover:shadow-xl transition-shadow duration-300">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900">23+</div>
-                      <div className="text-xs text-gray-500">Years Experience</div>
+                      <div className="text-lg font-bold text-gray-900">EMI</div>
+                      <div className="text-xs text-gray-500">Flexible Options</div>
                     </div>
                   </div>
                 </div>
@@ -244,13 +241,12 @@ export default function AboutPage() {
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900">Maharashtra</div>
-                      <div className="text-xs text-gray-500">Trusted Developer</div>
+                      <div className="text-lg font-bold text-gray-900">Legal</div>
+                      <div className="text-xs text-gray-500">Clear Titles</div>
                     </div>
                   </div>
                 </div>
@@ -400,17 +396,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Zaminseva Prime Track Record</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-blue-600 mb-2">{stat.number}</div>
-                <div className="text-gray-600">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Enhanced Core Values Section */}
         <div className="mb-16 relative">
@@ -656,47 +641,102 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Customer Testimonials */}
+        {/* Customer Success Stories */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">What Our Clients Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Client Success Stories</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto rounded-full"></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
-                <div className="border-t pt-4">
-                  <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.location}</p>
+              <div key={index} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl blur-lg opacity-20 group-hover:opacity-30 transition-all duration-500"></div>
+                <div className="relative bg-white rounded-3xl p-8 shadow-xl border border-white/20 backdrop-blur-sm hover:transform hover:scale-105 transition-all duration-500">
+                  {/* Investment type badge */}
+                  <div className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mb-6">
+                    <span className="text-blue-700 font-semibold text-sm">{testimonial.investment}</span>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="flex items-center mb-6">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <svg key={i} className="w-6 h-6 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  {/* Quote */}
+                  <blockquote className="text-lg text-gray-700 mb-8 italic leading-relaxed">
+                    "{testimonial.text}"
+                  </blockquote>
+
+                  {/* Client info */}
+                  <div className="flex items-center border-t pt-6">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-white font-bold text-lg">{testimonial.name[0]}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-lg">{testimonial.name}</p>
+                      <p className="text-blue-600 font-medium">{testimonial.location}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
+        {/* Leadership Spotlight */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Meet Zaminseva Prime Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-8 justify-items-center">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="text-center">
-                <div className="relative h-64 w-64 mx-auto mb-4 rounded-lg overflow-hidden">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Leadership</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto rounded-full"></div>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl blur-lg opacity-20 group-hover:opacity-30 transition-all duration-500"></div>
+              <div className="relative bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-white/20 backdrop-blur-sm">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  {/* Image Side */}
+                  <div className="relative">
+                    <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full opacity-30"></div>
+                    <div className="relative h-80 w-80 mx-auto rounded-2xl overflow-hidden shadow-2xl">
+                      <Image
+                        src={leadership.founder.image}
+                        alt={leadership.founder.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Content Side */}
+                  <div className="text-center lg:text-left">
+                    <div className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mb-6">
+                      <span className="text-blue-700 font-semibold text-sm">Founder & Visionary</span>
+                    </div>
+
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">{leadership.founder.name}</h3>
+                    <p className="text-xl text-blue-600 font-medium mb-6">{leadership.founder.role}</p>
+
+                    <blockquote className="text-lg text-gray-700 italic mb-8 leading-relaxed">
+                      "{leadership.founder.vision}"
+                    </blockquote>
+
+                    {/* Achievements */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {leadership.founder.achievements.map((achievement, index) => (
+                        <div key={index} className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 text-center">
+                          <div className="text-sm font-semibold text-gray-700">{achievement}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                <p className="text-blue-600 font-medium mb-3">{member.role}</p>
-                <p className="text-gray-600 text-sm max-w-2xl mx-auto">{member.bio}</p>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 

@@ -117,9 +117,9 @@ export default function Footer({ settings }: FooterProps) {
                     </Link>
                   </li>
                   <li>
-                    <a href="#" className="text-base text-gray-300 hover:text-white">
+                    <Link href="/terms-of-service" className="text-base text-gray-300 hover:text-white">
                       Terms of Service
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>

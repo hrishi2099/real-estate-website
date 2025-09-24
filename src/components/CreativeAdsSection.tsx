@@ -42,7 +42,7 @@ const defaultAds: Ad[] = [
     id: '3',
     title: 'Free Site Visit',
     subtitle: 'Book Now',
-    description: 'Schedule a complimentary site visit with our experts. Transportation and refreshments included.',
+    description: 'Arrange an on-site consultation with our experts, with transportation provided.',
     imageUrl: '/images/site-visit-ad.jpg',
     ctaText: 'Book Site Visit',
     ctaLink: '/contact',

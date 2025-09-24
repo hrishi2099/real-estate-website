@@ -117,10 +117,10 @@ export default function PropertyStats() {
           {
             id: 1,
             number: 0,
-            label: "Transparent Deals",
+            label: "Direct Ownership",
             suffix: "",
-            icon: "🤝",
-            description: "Every transaction built on trust, clarity, and complete transparency."
+            icon: "🏆",
+            description: "All properties are directly owned by Zaminseva Prime, ensuring clear titles and hassle-free transactions."
           },
           {
             id: 2,
@@ -233,7 +233,7 @@ export default function PropertyStats() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-            Leading Real Estate Solutions
+            Proven Excellence in Land Investment
           </h2>
           <p className="mt-2 sm:mt-4 text-base sm:text-lg lg:text-xl text-blue-100">
             Our numbers speak for themselves. We are a trusted partner for property buyers and investors, delivering exceptional results and unparalleled service.
