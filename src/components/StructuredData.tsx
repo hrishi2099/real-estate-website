@@ -4,7 +4,7 @@ interface StructuredDataProps {
   type?: 'homepage' | 'properties' | 'about' | 'contact';
 }
 
-export default function StructuredData({ type = 'homepage' }: StructuredDataProps) {
+export default function EnhancedStructuredData({ type = 'homepage' }: StructuredDataProps) {
   const getStructuredData = () => {
     const baseData = {
       "@context": "https://schema.org",
