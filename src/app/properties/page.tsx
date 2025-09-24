@@ -8,7 +8,7 @@ import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 
 export const metadata: Metadata = generateMetadataHelper(
   "Land Properties by Zaminseva Prime",
-  "Explore our exclusive collection of premium agricultural land and NA plots. All properties are directly owned by Zaminseva Prime, ensuring clear titles and hassle-free transactions.",
+  "Explore premium agricultural land & NA plots. Directly owned by Zaminseva Prime with clear titles and hassle-free transactions.",
   null,
   {
     canonical: "/properties",

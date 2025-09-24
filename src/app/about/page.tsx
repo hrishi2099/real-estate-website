@@ -5,13 +5,13 @@ import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 
 export const metadata: Metadata = {
   title: "About Us | Zaminseva Prime - Your Partner in Property",
-  description: "Discover the story behind Zaminseva Prime. We're not just real estate agents; we're your dedicated partners in finding the perfect property. Learn about our mission, our values, and the passionate team ready to guide you on your real estate journey.",
+  description: "Discover Zaminseva Prime's story. Your trusted real estate partner for 25+ years, specializing in premium NA plots and farmhouse land with clear titles.",
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com'}/about`,
   },
   openGraph: {
     title: "About Us | Zaminseva Prime - Your Partner in Property",
-    description: "Discover the story behind Zaminseva Prime. We're not just real estate agents; we're your dedicated partners in finding the perfect property. Learn about our mission, our values, and the passionate team ready to guide you on your real estate journey.",
+    description: "Discover Zaminseva Prime's story. Your trusted real estate partner for 25+ years, specializing in premium NA plots and farmhouse land with clear titles.",
   },
 };
 
