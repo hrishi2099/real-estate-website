@@ -11,6 +11,7 @@ import { defaultMetadata } from "@/lib/metadata";
 import { getSettings } from "@/lib/settings";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import StructuredData from "@/components/StructuredData";
+import OptimizedResourceLoader from "@/components/OptimizedResourceLoader";
 import { Suspense } from "react";
 
 const playfairDisplay = Playfair_Display({
@@ -96,6 +97,7 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <OptimizedResourceLoader />
       </head>
       <body className={`${sourceSans.variable} ${montserrat.variable} ${playfairDisplay.variable} font-sans antialiased force-light-mode`}>
         <StructuredData data={organizationSchema} />
