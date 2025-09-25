@@ -63,27 +63,44 @@ export default function CreativeAdsSection({
   title = "Special Offers & Opportunities",
   subtitle = "Don't miss out on these exclusive deals"
 }: CreativeAdsSectionProps) {
-  const [ads, setAds] = useState<Ad[]>(propAds || defaultAds);
+  const [ads, setAds] = useState<Ad[]>(propAds || []);
   const [loading, setLoading] = useState(!propAds);
 
   useEffect(() => {
     if (!propAds) {
       fetchAds();
+
+      // Fallback: ensure loading doesn't persist indefinitely
+      const fallbackTimeout = setTimeout(() => {
+        setLoading(false);
+        setAds([]);
+      }, 10000); // 10 second fallback
+
+      return () => clearTimeout(fallbackTimeout);
     }
   }, [propAds]);
 
   const fetchAds = async () => {
     try {
-      const response = await fetch('/api/ads');
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+      const response = await fetch('/api/ads', {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const fetchedAds = await response.json();
-        setAds(fetchedAds.length > 0 ? fetchedAds : defaultAds);
+        setAds(fetchedAds.length > 0 ? fetchedAds : []);
       } else {
-        setAds(defaultAds);
+        setAds([]);
       }
     } catch (error) {
       console.error('Error fetching ads:', error);
-      setAds(defaultAds);
+      setAds([]);
     } finally {
       setLoading(false);
     }
@@ -111,6 +128,11 @@ export default function CreativeAdsSection({
         </div>
       </section>
     );
+  }
+
+  // Hide the section if there are no ads
+  if (ads.length === 0) {
+    return null;
   }
 
   return (
