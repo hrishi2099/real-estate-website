@@ -59,23 +59,63 @@ export default async function RootLayout({
 
   const organizationSchema = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "RealEstateAgent",
     "name": settings?.companyName || "Zaminseva Prime Pvt. Ltd.",
     "alternateName": "Zaminseva",
     "url": siteUrl,
     "logo": settings?.logoUrl,
-    "description": "Zaminseva - Premium real estate company specializing in NA plots and farmhouse land investments",
+    "description": "Zaminseva - Premium real estate company specializing in NA plots and farmhouse land investments in Pune, Mumbai, and Satara, Maharashtra",
     "foundingDate": "2024",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "India",
+      "addressRegion": "Maharashtra",
+      "addressLocality": "Pune, Mumbai, Satara",
       "addressCountry": "IN"
     },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Pune",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "Maharashtra",
+          "containedInPlace": {
+            "@type": "Country",
+            "name": "India"
+          }
+        }
+      },
+      {
+        "@type": "City",
+        "name": "Mumbai",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "Maharashtra",
+          "containedInPlace": {
+            "@type": "Country",
+            "name": "India"
+          }
+        }
+      },
+      {
+        "@type": "City",
+        "name": "Satara",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "Maharashtra",
+          "containedInPlace": {
+            "@type": "Country",
+            "name": "India"
+          }
+        }
+      }
+    ],
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": settings?.phone,
       "contactType": "Customer Service",
-      "email": settings?.email
+      "email": settings?.email,
+      "areaServed": "Maharashtra, India"
     },
     "sameAs": [
       "https://zaminseva.com"
@@ -94,8 +134,15 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
+        <meta name="geo.region" content="IN-MH" />
+        <meta name="geo.placename" content="Maharashtra, India" />
+        <meta name="geo.position" content="19.0760;72.8777" />
+        <meta name="ICBM" content="19.0760, 72.8777" />
+        <meta name="DC.title" content="Zaminseva - Real Estate in Pune, Mumbai, Satara, Maharashtra" />
+        <meta name="geo.region" content="IN" />
+        <meta name="geo.placename" content="Pune, Mumbai, Satara" />
         <link rel="manifest" href="/manifest.json" />
         <OptimizedResourceLoader />
       </head>

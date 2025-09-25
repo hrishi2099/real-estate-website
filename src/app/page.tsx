@@ -10,9 +10,9 @@ import { getFeaturedProperties } from "@/lib/properties";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Zaminseva - Premium NA Plots & Farmhouse Land Investments",
-  description: "Zaminseva offers premium NA plots and farmhouse land for investment. Discover exclusive real estate opportunities with India's trusted property partner - Zaminseva Prime Pvt. Ltd.",
-  keywords: ["zaminseva", "Zaminseva Prime", "NA plots", "farmhouse land", "real estate investment", "agricultural land", "property investment", "zaminseva.com"],
+  title: "Zaminseva - Premium NA Plots & Farmhouse Land in Pune, Mumbai, Satara | Maharashtra",
+  description: "Zaminseva offers premium NA plots and farmhouse land for investment in Pune, Mumbai, and Satara, Maharashtra. Discover exclusive real estate opportunities across Maharashtra with India's trusted property partner - Zaminseva Prime Pvt. Ltd.",
+  keywords: ["zaminseva", "Zaminseva Prime", "NA plots Maharashtra", "farmhouse land Pune", "real estate investment Mumbai", "agricultural land Satara", "property investment Maharashtra", "Pune properties", "Mumbai land", "Satara farmhouse", "Maharashtra real estate", "zaminseva.com"],
   robots: {
     index: true,
     follow: true,

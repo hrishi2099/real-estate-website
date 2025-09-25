@@ -266,8 +266,8 @@ export default function AboutPage() {
               <div className="relative h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl group">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 z-10 group-hover:opacity-0 transition-opacity duration-500"></div>
                 <Image
-                  src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2126&q=80"
-                  alt="Company Office"
+                  src="/images/zaminsevaHQ.webp"
+                  alt="Zaminseva Prime Office - Modern workspace with professional environment"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
