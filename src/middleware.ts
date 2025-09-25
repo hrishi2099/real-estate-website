@@ -14,12 +14,12 @@ const securityHeaders = {
   // Content Security Policy
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net *.googleadservices.com",
     "style-src 'self' 'unsafe-inline' *.googleapis.com *.google.com *.gstatic.com *.googletagmanager.com",
     "font-src 'self' *.gstatic.com",
-    "img-src 'self' data: blob: https: http: *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net",
-    "connect-src 'self' *.google-analytics.com *.google.com *.doubleclick.net",
-    "frame-src 'self' *.google.com *.doubleclick.net www.googletagmanager.com",
+    "img-src 'self' data: blob: https: http: *.google-analytics.com *.google.com *.gstatic.com *.doubleclick.net *.googleadservices.com",
+    "connect-src 'self' *.google-analytics.com *.google.com *.doubleclick.net *.googleadservices.com *.googletagmanager.com vitals.vercel-insights.com",
+    "frame-src 'self' *.google.com *.doubleclick.net www.googletagmanager.com *.googleadservices.com",
     "frame-ancestors 'none'",
   ].join('; '),
   
