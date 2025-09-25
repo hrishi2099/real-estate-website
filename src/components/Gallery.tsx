@@ -156,20 +156,20 @@ export default function Gallery({ images, propertyTitle = "Property", className 
           onKeyDown={handleKeyDown}
           tabIndex={0}
         >
-          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center p-4">
+          <div className="relative w-full h-full flex items-center justify-center p-4">
             {/* Close Button */}
             <button
               onClick={closeLightbox}
-              className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors"
+              className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2"
             >
-              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
             {/* Image Counter */}
-            <div className="absolute top-4 left-4 z-10 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full">
-              {selectedImageIndex + 1} / {images.length}
+            <div className="absolute top-4 left-4 z-10 text-white bg-black bg-opacity-70 px-4 py-2 rounded-full text-sm font-medium">
+              {selectedImageIndex + 1} of {images.length}
             </div>
 
             {/* Previous Button */}
@@ -179,9 +179,9 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                   e.stopPropagation();
                   navigateImage('prev');
                 }}
-                className="absolute left-4 z-10 text-white hover:text-gray-300 transition-colors p-2"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-3"
               >
-                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -194,9 +194,9 @@ export default function Gallery({ images, propertyTitle = "Property", className 
                   e.stopPropagation();
                   navigateImage('next');
                 }}
-                className="absolute right-4 z-10 text-white hover:text-gray-300 transition-colors p-2"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-3"
               >
-                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -204,13 +204,25 @@ export default function Gallery({ images, propertyTitle = "Property", className 
 
             {/* Main Image */}
             <div
-              className="relative max-w-full max-h-full"
+              className="relative flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 'calc(100% - 80px)',
+                height: 'calc(100% - 120px)',
+                maxWidth: '100%',
+                maxHeight: '100%'
+              }}
             >
               <img
                 src={getImageUrl(images[selectedImageIndex].url)}
                 alt={`${propertyTitle} - Image ${selectedImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain"
+                style={{
+                  width: 'auto',
+                  height: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%'
+                }}
               />
             </div>
 
