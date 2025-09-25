@@ -16,6 +16,7 @@ interface Property {
   title: string;
   description?: string;
   price: number;
+  pricePerSqft?: number;
   location: string;
   latitude?: number;
   longitude?: number;
@@ -37,6 +38,7 @@ interface Image {
 interface PropertyData {
   title: string;
   price: number;
+  pricePerSqft?: number;
   location: string;
   type: string;
   bedrooms: number;
@@ -70,6 +72,7 @@ export default function EditProperty() {
     title: '',
     description: '',
     price: '',
+    pricePerSqft: '',
     location: '',
     latitude: '',
     longitude: '',
@@ -117,6 +120,7 @@ export default function EditProperty() {
               title: propertyData.title || '',
               description: propertyData.description || '',
               price: propertyData.price?.toString() || '',
+              pricePerSqft: propertyData.pricePerSqft?.toString() || '',
               location: propertyData.location || '',
               latitude: propertyData.latitude?.toString() || '',
               longitude: propertyData.longitude?.toString() || '',
@@ -194,6 +198,12 @@ export default function EditProperty() {
     
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
       newErrors.price = 'Price must be a valid number greater than 0';
+    }
+
+    if (formData.pricePerSqft && formData.pricePerSqft.trim()) {
+      if (isNaN(Number(formData.pricePerSqft)) || Number(formData.pricePerSqft) <= 0) {
+        newErrors.pricePerSqft = 'Price per sqft must be a valid number greater than 0';
+      }
     }
     
     if (!formData.location.trim()) {
@@ -320,6 +330,7 @@ export default function EditProperty() {
       const propertyData = {
         title: formData.title.trim(),
         price: Number(formData.price),
+        pricePerSqft: formData.pricePerSqft && formData.pricePerSqft.trim() ? Number(formData.pricePerSqft) : undefined,
         location: formData.location.trim(),
         type: formData.type,
         status: formData.status,
@@ -461,6 +472,23 @@ export default function EditProperty() {
                 placeholder="₹45,00,000"
               />
               {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Price Per Sq Ft
+              </label>
+              <input
+                type="text"
+                name="pricePerSqft"
+                value={formData.pricePerSqft}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                  errors.pricePerSqft ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="₹1,500"
+              />
+              {errors.pricePerSqft && <p className="text-red-500 text-sm mt-1">{errors.pricePerSqft}</p>}
             </div>
 
             <div>

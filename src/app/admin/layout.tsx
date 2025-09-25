@@ -171,7 +171,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
-      <div className="flex h-screen">
+      <div className="flex min-h-screen">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div
@@ -260,7 +260,7 @@ export default function AdminLayout({
 
         {/* Main content */}
         <div
-          className={`flex flex-col flex-1 transition-all duration-300 h-screen overflow-hidden ${
+          className={`flex flex-col flex-1 transition-all duration-300 min-h-screen ${
             desktopSidebarOpen ? "lg:pl-64" : "lg:pl-20"
           }`}
         >
@@ -285,7 +285,7 @@ export default function AdminLayout({
             </div>
           </header>
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10 pb-20">
+          <main className="flex-1 p-6 sm:p-8 lg:p-10 pb-32">
             <div className="bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-6">
               {children}
             </div>

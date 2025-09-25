@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import LeadUploadForm from "@/components/LeadUploadForm"; // Import the new component
+import { useState, useEffect, useCallback } from "react";
+import LeadUploadForm from "@/components/LeadUploadForm";
+import EnhancedLeadScoring from "@/components/admin/EnhancedLeadScoring";
+import LeadInsightsPanel from "@/components/admin/LeadInsightsPanel";
 
 // Updated Lead interface to reflect the new Lead model structure
 interface Lead {
@@ -29,16 +31,16 @@ interface ScoreBreakdown {
 }
 
 export default function LeadsManagement() {
-  const [leads, setLeads] = useState<Lead[]>([]); // Changed to Lead[]
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gradeFilter, setGradeFilter] = useState<string>("all");
   const [scoreBreakdown, setScoreBreakdown] = useState<ScoreBreakdown | null>(null);
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null); // Changed to selectedLeadId
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
+  const [activeView, setActiveView] = useState<'enhanced' | 'insights' | 'upload'>('enhanced');
 
-  const loadLeads = async () => {
+  const loadLeads = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -55,22 +57,44 @@ export default function LeadsManagement() {
 
       if (data.success) {
         // The data.data is now an array of LeadAssignment objects
-        setLeads(data.data.map((item: any) => ({
-          id: item.id, // LeadAssignment ID
-          leadId: item.lead?.id,
-          name: item.lead?.name,
-          email: item.lead?.email,
-          phone: item.lead?.phone,
-          score: item.lead?.score,
-          grade: item.lead?.grade,
-          priority: item.priority, // Directly from LeadAssignment
-          lastActivity: item.lead?.lastActivity,
-          seriousBuyerIndicator: item.lead?.seriousBuyerIndicator,
-          budgetEstimate: item.lead?.budgetEstimate,
-          createdAt: item.lead?.createdAt,
-          salesManagerName: item.salesManager?.name,
-          salesManagerEmail: item.salesManager?.email,
-        })) || []);
+        setLeads(data.data.map((item: unknown) => {
+          const typedItem = item as {
+            id: string;
+            priority: string;
+            lead: {
+              id: string;
+              name: string;
+              email: string;
+              phone?: string;
+              score: number;
+              grade: string;
+              lastActivity?: Date;
+              seriousBuyerIndicator: boolean;
+              budgetEstimate?: number;
+              createdAt: Date;
+            };
+            salesManager?: {
+              name: string;
+              email: string;
+            };
+          };
+          return {
+            id: typedItem.id, // LeadAssignment ID
+            leadId: typedItem.lead?.id,
+            name: typedItem.lead?.name,
+            email: typedItem.lead?.email,
+            phone: typedItem.lead?.phone,
+            score: typedItem.lead?.score,
+            grade: typedItem.lead?.grade,
+            priority: typedItem.priority, // Directly from LeadAssignment
+            lastActivity: typedItem.lead?.lastActivity,
+            seriousBuyerIndicator: typedItem.lead?.seriousBuyerIndicator,
+            budgetEstimate: typedItem.lead?.budgetEstimate,
+            createdAt: typedItem.lead?.createdAt,
+            salesManagerName: typedItem.salesManager?.name,
+            salesManagerEmail: typedItem.salesManager?.email,
+          };
+        }) || []);
       } else {
         setError(data.error || "Failed to load leads");
       }
@@ -80,13 +104,13 @@ export default function LeadsManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [gradeFilter]);
 
   useEffect(() => {
     loadLeads();
-  }, [gradeFilter]);
+  }, [gradeFilter, loadLeads]);
 
-  const handleViewBreakdown = async (leadId: string) => { // Changed to leadId
+  const handleViewBreakdown = async () => {
     // This API endpoint needs to be updated to provide breakdown for the new Lead model
     // For now, commenting out the logic that relies on the old structure
     // setSelectedLeadId(leadId);
@@ -206,61 +230,92 @@ export default function LeadsManagement() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Lead Scoring</h1>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <button 
-            onClick={loadLeads}
-            disabled={loading}
-            className="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm touch-manipulation"
-          >
-            <svg className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
-            <span className="sm:hidden">{loading ? 'Refreshing...' : 'Refresh'}</span>
-          </button>
-          <button 
-            onClick={handleRecalculateAll}
-            disabled={recalculating}
-            className="flex-1 sm:flex-none bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm touch-manipulation"
-          >
-            <svg className={`w-4 h-4 mr-2 ${recalculating ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span className="hidden sm:inline">{recalculating ? 'Recalculating...' : 'Recalculate All'}</span>
-            <span className="sm:hidden">{recalculating ? 'Recalc All' : 'Recalc All'}</span>
-          </button>
+    <div className="space-y-6">
+      {/* Header with Navigation */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Advanced Lead Management</h1>
+          <div className="flex gap-2">
+            <button
+              onClick={loadLeads}
+              disabled={loading}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm"
+            >
+              <svg className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {loading ? 'Refreshing...' : 'Refresh'}
+            </button>
+            <button
+              onClick={handleRecalculateAll}
+              disabled={recalculating}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm"
+            >
+              <svg className={`w-4 h-4 mr-2 ${recalculating ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {recalculating ? 'Recalculating...' : 'Recalculate All'}
+            </button>
+          </div>
+        </div>
+
+        {/* View Tabs */}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'enhanced', name: 'Enhanced Dashboard', icon: '📊' },
+              { id: 'insights', name: 'Analytics & Insights', icon: '🧠' },
+              { id: 'upload', name: 'Upload Leads', icon: '📤' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveView(tab.id as 'enhanced' | 'insights' | 'upload')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeView === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span className="mr-2">{tab.icon}</span>
+                {tab.name}
+              </button>
+            ))}
+          </nav>
         </div>
       </div>
 
-      {/* Integrate LeadUploadForm */}
-      <LeadUploadForm />
+      {/* View Content */}
+      {activeView === 'enhanced' && <EnhancedLeadScoring />}
+      {activeView === 'insights' && <LeadInsightsPanel />}
+      {activeView === 'upload' && <LeadUploadForm />}
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-lg sm:text-2xl font-bold text-gray-900">{gradeStats.total}</div>
-          <div className="text-xs sm:text-sm text-gray-600">Total Leads</div>
+      {/* Legacy content only shown in upload view for backward compatibility */}
+      {activeView === 'upload' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{gradeStats.total}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Total Leads</div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+              <div className="text-lg sm:text-2xl font-bold text-purple-600">{gradeStats.qualified}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Qualified</div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+              <div className="text-lg sm:text-2xl font-bold text-red-600">{gradeStats.hot}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Hot</div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+              <div className="text-lg sm:text-2xl font-bold text-orange-600">{gradeStats.warm}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Warm</div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+              <div className="text-lg sm:text-2xl font-bold text-blue-600">{gradeStats.cold}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Cold</div>
+            </div>
+          </div>
         </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-lg sm:text-2xl font-bold text-purple-600">{gradeStats.qualified}</div>
-          <div className="text-xs sm:text-sm text-gray-600">Qualified</div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-lg sm:text-2xl font-bold text-red-600">{gradeStats.hot}</div>
-          <div className="text-xs sm:text-sm text-gray-600">Hot</div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-lg sm:text-2xl font-bold text-orange-600">{gradeStats.warm}</div>
-          <div className="text-xs sm:text-sm text-gray-600">Warm</div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-lg sm:text-2xl font-bold text-blue-600">{gradeStats.cold}</div>
-          <div className="text-xs sm:text-sm text-gray-600">Cold</div>
-        </div>
-      </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -405,7 +460,7 @@ export default function LeadsManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button 
-                      onClick={() => handleViewBreakdown(lead.id)} 
+                      onClick={() => handleViewBreakdown()} 
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
                       View Details
@@ -481,7 +536,7 @@ export default function LeadsManagement() {
 
                   <div className="mt-4 flex space-x-3">
                     <button 
-                      onClick={() => handleViewBreakdown(lead.id)} 
+                      onClick={() => handleViewBreakdown()} 
                       className="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm touch-manipulation"
                     >
                       View Details
@@ -517,7 +572,6 @@ export default function LeadsManagement() {
                   onClick={() => {
                     setShowBreakdownModal(false);
                     setScoreBreakdown(null);
-                    setSelectedLeadId(null);
                   }}
                   className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
                 >
