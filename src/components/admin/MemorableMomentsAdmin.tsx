@@ -23,6 +23,9 @@ export default function MemorableMomentsAdmin() {
   const [events, setEvents] = useState<EventPhoto[]>(memorableMomentsData.events);
   const [editingEvent, setEditingEvent] = useState<EventPhoto | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   const handleSectionInfoChange = (field: keyof SectionInfo, value: string) => {
     setSectionInfo(prev => ({ ...prev, [field]: value }));
@@ -63,6 +66,69 @@ export default function MemorableMomentsAdmin() {
     };
     setEditingEvent(newEvent);
     setIsAddingNew(true);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/admin/memorable-moments/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Upload failed');
+      }
+
+      const result = await response.json();
+
+      if (editingEvent) {
+        setEditingEvent(prev => prev ? { ...prev, url: result.url } : null);
+      }
+
+      setUploadProgress(100);
+      return result.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert(error instanceof Error ? error.message : 'Upload failed');
+      return null;
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 2000);
+    }
+  };
+
+  const saveToServer = async () => {
+    setSaveStatus('saving');
+    try {
+      const response = await fetch('/api/admin/memorable-moments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sectionInfo,
+          events
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save data');
+      }
+
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch (error) {
+      console.error('Save error:', error);
+      setSaveStatus('error');
+      alert('Failed to save data to server');
+    }
   };
 
   const generateJSON = () => {
@@ -170,19 +236,36 @@ export default function MemorableMomentsAdmin() {
             </div>
           </div>
 
-          {/* Export Section */}
+          {/* Save & Export Section */}
           <div className="p-6 bg-gray-50 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Export Data</h2>
-            <div className="flex gap-4">
+            <h2 className="text-xl font-semibold mb-4">Save & Export Data</h2>
+            <div className="flex flex-wrap gap-4 items-center">
+              <button
+                onClick={saveToServer}
+                disabled={saveStatus === 'saving'}
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  saveStatus === 'saving'
+                    ? 'bg-blue-400 text-white cursor-not-allowed'
+                    : saveStatus === 'saved'
+                    ? 'bg-green-600 text-white'
+                    : saveStatus === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved!' : saveStatus === 'error' ? '✗ Error' : 'Save to Server'}
+              </button>
+
               <button
                 onClick={downloadJSON}
                 className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
               >
-                Download JSON
+                Download JSON (Backup)
               </button>
+
               <div className="text-sm text-gray-600">
-                <p>Download the JSON file and replace the content in:</p>
-                <code className="bg-gray-200 px-2 py-1 rounded">src/data/memorableMoments.json</code>
+                <p><strong>Recommended:</strong> Use "Save to Server" to automatically update the website.</p>
+                <p>Use "Download JSON" as a backup option only.</p>
               </div>
             </div>
           </div>
@@ -230,13 +313,91 @@ export default function MemorableMomentsAdmin() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                    <input
-                      type="url"
-                      value={editingEvent.url}
-                      onChange={(e) => handleEventChange('url', e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Event Image</label>
+
+                    {/* File Upload Section */}
+                    <div className="space-y-4">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleImageUpload(file);
+                            }
+                          }}
+                          className="hidden"
+                          id="image-upload"
+                          disabled={isUploading}
+                        />
+                        <label
+                          htmlFor="image-upload"
+                          className={`cursor-pointer inline-flex flex-col items-center ${
+                            isUploading ? 'cursor-not-allowed opacity-50' : ''
+                          }`}
+                        >
+                          <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-sm text-gray-600">
+                            {isUploading ? 'Uploading...' : 'Click to upload image'}
+                          </span>
+                          <span className="text-xs text-gray-500 mt-1">
+                            JPEG, PNG, WebP up to 5MB
+                          </span>
+                        </label>
+
+                        {/* Upload Progress */}
+                        {uploadProgress > 0 && (
+                          <div className="mt-4">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* OR Divider */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-gray-300" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                          <span className="px-2 bg-white text-gray-500">or enter URL manually</span>
+                        </div>
+                      </div>
+
+                      {/* Manual URL Input */}
+                      <input
+                        type="url"
+                        placeholder="https://example.com/image.jpg"
+                        value={editingEvent.url}
+                        onChange={(e) => handleEventChange('url', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+
+                      {/* Image Preview */}
+                      {editingEvent.url && (
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                          <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                            <img
+                              src={editingEvent.url}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext y="50" x="50" font-size="12" text-anchor="middle" dy=".3em" fill="%23999"%3EImage not found%3C/text%3E%3C/svg%3E';
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>

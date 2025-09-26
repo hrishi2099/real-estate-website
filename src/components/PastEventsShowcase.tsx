@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import memorableMomentsData from "@/data/memorableMoments.json";
 
 interface EventPhoto {
   id: string;
@@ -23,9 +22,46 @@ export default function PastEventsShowcase() {
   const [selectedEvent, setSelectedEvent] = useState<EventPhoto | null>(null);
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [pastEvents, setPastEvents] = useState<EventPhoto[]>([]);
+  const [sectionInfo, setSectionInfo] = useState<SectionInfo>({
+    title: "Memorable Moments",
+    subtitle: "Our Journey",
+    description: "Loading our memorable moments..."
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const pastEvents: EventPhoto[] = memorableMomentsData.events;
-  const sectionInfo: SectionInfo = memorableMomentsData.sectionInfo;
+  // Load data from API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/admin/memorable-moments');
+        if (response.ok) {
+          const data = await response.json();
+          setPastEvents(data.events || []);
+          setSectionInfo(data.sectionInfo || sectionInfo);
+        } else {
+          // Fallback to static import if API fails
+          const staticData = await import('@/data/memorableMoments.json');
+          setPastEvents(staticData.events || []);
+          setSectionInfo(staticData.sectionInfo || sectionInfo);
+        }
+      } catch (error) {
+        console.error('Error loading memorable moments:', error);
+        // Fallback to static import
+        try {
+          const staticData = await import('@/data/memorableMoments.json');
+          setPastEvents(staticData.events || []);
+          setSectionInfo(staticData.sectionInfo || sectionInfo);
+        } catch (fallbackError) {
+          console.error('Error loading fallback data:', fallbackError);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,6 +81,38 @@ export default function PastEventsShowcase() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') closeModal();
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 mx-auto mb-8"></div>
+            <div className="h-64 bg-gray-200 rounded-3xl mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="h-80 bg-gray-200 rounded-2xl"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state if no events
+  if (!pastEvents.length) {
+    return (
+      <div className="py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">No Memorable Moments Yet</h2>
+          <p className="text-gray-600">Check back soon for updates!</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
