@@ -45,25 +45,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Location-specific pages for geo-targeting
     {
       url: `${baseUrl}/properties?location=pune`,
-      lastModified: new Date(),
+      lastModified: new Date('2024-12-20'),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/properties?location=mumbai`,
-      lastModified: new Date(),
+      lastModified: new Date('2024-12-20'),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/properties?location=satara`,
-      lastModified: new Date(),
+      lastModified: new Date('2024-12-20'),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/properties?location=maharashtra`,
-      lastModified: new Date(),
+      lastModified: new Date('2024-12-20'),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    // Category-specific pages
+    {
+      url: `${baseUrl}/properties?cat_slug=villa`,
+      lastModified: new Date('2024-12-18'),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/properties?cat_slug=farmhouse`,
+      lastModified: new Date('2024-12-18'),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/properties?cat_slug=na-plot`,
+      lastModified: new Date('2024-12-18'),
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
