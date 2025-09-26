@@ -194,7 +194,7 @@ export default function Services() {
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               <div className="text-white/90">
                 <div className="text-3xl font-bold text-white mb-2">500+</div>
-                <div className="text-sm text-blue-100">Properties Sold</div>
+                <div className="text-sm text-blue-100">Land Expertise</div>
               </div>
               <div className="text-white/90">
                 <div className="text-3xl font-bold text-white mb-2">15+</div>
