@@ -532,8 +532,8 @@ export default function AboutPage() {
                   {/* Value metrics */}
                   <div className="flex justify-center space-x-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-purple-600">24/7</div>
-                      <div className="text-xs text-gray-500">Support</div>
+                      <div className="text-2xl font-bold text-purple-600">Always</div>
+                      <div className="text-xs text-gray-500">Available</div>
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-purple-600">100%</div>
