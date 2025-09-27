@@ -58,6 +58,20 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
+    console.log('Received memorable moments data:', {
+      sectionInfo: data.sectionInfo,
+      eventsCount: data.events?.length || 0,
+      events: data.events?.map((e: any, i: number) => ({
+        index: i,
+        id: e.id,
+        title: e.title,
+        hasUrl: !!e.url,
+        hasDate: !!e.date,
+        hasDescription: !!e.description,
+        hasCategory: !!e.category
+      }))
+    });
+
     // Validate data structure
     if (!data.sectionInfo || !data.events || !Array.isArray(data.events)) {
       return NextResponse.json(
@@ -77,16 +91,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validate events
-    const requiredEventFields = ['url', 'title', 'date', 'description', 'category'];
+    // Validate events - only validate non-empty events
     for (const event of data.events) {
+      // Skip validation for empty events (they won't be saved)
+      if (!event.title && !event.url && !event.description) {
+        continue;
+      }
+
+      // For non-empty events, ensure required fields are present
+      const requiredEventFields = ['title', 'date', 'description', 'category'];
       for (const field of requiredEventFields) {
-        if (!event[field]) {
+        if (!event[field] || event[field].trim() === '') {
           return NextResponse.json(
-            { error: `Missing required field: events.${field}` },
+            { error: `Missing required field: events.${field} for event "${event.title || 'untitled'}"` },
             { status: 400 }
           );
         }
+      }
+
+      // URL is optional but should be a string if provided
+      if (event.url && typeof event.url !== 'string') {
+        return NextResponse.json(
+          { error: `Invalid URL format for event "${event.title}"` },
+          { status: 400 }
+        );
       }
     }
 
@@ -114,15 +142,23 @@ export async function POST(request: NextRequest) {
     // Clear existing events and create new ones
     await prisma.memorableMoment.deleteMany();
 
-    for (let i = 0; i < data.events.length; i++) {
-      const event = data.events[i];
+    // Filter out empty events and save only valid ones
+    const validEvents = data.events.filter(event =>
+      event.title && event.title.trim() !== '' &&
+      event.description && event.description.trim() !== '' &&
+      event.date && event.date.trim() !== '' &&
+      event.category && event.category.trim() !== ''
+    );
+
+    for (let i = 0; i < validEvents.length; i++) {
+      const event = validEvents[i];
       await prisma.memorableMoment.create({
         data: {
-          title: event.title,
-          description: event.description,
-          imageUrl: event.url,
-          date: event.date,
-          category: event.category,
+          title: event.title.trim(),
+          description: event.description.trim(),
+          imageUrl: event.url ? event.url.trim() : '',
+          date: event.date.trim(),
+          category: event.category.trim(),
           displayOrder: i,
           isActive: true
         }
@@ -136,8 +172,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error updating memorable moments data:', error);
+
+    // Provide more specific error message
+    let errorMessage = 'Failed to update data';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('Detailed error:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+
     return NextResponse.json(
-      { error: 'Failed to update data' },
+      { error: errorMessage },
       { status: 500 }
     );
   } finally {

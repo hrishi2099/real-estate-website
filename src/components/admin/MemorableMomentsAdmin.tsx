@@ -151,30 +151,58 @@ export default function MemorableMomentsAdmin() {
   const saveToServer = async () => {
     setSaveStatus('saving');
     try {
+      const payload = {
+        sectionInfo,
+        events
+      };
+
+      console.log('Sending data to server:', {
+        sectionInfo,
+        eventsCount: events.length,
+        events: events.map((e, i) => ({
+          index: i,
+          id: e.id,
+          title: e.title,
+          hasUrl: !!e.url,
+          hasDate: !!e.date,
+          hasDescription: !!e.description,
+          hasCategory: !!e.category
+        }))
+      });
+
       const response = await fetch('/api/admin/memorable-moments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          sectionInfo,
-          events
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Save failed' }));
-        throw new Error(errorData.error || 'Failed to save data');
+        throw new Error(responseData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       setSaveStatus('saved');
 
       // Reload data to ensure consistency
-      const reloadResponse = await fetch('/api/admin/memorable-moments');
-      if (reloadResponse.ok) {
-        const reloadedData = await reloadResponse.json();
-        setSectionInfo(reloadedData.sectionInfo);
-        setEvents(reloadedData.events || []);
+      try {
+        const reloadResponse = await fetch('/api/admin/memorable-moments');
+        if (reloadResponse.ok) {
+          const reloadedData = await reloadResponse.json();
+          setSectionInfo(reloadedData.sectionInfo);
+          setEvents(reloadedData.events || []);
+          console.log('Data reloaded successfully');
+        } else {
+          console.warn('Failed to reload data, but save was successful');
+        }
+      } catch (reloadError) {
+        console.warn('Failed to reload data:', reloadError);
       }
 
       setTimeout(() => setSaveStatus('idle'), 3000);
