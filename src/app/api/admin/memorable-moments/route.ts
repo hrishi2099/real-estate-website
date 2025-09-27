@@ -3,6 +3,15 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface EventData {
+  id: string;
+  url: string;
+  title: string;
+  date: string;
+  description: string;
+  category: string;
+}
+
 export async function GET() {
   try {
     // Get section info
@@ -92,14 +101,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate events - only validate non-empty events
-    for (const event of data.events) {
+    for (const event of data.events as EventData[]) {
       // Skip validation for empty events (they won't be saved)
       if (!event.title && !event.url && !event.description) {
         continue;
       }
 
       // For non-empty events, ensure required fields are present
-      const requiredEventFields = ['title', 'date', 'description', 'category'];
+      const requiredEventFields: (keyof EventData)[] = ['title', 'date', 'description', 'category'];
       for (const field of requiredEventFields) {
         if (!event[field] || event[field].trim() === '') {
           return NextResponse.json(
@@ -143,7 +152,7 @@ export async function POST(request: NextRequest) {
     await prisma.memorableMoment.deleteMany();
 
     // Filter out empty events and save only valid ones
-    const validEvents = data.events.filter(event =>
+    const validEvents = data.events.filter((event: EventData) =>
       event.title && event.title.trim() !== '' &&
       event.description && event.description.trim() !== '' &&
       event.date && event.date.trim() !== '' &&
