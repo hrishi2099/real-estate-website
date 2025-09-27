@@ -236,11 +236,11 @@ export default function PastEventsShowcase() {
                       <h3 className="text-xl font-bold mb-2 line-clamp-2">
                         {event.title}
                       </h3>
-                      <p className={`text-sm text-gray-200 mb-3 transition-all duration-300 ${
-                        hoveredEvent === event.id ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden'
-                      }`}>
-                        {event.description}
-                      </p>
+                      {hoveredEvent === event.id && (
+                        <p className="text-sm text-gray-200 mb-3 transition-all duration-300 opacity-100 line-clamp-3">
+                          {event.description}
+                        </p>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-300">{event.date}</span>
                         <div className={`transform transition-all duration-300 ${
@@ -369,6 +369,13 @@ export default function PastEventsShowcase() {
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
