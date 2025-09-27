@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import memorableMomentsData from "@/data/memorableMoments.json";
 
 interface EventPhoto {
   id: string;
@@ -19,13 +18,40 @@ interface SectionInfo {
 }
 
 export default function MemorableMomentsAdmin() {
-  const [sectionInfo, setSectionInfo] = useState<SectionInfo>(memorableMomentsData.sectionInfo);
-  const [events, setEvents] = useState<EventPhoto[]>(memorableMomentsData.events);
+  const [sectionInfo, setSectionInfo] = useState<SectionInfo>({
+    title: "Memorable Moments",
+    subtitle: "Our Journey",
+    description: "Loading..."
+  });
+  const [events, setEvents] = useState<EventPhoto[]>([]);
   const [editingEvent, setEditingEvent] = useState<EventPhoto | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load data from API on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/admin/memorable-moments');
+        if (response.ok) {
+          const data = await response.json();
+          setSectionInfo(data.sectionInfo);
+          setEvents(data.events || []);
+        } else {
+          console.error('Failed to load memorable moments data');
+        }
+      } catch (error) {
+        console.error('Error loading memorable moments:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleSectionInfoChange = (field: keyof SectionInfo, value: string) => {
     setSectionInfo(prev => ({ ...prev, [field]: value }));
@@ -73,34 +99,52 @@ export default function MemorableMomentsAdmin() {
     setUploadProgress(0);
 
     try {
+      // Simulate progress
+      setUploadProgress(20);
+
       const formData = new FormData();
       formData.append('file', file);
+
+      setUploadProgress(50);
 
       const response = await fetch('/api/admin/memorable-moments/upload', {
         method: 'POST',
         body: formData,
       });
 
+      setUploadProgress(80);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
+
+      if (!result.success || !result.url) {
+        throw new Error('Invalid response from server');
+      }
 
       if (editingEvent) {
         setEditingEvent(prev => prev ? { ...prev, url: result.url } : null);
       }
 
       setUploadProgress(100);
+
+      // Show success message briefly
+      setTimeout(() => {
+        alert('Image uploaded successfully!');
+      }, 500);
+
       return result.url;
     } catch (error) {
       console.error('Upload error:', error);
-      alert(error instanceof Error ? error.message : 'Upload failed');
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      alert(`Upload failed: ${errorMessage}`);
       return null;
     } finally {
       setIsUploading(false);
-      setTimeout(() => setUploadProgress(0), 2000);
+      setTimeout(() => setUploadProgress(0), 3000);
     }
   };
 
@@ -119,15 +163,27 @@ export default function MemorableMomentsAdmin() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save data');
+        const errorData = await response.json().catch(() => ({ error: 'Save failed' }));
+        throw new Error(errorData.error || 'Failed to save data');
       }
 
       setSaveStatus('saved');
+
+      // Reload data to ensure consistency
+      const reloadResponse = await fetch('/api/admin/memorable-moments');
+      if (reloadResponse.ok) {
+        const reloadedData = await reloadResponse.json();
+        setSectionInfo(reloadedData.sectionInfo);
+        setEvents(reloadedData.events || []);
+      }
+
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       console.error('Save error:', error);
       setSaveStatus('error');
-      alert('Failed to save data to server');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save data to server';
+      alert(`Save failed: ${errorMessage}`);
+      setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
 
@@ -149,6 +205,22 @@ export default function MemorableMomentsAdmin() {
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-6">Memorable Moments Admin</h1>
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            </div>
+            <p className="text-center text-gray-600">Loading memorable moments data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

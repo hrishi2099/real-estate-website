@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { existsSync } from 'fs';
 import sharp from 'sharp';
 
 // Define allowed image types
@@ -60,6 +61,11 @@ export async function POST(request: NextRequest) {
     // Save to public directory
     const uploadsDir = join(process.cwd(), 'public', 'images', 'memorable-moments');
     const filePath = join(uploadsDir, fileName.replace(/\.[^/.]+$/, '.jpg'));
+
+    // Ensure directory exists
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
+    }
 
     await writeFile(filePath, optimizedBuffer);
 
