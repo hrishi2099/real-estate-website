@@ -40,21 +40,14 @@ export default function PastEventsShowcase() {
           setPastEvents(data.events || []);
           setSectionInfo(data.sectionInfo || sectionInfo);
         } else {
-          // Fallback to static import if API fails
-          const staticData = await import('@/data/memorableMoments.json');
-          setPastEvents(staticData.events || []);
-          setSectionInfo(staticData.sectionInfo || sectionInfo);
+          console.error('Failed to load memorable moments:', response.statusText);
+          // Set empty array if API fails - data should be in database
+          setPastEvents([]);
         }
       } catch (error) {
         console.error('Error loading memorable moments:', error);
-        // Fallback to static import
-        try {
-          const staticData = await import('@/data/memorableMoments.json');
-          setPastEvents(staticData.events || []);
-          setSectionInfo(staticData.sectionInfo || sectionInfo);
-        } catch (fallbackError) {
-          console.error('Error loading fallback data:', fallbackError);
-        }
+        // Set empty array if API fails - data should be in database
+        setPastEvents([]);
       } finally {
         setIsLoading(false);
       }

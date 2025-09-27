@@ -17,9 +17,10 @@
     "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "db:seed-production": "node scripts/seed-production.js",
+    "migrate:memorable-moments": "node scripts/migrate-memorable-moments.js",
     "deploy:hostinger": "./deploy-hostinger.sh",
     "start:production": "NODE_ENV=production next start",
-    "setup:hostinger": "npm install --production && npx prisma generate && npx prisma db push"
+    "setup:hostinger": "npm install --production && npx prisma generate && npx prisma db push && npm run migrate:memorable-moments"
   },
   "dependencies": {
     "@google/model-viewer": "^4.1.0",

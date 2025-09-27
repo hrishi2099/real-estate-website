@@ -847,3 +847,30 @@ enum AdType {
   CARD
   FEATURED
 }
+
+model MemorableMoment {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  imageUrl    String
+  date        String
+  category    String
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([displayOrder, isActive])
+  @@map("memorable_moments")
+}
+
+model MemorableMomentsSection {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("memorable_moments_section")
+}
