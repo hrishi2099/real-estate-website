@@ -65,9 +65,11 @@ export default function LeafletMap({
     });
 
     // Satellite layer (Esri World Imagery - free, no API key required)
+    // Limiting maxZoom to 18 to avoid "data not available" errors at higher zoom levels
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      maxZoom: 19,
+      maxZoom: 18,
+      maxNativeZoom: 18,
     });
 
     // Add initial layer
