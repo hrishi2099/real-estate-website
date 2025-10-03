@@ -41,6 +41,7 @@
     "jspdf-autotable": "^5.0.2",
     "leaflet": "^1.9.4",
     "leaflet-omnivore": "^0.3.4",
+    "leaflet.fullscreen": "^4.0.0",
     "lucide-react": "^0.544.0",
     "mongodb": "^6.11.0",
     "mongoose": "^8.9.3",

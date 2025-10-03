@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.fullscreen';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -44,8 +46,17 @@ export default function LeafletMap({
     let mapCenter: [number, number] = [latitude || 0, longitude || 0];
     let hasValidCoords = latitude !== 0 && longitude !== 0;
 
-    // Initialize map
-    const map = L.map(mapRef.current).setView(mapCenter, hasValidCoords ? 16 : 2);
+    // Initialize map with fullscreen control
+    const map = L.map(mapRef.current, {
+      fullscreenControl: true,
+      fullscreenControlOptions: {
+        position: 'topleft',
+        title: 'Enter fullscreen',
+        titleCancel: 'Exit fullscreen',
+        forceSeparateButton: true,
+        forcePseudoFullscreen: false,
+      }
+    } as any).setView(mapCenter, hasValidCoords ? 16 : 2);
 
     // Street map layer (OpenStreetMap)
     const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -214,7 +225,7 @@ export default function LeafletMap({
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
             <span>Property Location</span>
           </div>
-          {kmlFileUrl && (
+          {(kmlFileUrl || kmlContent) && (
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-blue-500 bg-opacity-20 border border-blue-500"></div>
               <span>Plot Boundary</span>
