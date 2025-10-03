@@ -269,7 +269,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
       )}
 
       {/* Interactive Map */}
-      {property.latitude && property.longitude && (
+      {(property.kmlContent || property.kmlFileUrl || (property.latitude && property.longitude)) && (
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">Location & Property View</h3>
@@ -303,8 +303,8 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
 
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <LeafletMap
-              latitude={property.latitude}
-              longitude={property.longitude}
+              latitude={property.latitude || 0}
+              longitude={property.longitude || 0}
               propertyTitle={property.title}
               kmlFileUrl={property.kmlFileUrl}
               kmlContent={property.kmlContent}
@@ -332,7 +332,9 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                   <li>• Interactive map with zoom and pan controls</li>
                 </>
               )}
-              <li className="hidden sm:block">• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
+              {property.latitude && property.longitude && (
+                <li className="hidden sm:block">• Precise GPS coordinates: {Number(property.latitude).toFixed(6)}, {Number(property.longitude).toFixed(6)}</li>
+              )}
             </ul>
           </div>
         </div>

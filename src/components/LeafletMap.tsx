@@ -40,8 +40,12 @@ export default function LeafletMap({
   useEffect(() => {
     if (!mapRef.current) return;
 
+    // Determine initial map center - will be updated if KML data provides better coordinates
+    let mapCenter: [number, number] = [latitude || 0, longitude || 0];
+    let hasValidCoords = latitude !== 0 && longitude !== 0;
+
     // Initialize map
-    const map = L.map(mapRef.current).setView([latitude, longitude], 16);
+    const map = L.map(mapRef.current).setView(mapCenter, hasValidCoords ? 16 : 2);
 
     // Street map layer (OpenStreetMap)
     const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -65,17 +69,19 @@ export default function LeafletMap({
     streetLayerRef.current = streetLayer;
     satelliteLayerRef.current = satelliteLayer;
 
-    // Add property marker
-    const marker = L.marker([latitude, longitude]).addTo(map);
-    marker.bindPopup(`
-      <div style="font-family: system-ui, sans-serif;">
-        <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">${propertyTitle}</h3>
-        <p style="margin: 0; font-size: 12px; color: #6b7280;">
-          📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
-        </p>
-        ${kmlFileUrl ? '<p style="margin: 4px 0 0 0; font-size: 11px; color: #3b82f6;">🗺️ Plot details loaded</p>' : ''}
-      </div>
-    `);
+    // Add property marker only if we have valid coordinates
+    if (hasValidCoords) {
+      const marker = L.marker([latitude, longitude]).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family: system-ui, sans-serif;">
+          <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">${propertyTitle}</h3>
+          <p style="margin: 0; font-size: 12px; color: #6b7280;">
+            📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+          </p>
+          ${kmlFileUrl || kmlContent ? '<p style="margin: 4px 0 0 0; font-size: 11px; color: #3b82f6;">🗺️ Plot details loaded</p>' : ''}
+        </div>
+      `);
+    }
 
     // Load KML from content (production) or file (localhost)
     const loadKML = (kmlText: string) => {
