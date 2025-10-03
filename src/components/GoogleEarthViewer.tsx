@@ -31,6 +31,9 @@ export default function GoogleEarthViewer({
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
+    console.log('GoogleEarthViewer - API Key:', apiKey ? 'Present' : 'Missing');
+    console.log('GoogleEarthViewer - API Key length:', apiKey?.length);
+
     if (!apiKey) {
       setError('Google Maps API key is required');
       setIsLoading(false);
@@ -45,7 +48,9 @@ export default function GoogleEarthViewer({
           libraries: ['geometry', 'places']
         });
 
+        console.log('Loading Google Maps API...');
         await loader.load();
+        console.log('Google Maps API loaded successfully');
 
         if (mapRef.current) {
           const mapInstance = new google.maps.Map(mapRef.current, {

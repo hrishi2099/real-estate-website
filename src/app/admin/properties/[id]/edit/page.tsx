@@ -5,6 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import dynamic from 'next/dynamic';
 import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
+import KMLUploader from "@/components/KMLUploader";
+import { FEATURE_FLAGS } from "@/lib/features";
+import ClientOnly from "@/components/ClientOnly";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -28,6 +31,7 @@ interface Property {
   features: string[];
   images: Image[];
   isFeatured: boolean;
+  kmlFileUrl?: string | null;
 }
 
 interface Image {
@@ -84,7 +88,8 @@ export default function EditProperty() {
     features: [] as string[],
     isFeatured: false,
     newImages: [] as File[],
-    existingImages: [] as { url: string; alt: string }[]
+    existingImages: [] as { url: string; alt: string }[],
+    kmlFileUrl: '' as string
   });
 
   const propertyTypes = [
@@ -132,7 +137,8 @@ export default function EditProperty() {
               features: propertyData.features || [],
               isFeatured: propertyData.isFeatured || false,
               newImages: [],
-              existingImages: propertyData.images || []
+              existingImages: propertyData.images || [],
+              kmlFileUrl: propertyData.kmlFileUrl || ''
             });
           } else {
             console.log('Property data not found or invalid:', propertyData);
@@ -342,7 +348,8 @@ export default function EditProperty() {
         latitude: formData.latitude && formData.latitude.trim() ? Number(formData.latitude) : undefined,
         longitude: formData.longitude && formData.longitude.trim() ? Number(formData.longitude) : undefined,
         area: formData.area && formData.area.trim() ? Number(formData.area) : undefined,
-        images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! }))
+        images: allImageUrls.map(url => ({ url, filename: url.split('/').pop()! })),
+        kmlFileUrl: formData.kmlFileUrl && formData.kmlFileUrl.trim() ? formData.kmlFileUrl.trim() : undefined
       };
 
       console.log('Description being sent:', cleanDescription);
@@ -640,6 +647,25 @@ export default function EditProperty() {
               <p className="text-xs text-gray-500 mt-1">GPS longitude coordinate (-180 to 180)</p>
             </div>
           </div>
+
+          {/* KML File Upload Section */}
+          <ClientOnly>
+            {FEATURE_FLAGS.KML_UPLOAD_ENABLED && (
+              <div className="mt-6">
+                <KMLUploader
+                  onKMLUploaded={(url, content) => {
+                    setFormData(prev => ({ ...prev, kmlFileUrl: url }));
+                  }}
+                  currentKMLUrl={formData.kmlFileUrl || undefined}
+                />
+                {formData.kmlFileUrl && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    <p className="text-xs text-green-600 mt-1">File: {formData.kmlFileUrl.split('/').pop()}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </ClientOnly>
 
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">

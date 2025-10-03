@@ -165,9 +165,11 @@ export async function getProperty(id: string) {
   return {
     ...property,
     price: property.price.toNumber(),
+    pricePerSqft: property.pricePerSqft?.toNumber(),
     area: property.area?.toNumber(),
     latitude: property.latitude?.toNumber(),
     longitude: property.longitude?.toNumber(),
+    kmlFileUrl: property.kmlFileUrl,
     features: property.features ? (
       typeof property.features === 'string' ?
         (() => {

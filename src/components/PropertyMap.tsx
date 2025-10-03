@@ -142,6 +142,9 @@ export default function PropertyMap({
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+  console.log('PropertyMap - API Key:', apiKey ? 'Present' : 'Missing');
+  console.log('PropertyMap - API Key length:', apiKey?.length);
+
   if (!apiKey) {
     return (
       <div className={`${className} bg-red-50 border border-red-200 flex items-center justify-center rounded-lg`}>

@@ -24,6 +24,7 @@ interface Property {
   bedrooms?: number;
   bathrooms?: number;
   yearBuilt?: number;
+  kmlFileUrl?: string | null;
   owner?: {
     id: string;
     name: string;

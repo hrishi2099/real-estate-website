@@ -123,6 +123,8 @@ export const createPropertySchema = z.object({
   price: z.number().min(0, 'Price must be positive'),
   pricePerSqft: z.number().min(0, 'Price per sqft must be positive').optional(),
   location: createSecureTextSchema(1, 200, 'Location'),
+  latitude: z.number().min(-90, 'Latitude must be >= -90').max(90, 'Latitude must be <= 90').optional(),
+  longitude: z.number().min(-180, 'Longitude must be >= -180').max(180, 'Longitude must be <= 180').optional(),
   type: z.enum(['AGRICULTURAL_LAND', 'NA_LAND']),
   status: z.enum(['ACTIVE', 'SOLD', 'PENDING', 'INACTIVE']).default('ACTIVE'),
   bedrooms: z.number().int().min(0, 'Bedrooms must be non-negative').optional(),
@@ -130,6 +132,7 @@ export const createPropertySchema = z.object({
   area: z.number().min(0, 'Area must be positive').optional(),
   features: z.array(createSecureTextSchema(1, 100, 'Feature')).optional(),
   isFeatured: z.boolean().default(false),
+  kmlFileUrl: z.string().optional().or(z.literal('')).nullable(),
   images: z.array(z.object({
     url: z.string().url(),
     filename: z.string(),

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyMap from "./PropertyMapSimple";
 import GoogleEarthViewer from "./GoogleEarthViewer";
+import LeafletMap from "./LeafletMap";
 
 import { trackPropertyView, trackPropertyInquiry } from "@/lib/tracking";
 import { getCachedLocalityScores } from "../lib/locality-scoring";
@@ -300,23 +301,14 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
           </div>
 
           <div className="border border-gray-200 rounded-lg overflow-hidden">
-            {mapView === 'standard' || !FEATURE_FLAGS.GOOGLE_EARTH_ENABLED ? (
-              <PropertyMap
-                latitude={property.latitude}
-                longitude={property.longitude}
-                propertyTitle={property.title}
-                className="h-64 sm:h-80 lg:h-96 w-full"
-              />
-            ) : (
-              <GoogleEarthViewer
-                latitude={property.latitude}
-                longitude={property.longitude}
-                propertyTitle={property.title}
-                kmlUrl={property.kmlFileUrl}
-                className="w-full"
-                height="384px"
-              />
-            )}
+            <LeafletMap
+              latitude={property.latitude}
+              longitude={property.longitude}
+              propertyTitle={property.title}
+              kmlFileUrl={property.kmlFileUrl}
+              className="w-full"
+              height="384px"
+            />
           </div>
 
           <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg">
