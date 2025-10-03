@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const maxScore = searchParams.get("maxScore");
     const limit = searchParams.get("limit");
 
-    const whereClause: Prisma.LeadWhereInput = { // Changed to Prisma.LeadWhereInput
+    const whereClause: Prisma.leadWhereInput = { // Changed to Prisma.leadWhereInput
       leadAssignments: {
         none: {
           status: LeadAssignmentStatus.ACTIVE,

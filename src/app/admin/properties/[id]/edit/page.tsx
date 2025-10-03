@@ -139,7 +139,8 @@ export default function EditProperty() {
               isFeatured: propertyData.isFeatured || false,
               newImages: [],
               existingImages: propertyData.images || [],
-              kmlFileUrl: propertyData.kmlFileUrl || ''
+              kmlFileUrl: propertyData.kmlFileUrl || '',
+              kmlContent: (propertyData as any).kmlContent || ''
             });
           } else {
             console.log('Property data not found or invalid:', propertyData);

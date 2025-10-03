@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import prisma from '@/lib/prisma'; // Assuming prisma client is exported from here
 import { leadDistributionEngine } from '@/lib/lead-distribution'; // Assuming distributeLead is exported from here
+import { randomBytes } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,12 +52,13 @@ export async function POST(request: NextRequest) {
       try {
         const newLead = await prisma.lead.create({
           data: {
+            id: randomBytes(16).toString('hex'), // Generate unique ID
             name,
             email,
             phone,
-            // Add any other default fields required for lead creation
-            status: 'NEW', // Example default status
-            source: 'Excel Upload', // Example default source
+            status: 'NEW',
+            source: 'Excel Upload',
+            updatedAt: new Date(),
           },
         });
         createdLeads.push(newLead);

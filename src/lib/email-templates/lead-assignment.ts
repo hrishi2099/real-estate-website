@@ -1,4 +1,4 @@
-import { Lead, LeadAssignment } from '@prisma/client';
+import { lead, LeadAssignment } from '@prisma/client';
 
 interface SalesManagerForEmail {
   id: string;
@@ -7,7 +7,7 @@ interface SalesManagerForEmail {
 }
 
 interface LeadAssignmentEmailData {
-  lead: Lead;
+  lead: lead;
   salesManager: SalesManagerForEmail;
   assignment: LeadAssignment;
 }
