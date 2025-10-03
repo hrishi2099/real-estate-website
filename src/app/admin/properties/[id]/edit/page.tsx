@@ -89,7 +89,8 @@ export default function EditProperty() {
     isFeatured: false,
     newImages: [] as File[],
     existingImages: [] as { url: string; alt: string }[],
-    kmlFileUrl: '' as string
+    kmlFileUrl: '' as string,
+    kmlContent: '' as string
   });
 
   const propertyTypes = [
@@ -654,7 +655,7 @@ export default function EditProperty() {
               <div className="mt-6">
                 <KMLUploader
                   onKMLUploaded={(url, content) => {
-                    setFormData(prev => ({ ...prev, kmlFileUrl: url }));
+                    setFormData(prev => ({ ...prev, kmlFileUrl: url, kmlContent: content }));
                   }}
                   currentKMLUrl={formData.kmlFileUrl || undefined}
                 />

@@ -170,6 +170,7 @@ export async function getProperty(id: string) {
     latitude: property.latitude?.toNumber(),
     longitude: property.longitude?.toNumber(),
     kmlFileUrl: property.kmlFileUrl,
+    kmlContent: property.kmlContent,
     features: property.features ? (
       typeof property.features === 'string' ?
         (() => {

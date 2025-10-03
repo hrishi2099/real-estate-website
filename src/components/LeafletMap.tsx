@@ -17,6 +17,7 @@ interface LeafletMapProps {
   longitude: number;
   propertyTitle: string;
   kmlFileUrl?: string | null;
+  kmlContent?: string | null;
   className?: string;
   height?: string;
 }
@@ -26,6 +27,7 @@ export default function LeafletMap({
   longitude,
   propertyTitle,
   kmlFileUrl,
+  kmlContent,
   className = "w-full",
   height = "500px"
 }: LeafletMapProps) {
@@ -75,79 +77,87 @@ export default function LeafletMap({
       </div>
     `);
 
-    // Load KML file if provided
-    if (kmlFileUrl) {
+    // Load KML from content (production) or file (localhost)
+    const loadKML = (kmlText: string) => {
+      const parser = new DOMParser();
+      const kml = parser.parseFromString(kmlText, 'text/xml');
+
+      console.log('KML parsed successfully');
+
+      // Extract all Polygon elements
+      const polygons = kml.querySelectorAll('Polygon');
+      console.log('Found polygons:', polygons.length);
+
+      polygons.forEach((polygon, index) => {
+        const coordsText = polygon.querySelector('coordinates')?.textContent?.trim();
+        if (coordsText) {
+          const coords = coordsText.split(/\s+/).map(coord => {
+            const parts = coord.trim().split(',');
+            const lng = parseFloat(parts[0]);
+            const lat = parseFloat(parts[1]);
+            return [lat, lng] as [number, number];
+          }).filter(coord => !isNaN(coord[0]) && !isNaN(coord[1]));
+
+          if (coords.length > 0) {
+            const leafletPolygon = L.polygon(coords, {
+              color: '#3B82F6',
+              fillColor: '#3B82F6',
+              fillOpacity: 0.2,
+              weight: 2
+            }).addTo(map);
+
+            leafletPolygon.bindPopup(`Property Boundary ${polygons.length > 1 ? `(${index + 1})` : ''}`);
+
+            // Fit map to show the first polygon
+            if (index === 0) {
+              map.fitBounds(leafletPolygon.getBounds(), { padding: [50, 50] });
+            }
+          }
+        }
+      });
+
+      // Also extract LineString elements
+      const lineStrings = kml.querySelectorAll('LineString');
+      console.log('Found linestrings:', lineStrings.length);
+
+      lineStrings.forEach((lineString) => {
+        const coordsText = lineString.querySelector('coordinates')?.textContent?.trim();
+        if (coordsText) {
+          const coords = coordsText.split(/\s+/).map(coord => {
+            const parts = coord.trim().split(',');
+            const lng = parseFloat(parts[0]);
+            const lat = parseFloat(parts[1]);
+            return [lat, lng] as [number, number];
+          }).filter(coord => !isNaN(coord[0]) && !isNaN(coord[1]));
+
+          if (coords.length > 0) {
+            L.polyline(coords, {
+              color: '#3B82F6',
+              weight: 3
+            }).addTo(map).bindPopup('Property Line');
+          }
+        }
+      });
+    };
+
+    // Load KML from content (database) or file URL
+    if (kmlContent) {
+      // Use stored content (works in production)
+      console.log('Loading KML from database content');
+      loadKML(kmlContent);
+    } else if (kmlFileUrl) {
+      // Fetch from file URL (works in localhost)
       const fullUrl = kmlFileUrl.startsWith('http')
         ? kmlFileUrl
         : `${window.location.origin}${kmlFileUrl}`;
 
-      console.log('Loading KML from:', fullUrl);
+      console.log('Loading KML from file:', fullUrl);
 
       fetch(fullUrl)
         .then(response => response.text())
-        .then(kmlText => {
-          const parser = new DOMParser();
-          const kml = parser.parseFromString(kmlText, 'text/xml');
-
-          console.log('KML parsed successfully');
-
-          // Extract all Polygon elements
-          const polygons = kml.querySelectorAll('Polygon');
-          console.log('Found polygons:', polygons.length);
-
-          polygons.forEach((polygon, index) => {
-            const coordsText = polygon.querySelector('coordinates')?.textContent?.trim();
-            if (coordsText) {
-              const coords = coordsText.split(/\s+/).map(coord => {
-                const parts = coord.trim().split(',');
-                const lng = parseFloat(parts[0]);
-                const lat = parseFloat(parts[1]);
-                return [lat, lng] as [number, number];
-              }).filter(coord => !isNaN(coord[0]) && !isNaN(coord[1]));
-
-              if (coords.length > 0) {
-                const leafletPolygon = L.polygon(coords, {
-                  color: '#3B82F6',
-                  fillColor: '#3B82F6',
-                  fillOpacity: 0.2,
-                  weight: 2
-                }).addTo(map);
-
-                leafletPolygon.bindPopup(`Property Boundary ${polygons.length > 1 ? `(${index + 1})` : ''}`);
-
-                // Fit map to show the first polygon
-                if (index === 0) {
-                  map.fitBounds(leafletPolygon.getBounds(), { padding: [50, 50] });
-                }
-              }
-            }
-          });
-
-          // Also extract LineString elements
-          const lineStrings = kml.querySelectorAll('LineString');
-          console.log('Found linestrings:', lineStrings.length);
-
-          lineStrings.forEach((lineString) => {
-            const coordsText = lineString.querySelector('coordinates')?.textContent?.trim();
-            if (coordsText) {
-              const coords = coordsText.split(/\s+/).map(coord => {
-                const parts = coord.trim().split(',');
-                const lng = parseFloat(parts[0]);
-                const lat = parseFloat(parts[1]);
-                return [lat, lng] as [number, number];
-              }).filter(coord => !isNaN(coord[0]) && !isNaN(coord[1]));
-
-              if (coords.length > 0) {
-                L.polyline(coords, {
-                  color: '#3B82F6',
-                  weight: 3
-                }).addTo(map).bindPopup('Property Line');
-              }
-            }
-          });
-        })
+        .then(kmlText => loadKML(kmlText))
         .catch(error => {
-          console.error('Error loading KML:', error);
+          console.error('Error loading KML file:', error);
         });
     }
 
@@ -159,7 +169,7 @@ export default function LeafletMap({
     return () => {
       map.remove();
     };
-  }, [latitude, longitude, propertyTitle, kmlFileUrl, mapView]);
+  }, [latitude, longitude, propertyTitle, kmlFileUrl, kmlContent, mapView]);
 
   // Toggle between street and satellite view
   const toggleMapView = () => {

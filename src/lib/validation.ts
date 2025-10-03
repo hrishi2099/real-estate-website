@@ -133,6 +133,7 @@ export const createPropertySchema = z.object({
   features: z.array(createSecureTextSchema(1, 100, 'Feature')).optional(),
   isFeatured: z.boolean().default(false),
   kmlFileUrl: z.string().optional().or(z.literal('')).nullable(),
+  kmlContent: z.string().optional().or(z.literal('')).nullable(),
   images: z.array(z.object({
     url: z.string().url(),
     filename: z.string(),

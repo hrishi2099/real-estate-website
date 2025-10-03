@@ -29,6 +29,7 @@ interface PropertyDetailsProps {
     bathrooms?: number;
     yearBuilt?: number;
     kmlFileUrl?: string | null;
+    kmlContent?: string | null;
     owner?: {
       id: string;
       name: string;
@@ -306,6 +307,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
               longitude={property.longitude}
               propertyTitle={property.title}
               kmlFileUrl={property.kmlFileUrl}
+              kmlContent={property.kmlContent}
               className="w-full"
               height="384px"
             />

@@ -37,7 +37,8 @@ export default function NewProperty() {
     area: '',
     features: [] as string[],
     images: [] as File[],
-    kmlFileUrl: '' as string
+    kmlFileUrl: '' as string,
+    kmlContent: '' as string
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -493,7 +494,7 @@ export default function NewProperty() {
             </p>
             <KMLUploader
               onKMLUploaded={(url, content) => {
-                setFormData(prev => ({ ...prev, kmlFileUrl: url }));
+                setFormData(prev => ({ ...prev, kmlFileUrl: url, kmlContent: content }));
               }}
               currentKMLUrl={formData.kmlFileUrl || undefined}
             />

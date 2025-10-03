@@ -74,6 +74,7 @@ model Property {
   yearBuilt      Int?
   features       String?             @db.Text
   kmlFileUrl     String?             @db.Text
+  kmlContent     String?             @db.LongText
   ownerId        String?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
