@@ -35,9 +35,10 @@ export default function LeafletMap({
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const [mapView, setMapView] = useState<'street' | 'satellite'>('street');
+  const [mapView, setMapView] = useState<'street' | 'satellite' | 'terrain'>('street');
   const streetLayerRef = useRef<L.TileLayer | null>(null);
   const satelliteLayerRef = useRef<L.TileLayer | null>(null);
+  const terrainLayerRef = useRef<L.TileLayer | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -72,15 +73,24 @@ export default function LeafletMap({
       maxNativeZoom: 18,
     });
 
+    // Terrain layer (OpenTopoMap - topographic map with elevation shading)
+    const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+      maxZoom: 17,
+    });
+
     // Add initial layer
     if (mapView === 'street') {
       streetLayer.addTo(map);
-    } else {
+    } else if (mapView === 'satellite') {
       satelliteLayer.addTo(map);
+    } else {
+      terrainLayer.addTo(map);
     }
 
     streetLayerRef.current = streetLayer;
     satelliteLayerRef.current = satelliteLayer;
+    terrainLayerRef.current = terrainLayer;
 
     // Add property marker only if we have valid coordinates
     if (hasValidCoords) {
@@ -190,17 +200,21 @@ export default function LeafletMap({
     };
   }, [latitude, longitude, propertyTitle, kmlFileUrl, kmlContent, mapView]);
 
-  // Toggle between street and satellite view
+  // Toggle between street, satellite, and terrain views
   const toggleMapView = () => {
     const map = mapInstanceRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current) return;
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !terrainLayerRef.current) return;
 
     if (mapView === 'street') {
       map.removeLayer(streetLayerRef.current);
       satelliteLayerRef.current.addTo(map);
       setMapView('satellite');
-    } else {
+    } else if (mapView === 'satellite') {
       map.removeLayer(satelliteLayerRef.current);
+      terrainLayerRef.current.addTo(map);
+      setMapView('terrain');
+    } else {
+      map.removeLayer(terrainLayerRef.current);
       streetLayerRef.current.addTo(map);
       setMapView('street');
     }
@@ -216,7 +230,7 @@ export default function LeafletMap({
           onClick={toggleMapView}
           className="bg-white rounded-lg shadow-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         >
-          {mapView === 'street' ? '🛰️ Satellite View' : '🗺️ Street View'}
+          {mapView === 'street' ? '🛰️ Satellite' : mapView === 'satellite' ? '🏔️ Terrain' : '🗺️ Street'}
         </button>
       </div>
 
