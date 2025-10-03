@@ -26,9 +26,9 @@ model User {
   managerId                String?
   createdAt                DateTime             @default(now())
   updatedAt                DateTime             @updatedAt
-  accounts                 Account[]
-  sessions                 Session[]
   ABTest                   ABTest[]
+  account                  account[]
+  ads                      Ad[]
   auditLogs                AuditLog[]
   leadCalendarEvents       CalendarEvent[]      @relation("CalendarLead")
   calendarEvents           CalendarEvent[]
@@ -46,10 +46,10 @@ model User {
   analytics                PropertyAnalytics[]
   createdMessages          RCSMessage[]
   messageRecipients        RCSRecipient[]
+  session                  session[]
   SmartSegment             SmartSegment[]
   manager                  User?                @relation("ManagerSubordinate", fields: [managerId], references: [id])
   subordinates             User[]               @relation("ManagerSubordinate")
-  ads                      Ad[]
 
   @@index([managerId], map: "users_managerId_fkey")
   @@map("users")
@@ -60,7 +60,6 @@ model Property {
   title          String
   description    String?             @db.Text
   price          Decimal             @db.Decimal(12, 2)
-  pricePerSqft   Decimal?            @db.Decimal(10, 2)
   location       String
   address        String?
   latitude       Decimal?            @db.Decimal(10, 8)
@@ -73,11 +72,12 @@ model Property {
   area           Decimal?            @db.Decimal(10, 2)
   yearBuilt      Int?
   features       String?             @db.Text
-  kmlFileUrl     String?             @db.Text
-  kmlContent     String?             @db.LongText
   ownerId        String?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+  pricePerSqft   Decimal?            @db.Decimal(10, 2)
+  kmlFileUrl     String?             @db.Text
+  kmlContent     String?             @db.LongText
   calendarEvents CalendarEvent[]     @relation("CalendarProperty")
   favorites      Favorite[]
   inquiries      Inquiry[]
@@ -219,34 +219,6 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-model Lead {
-  id                     String           @id @default(cuid())
-  name                   String
-  email                  String
-  phone                  String?
-  status                 String           @default("NEW")
-  source                 String           @default("Excel Upload")
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  avgSessionDuration     Int?
-  budgetEstimate         Decimal?         @db.Decimal(12, 2)
-  contactFormSubmissions Int              @default(0)
-  daysActive             Int              @default(0)
-  favoritesSaved         Int              @default(0)
-  grade                  LeadGrade        @default(COLD)
-  inquiriesMade          Int              @default(0)
-  lastActivity           DateTime?
-  lastCalculated         DateTime         @default(now())
-  locationSearches       String?          @db.Text
-  priceRangeSearches     String?          @db.Text
-  propertyTypeInterests  String?          @db.Text
-  propertyViews          Int              @default(0)
-  returnVisits           Int              @default(0)
-  score                  Int              @default(0)
-  seriousBuyerIndicator  Boolean          @default(false)
-  leadAssignments        LeadAssignment[] @relation("LeadToAssignment")
-}
-
 model LeadScore {
   id                     String    @id @default(cuid())
   userId                 String    @unique
@@ -298,7 +270,7 @@ model LeadAssignment {
   notes             String?              @db.Text
   expectedCloseDate DateTime?
   priority          LeadPriority         @default(MEDIUM)
-  lead              Lead                 @relation("LeadToAssignment", fields: [leadId], references: [id], onDelete: Cascade)
+  lead              lead                 @relation("LeadToAssignment", fields: [leadId], references: [id], onDelete: Cascade)
   salesManager      User                 @relation("SalesManagerToAssignment", fields: [salesManagerId], references: [id], onDelete: Cascade)
   pipelineStages    PipelineStage[]
 
@@ -562,8 +534,63 @@ model MessageAutomation {
   @@map("message_automations")
 }
 
-model Account {
-  id                String  @id @default(cuid())
+model Ad {
+  id              String    @id @default(cuid())
+  title           String
+  subtitle        String?
+  description     String    @db.Text
+  imageUrl        String?
+  ctaText         String
+  ctaLink         String
+  backgroundColor String?
+  textColor       String?
+  type            AdType    @default(CARD)
+  isActive        Boolean   @default(true)
+  displayOrder    Int       @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  clickCount      Int       @default(0)
+  impressionCount Int       @default(0)
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  creator         User      @relation(fields: [createdBy], references: [id])
+
+  @@index([type, isActive, displayOrder])
+  @@index([startDate, endDate])
+  @@index([createdBy], map: "ads_createdBy_fkey")
+  @@map("ads")
+}
+
+model MemorableMoment {
+  id           String   @id @default(cuid())
+  title        String
+  description  String   @db.Text
+  imageUrl     String
+  date         String
+  category     String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder, isActive])
+  @@map("memorable_moments")
+}
+
+model MemorableMomentsSection {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("memorable_moments_section")
+}
+
+model account {
+  id                String  @id
   userId            String
   type              String
   provider          String
@@ -575,18 +602,46 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users             User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Account_userId_fkey")
 
-  @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
   @@index([userId], map: "Account_userId_fkey")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+model lead {
+  id                     String           @id
+  name                   String
+  email                  String
+  phone                  String?
+  status                 String           @default("NEW")
+  source                 String           @default("Excel Upload")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime
+  avgSessionDuration     Int?
+  budgetEstimate         Decimal?         @db.Decimal(12, 2)
+  contactFormSubmissions Int              @default(0)
+  daysActive             Int              @default(0)
+  favoritesSaved         Int              @default(0)
+  grade                  lead_grade       @default(COLD)
+  inquiriesMade          Int              @default(0)
+  lastActivity           DateTime?
+  lastCalculated         DateTime         @default(now())
+  locationSearches       String?          @db.Text
+  priceRangeSearches     String?          @db.Text
+  propertyTypeInterests  String?          @db.Text
+  propertyViews          Int              @default(0)
+  returnVisits           Int              @default(0)
+  score                  Int              @default(0)
+  seriousBuyerIndicator  Boolean          @default(false)
+  leadAssignments        LeadAssignment[] @relation("LeadToAssignment")
+}
+
+model session {
+  id           String   @id
+  sessionToken String   @unique(map: "Session_sessionToken_key")
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users        User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Session_userId_fkey")
 
   @@index([userId], map: "Session_userId_fkey")
 }
@@ -816,62 +871,15 @@ enum AutomationTrigger {
   CUSTOM_EVENT
 }
 
-model Ad {
-  id              String    @id @default(cuid())
-  title           String
-  subtitle        String?
-  description     String    @db.Text
-  imageUrl        String?
-  ctaText         String
-  ctaLink         String
-  backgroundColor String?
-  textColor       String?
-  type            AdType    @default(CARD)
-  isActive        Boolean   @default(true)
-  displayOrder    Int       @default(0)
-  startDate       DateTime?
-  endDate         DateTime?
-  clickCount      Int       @default(0)
-  impressionCount Int       @default(0)
-  createdBy       String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  creator         User      @relation(fields: [createdBy], references: [id])
-
-  @@index([type, isActive, displayOrder])
-  @@index([startDate, endDate])
-  @@map("ads")
-}
-
 enum AdType {
   BANNER
   CARD
   FEATURED
 }
 
-model MemorableMoment {
-  id          String   @id @default(cuid())
-  title       String
-  description String   @db.Text
-  imageUrl    String
-  date        String
-  category    String
-  displayOrder Int     @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([displayOrder, isActive])
-  @@map("memorable_moments")
-}
-
-model MemorableMomentsSection {
-  id          String   @id @default(cuid())
-  title       String
-  subtitle    String
-  description String   @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("memorable_moments_section")
+enum lead_grade {
+  COLD
+  WARM
+  HOT
+  QUALIFIED
 }
