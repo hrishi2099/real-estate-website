@@ -39,6 +39,7 @@ export default function LeafletMap({
   const streetLayerRef = useRef<L.TileLayer | null>(null);
   const satelliteLayerRef = useRef<L.TileLayer | null>(null);
   const terrainLayerRef = useRef<L.TileLayer | null>(null);
+  const labelsLayerRef = useRef<L.TileLayer | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -79,11 +80,19 @@ export default function LeafletMap({
       maxZoom: 17,
     });
 
+    // Labels overlay layer (for satellite view) - transparent layer with only labels
+    const labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19,
+      pane: 'shadowPane' // Ensure labels appear on top
+    });
+
     // Add initial layer
     if (mapView === 'street') {
       streetLayer.addTo(map);
     } else if (mapView === 'satellite') {
       satelliteLayer.addTo(map);
+      labelsLayer.addTo(map); // Add labels overlay for satellite view
     } else {
       terrainLayer.addTo(map);
     }
@@ -91,6 +100,7 @@ export default function LeafletMap({
     streetLayerRef.current = streetLayer;
     satelliteLayerRef.current = satelliteLayer;
     terrainLayerRef.current = terrainLayer;
+    labelsLayerRef.current = labelsLayer;
 
     // Add property marker only if we have valid coordinates
     if (hasValidCoords) {
@@ -203,14 +213,16 @@ export default function LeafletMap({
   // Toggle between street, satellite, and terrain views
   const toggleMapView = () => {
     const map = mapInstanceRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !terrainLayerRef.current) return;
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !terrainLayerRef.current || !labelsLayerRef.current) return;
 
     if (mapView === 'street') {
       map.removeLayer(streetLayerRef.current);
       satelliteLayerRef.current.addTo(map);
+      labelsLayerRef.current.addTo(map); // Add labels for satellite view
       setMapView('satellite');
     } else if (mapView === 'satellite') {
       map.removeLayer(satelliteLayerRef.current);
+      map.removeLayer(labelsLayerRef.current); // Remove labels when leaving satellite view
       terrainLayerRef.current.addTo(map);
       setMapView('terrain');
     } else {
