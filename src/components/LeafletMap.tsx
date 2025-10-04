@@ -35,11 +35,6 @@ export default function LeafletMap({
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const [mapView, setMapView] = useState<'street' | 'satellite' | 'terrain'>('street');
-  const streetLayerRef = useRef<L.TileLayer | null>(null);
-  const satelliteLayerRef = useRef<L.TileLayer | null>(null);
-  const terrainLayerRef = useRef<L.TileLayer | null>(null);
-  const labelsLayerRef = useRef<L.TileLayer | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -60,61 +55,20 @@ export default function LeafletMap({
       }
     } as any).setView(mapCenter, hasValidCoords ? 16 : 2);
 
-    // Street map layer (OpenStreetMap)
-    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-    });
+    // Google Hybrid layer (Satellite with roads and labels)
+    const googleSatelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      attribution: '&copy; Google',
+      maxZoom: 21,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
 
-    // Satellite layer (Esri World Imagery - free, no API key required)
-    // Limiting maxZoom to 18 to avoid "data not available" errors at higher zoom levels
-    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      maxZoom: 18,
-      maxNativeZoom: 18,
-    });
-
-    // Terrain layer (OpenTopoMap - topographic map with elevation shading)
-    const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-      maxZoom: 17,
-    });
-
-    // Labels overlay layer (for satellite view) - transparent layer with only labels
-    const labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 19,
-      pane: 'shadowPane' // Ensure labels appear on top
-    });
-
-    // Add initial layer
-    if (mapView === 'street') {
-      streetLayer.addTo(map);
-    } else if (mapView === 'satellite') {
-      satelliteLayer.addTo(map);
-      labelsLayer.addTo(map); // Add labels overlay for satellite view
-    } else {
-      terrainLayer.addTo(map);
-    }
-
-    streetLayerRef.current = streetLayer;
-    satelliteLayerRef.current = satelliteLayer;
-    terrainLayerRef.current = terrainLayer;
-    labelsLayerRef.current = labelsLayer;
-
-    // Add property marker only if we have valid coordinates
-    if (hasValidCoords) {
-      const marker = L.marker([latitude, longitude]).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family: system-ui, sans-serif;">
-          <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">${propertyTitle}</h3>
-          <p style="margin: 0; font-size: 12px; color: #6b7280;">
-            📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
-          </p>
-          ${kmlFileUrl || kmlContent ? '<p style="margin: 4px 0 0 0; font-size: 11px; color: #3b82f6;">🗺️ Plot details loaded</p>' : ''}
-        </div>
-      `);
-    }
+    // Google Hybrid overlay - roads, labels, and place names on satellite
+    const googleHybridOverlay = L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+      attribution: '&copy; Google',
+      maxZoom: 21,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      opacity: 1
+    }).addTo(map);
 
     // Load KML from content (production) or file (localhost)
     const loadKML = (kmlText: string) => {
@@ -202,65 +156,25 @@ export default function LeafletMap({
 
     mapInstanceRef.current = map;
 
-    mapInstanceRef.current = map;
-
     // Cleanup
     return () => {
       map.remove();
     };
-  }, [latitude, longitude, propertyTitle, kmlFileUrl, kmlContent, mapView]);
-
-  // Toggle between street, satellite, and terrain views
-  const toggleMapView = () => {
-    const map = mapInstanceRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !terrainLayerRef.current || !labelsLayerRef.current) return;
-
-    if (mapView === 'street') {
-      map.removeLayer(streetLayerRef.current);
-      satelliteLayerRef.current.addTo(map);
-      labelsLayerRef.current.addTo(map); // Add labels for satellite view
-      setMapView('satellite');
-    } else if (mapView === 'satellite') {
-      map.removeLayer(satelliteLayerRef.current);
-      map.removeLayer(labelsLayerRef.current); // Remove labels when leaving satellite view
-      terrainLayerRef.current.addTo(map);
-      setMapView('terrain');
-    } else {
-      map.removeLayer(terrainLayerRef.current);
-      streetLayerRef.current.addTo(map);
-      setMapView('street');
-    }
-  };
+  }, [latitude, longitude, propertyTitle, kmlFileUrl, kmlContent]);
 
   return (
     <div className={`${className} relative rounded-lg overflow-hidden border border-gray-200`}>
       <div ref={mapRef} style={{ width: '100%', height }} />
 
-      {/* View Toggle Button */}
-      <div className="absolute top-4 right-4 z-[1000]">
-        <button
-          onClick={toggleMapView}
-          className="bg-white rounded-lg shadow-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-        >
-          {mapView === 'street' ? '🛰️ Satellite' : mapView === 'satellite' ? '🏔️ Terrain' : '🗺️ Street'}
-        </button>
-      </div>
-
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-2 text-xs">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>Property Location</span>
+      {(kmlFileUrl || kmlContent) && (
+        <div className="absolute bottom-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3 text-xs">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-blue-500 bg-opacity-20 border-2 border-blue-500"></div>
+            <span className="font-medium">Plot Boundary</span>
           </div>
-          {(kmlFileUrl || kmlContent) && (
-            <div className="flex items-center space-x-1">
-              <div className="w-3 h-3 bg-blue-500 bg-opacity-20 border border-blue-500"></div>
-              <span>Plot Boundary</span>
-            </div>
-          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

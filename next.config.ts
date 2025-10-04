@@ -4,7 +4,7 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' *.googletagmanager.com *.google-analytics.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' data: blob: images.unsplash.com;
+    img-src 'self' data: blob: images.unsplash.com *.google.com;
     font-src 'self';
     connect-src 'self' *.googletagmanager.com *.google-analytics.com vitals.vercel-insights.com *.googleadservices.com www.google.com *.google.com;
     frame-src 'self';
