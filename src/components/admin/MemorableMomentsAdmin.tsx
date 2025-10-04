@@ -308,9 +308,14 @@ export default function MemorableMomentsAdmin() {
                   <div className="aspect-video bg-gray-200 rounded-md mb-3 overflow-hidden">
                     {event.url && (
                       <img
-                        src={event.url}
+                        src={`${event.url}${event.url.startsWith('/images/') ? `?t=${Date.now()}` : ''}`}
                         alt={event.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">Image not found</div>';
+                        }}
                       />
                     )}
                   </div>
@@ -486,7 +491,7 @@ export default function MemorableMomentsAdmin() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                           <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
                             <img
-                              src={editingEvent.url}
+                              src={`${editingEvent.url}${editingEvent.url.startsWith('/images/') ? `?t=${Date.now()}` : ''}`}
                               alt="Preview"
                               className="w-full h-full object-cover"
                               onError={(e) => {

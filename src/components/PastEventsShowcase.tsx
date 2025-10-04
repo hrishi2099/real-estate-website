@@ -57,11 +57,26 @@ export default function PastEventsShowcase() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % pastEvents.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    if (pastEvents.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % pastEvents.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
   }, [pastEvents.length]);
+
+  // Helper function to determine if URL is local
+  const isLocalImage = (url: string) => {
+    return url.startsWith('/images/');
+  };
+
+  // Add cache busting for local images
+  const getImageUrl = (url: string) => {
+    if (isLocalImage(url)) {
+      return `${url}?t=${Date.now()}`;
+    }
+    return url;
+  };
 
   const handleEventClick = (event: EventPhoto) => {
     setSelectedEvent(event);
@@ -138,12 +153,21 @@ export default function PastEventsShowcase() {
         <div className="mb-16">
           <div className="relative h-96 md:h-[500px] rounded-3xl overflow-hidden shadow-2xl group">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
-            <Image
-              src={pastEvents[currentImageIndex].url}
-              alt={pastEvents[currentImageIndex].title}
-              fill
-              className="object-cover transition-all duration-1000 group-hover:scale-110"
-            />
+            {isLocalImage(pastEvents[currentImageIndex].url) ? (
+              <img
+                src={getImageUrl(pastEvents[currentImageIndex].url)}
+                alt={pastEvents[currentImageIndex].title}
+                className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+              />
+            ) : (
+              <Image
+                src={pastEvents[currentImageIndex].url}
+                alt={pastEvents[currentImageIndex].title}
+                fill
+                className="object-cover transition-all duration-1000 group-hover:scale-110"
+                unoptimized
+              />
+            )}
 
             {/* Content Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 lg:p-8 text-white z-20">
@@ -204,14 +228,25 @@ export default function PastEventsShowcase() {
                 </div>
 
                 <div className="relative h-full rounded-2xl overflow-hidden">
-                  <Image
-                    src={event.url}
-                    alt={event.title}
-                    fill
-                    className={`object-cover transition-all duration-500 ${
-                      hoveredEvent === event.id ? 'scale-110 blur-sm' : ''
-                    }`}
-                  />
+                  {isLocalImage(event.url) ? (
+                    <img
+                      src={getImageUrl(event.url)}
+                      alt={event.title}
+                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+                        hoveredEvent === event.id ? 'scale-110 blur-sm' : ''
+                      }`}
+                    />
+                  ) : (
+                    <Image
+                      src={event.url}
+                      alt={event.title}
+                      fill
+                      className={`object-cover transition-all duration-500 ${
+                        hoveredEvent === event.id ? 'scale-110 blur-sm' : ''
+                      }`}
+                      unoptimized
+                    />
+                  )}
 
                   {/* Gradient Overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 ${
@@ -300,12 +335,21 @@ export default function PastEventsShowcase() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative h-96">
-              <Image
-                src={selectedEvent.url}
-                alt={selectedEvent.title}
-                fill
-                className="object-cover"
-              />
+              {isLocalImage(selectedEvent.url) ? (
+                <img
+                  src={getImageUrl(selectedEvent.url)}
+                  alt={selectedEvent.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={selectedEvent.url}
+                  alt={selectedEvent.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <button
                 onClick={closeModal}
