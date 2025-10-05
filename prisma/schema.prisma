@@ -78,7 +78,6 @@ model Property {
   pricePerSqft   Decimal?            @db.Decimal(10, 2)
   kmlFileUrl     String?             @db.Text
   kmlContent     String?             @db.LongText
-  plotCount      Int?
   calendarEvents CalendarEvent[]     @relation("CalendarProperty")
   favorites      Favorite[]
   inquiries      Inquiry[]
