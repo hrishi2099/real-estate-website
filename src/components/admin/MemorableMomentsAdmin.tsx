@@ -126,6 +126,7 @@ export default function MemorableMomentsAdmin() {
       }
 
       if (editingEvent) {
+        // Store the data URL (base64) which will be saved to database
         setEditingEvent(prev => prev ? { ...prev, url: result.url } : null);
       }
 
@@ -133,7 +134,7 @@ export default function MemorableMomentsAdmin() {
 
       // Show success message briefly
       setTimeout(() => {
-        alert('Image uploaded successfully!');
+        alert('Image uploaded successfully! The image will be saved to the database when you save this event.');
       }, 500);
 
       return result.url;
@@ -308,7 +309,7 @@ export default function MemorableMomentsAdmin() {
                   <div className="aspect-video bg-gray-200 rounded-md mb-3 overflow-hidden">
                     {event.url && (
                       <img
-                        src={`${event.url}${event.url.startsWith('/images/') ? `?t=${Date.now()}` : ''}`}
+                        src={event.url.startsWith('/images/') ? `${event.url}?t=${Date.now()}` : event.url}
                         alt={event.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -491,7 +492,7 @@ export default function MemorableMomentsAdmin() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                           <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
                             <img
-                              src={`${editingEvent.url}${editingEvent.url.startsWith('/images/') ? `?t=${Date.now()}` : ''}`}
+                              src={editingEvent.url.startsWith('/images/') ? `${editingEvent.url}?t=${Date.now()}` : editingEvent.url}
                               alt="Preview"
                               className="w-full h-full object-cover"
                               onError={(e) => {

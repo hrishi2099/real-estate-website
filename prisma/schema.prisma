@@ -76,6 +76,7 @@ model Property {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   pricePerSqft   Decimal?            @db.Decimal(10, 2)
+  plotCount      Int?
   kmlFileUrl     String?             @db.Text
   kmlContent     String?             @db.LongText
   calendarEvents CalendarEvent[]     @relation("CalendarProperty")
@@ -563,16 +564,19 @@ model Ad {
 }
 
 model MemorableMoment {
-  id           String   @id @default(cuid())
-  title        String
-  description  String   @db.Text
-  imageUrl     String
-  date         String
-  category     String
-  displayOrder Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  title         String
+  description   String   @db.Text
+  imageUrl      String
+  imageData     Bytes?   @db.LongBlob
+  imageMimeType String?
+  imageSize     Int?
+  date          String
+  category      String
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([displayOrder, isActive])
   @@map("memorable_moments")

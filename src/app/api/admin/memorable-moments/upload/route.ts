@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 import sharp from 'sharp';
 
 // Define allowed image types
@@ -12,6 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
     const file: File | null = data.get('file') as unknown as File;
+    const eventId: string | null = data.get('eventId') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -34,11 +32,6 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const fileName = `${timestamp}_${originalName}`;
-
     // Optimize image with sharp
     let optimizedBuffer: Buffer;
     try {
@@ -58,23 +51,24 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Save to public directory
-    const uploadsDir = join(process.cwd(), 'public', 'images', 'memorable-moments');
-    const filePath = join(uploadsDir, fileName.replace(/\.[^/.]+$/, '.jpg'));
+    // Store metadata for returning to client
+    const imageData = {
+      data: optimizedBuffer,
+      mimeType: 'image/jpeg',
+      size: optimizedBuffer.length,
+      eventId: eventId
+    };
 
-    // Ensure directory exists
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    await writeFile(filePath, optimizedBuffer);
-
-    // Return the public URL
-    const publicUrl = `/images/memorable-moments/${fileName.replace(/\.[^/.]+$/, '.jpg')}`;
+    // Return a temporary data URL that the frontend will use to update the event
+    // The actual saving to database happens when the event is saved
+    const base64Image = optimizedBuffer.toString('base64');
+    const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: dataUrl,
+      imageData: base64Image,
+      mimeType: 'image/jpeg',
       originalName: file.name,
       size: optimizedBuffer.length
     });

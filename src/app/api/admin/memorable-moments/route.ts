@@ -161,17 +161,50 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < validEvents.length; i++) {
       const event = validEvents[i];
-      await prisma.memorableMoment.create({
+
+      // Check if the URL is a base64 data URL (from upload)
+      let imageData: Buffer | undefined;
+      let imageMimeType: string | undefined;
+      let imageSize: number | undefined;
+      let finalImageUrl = event.url ? event.url.trim() : '';
+
+      if (event.url && event.url.startsWith('data:image/')) {
+        // Extract base64 data and mime type
+        const matches = event.url.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          imageMimeType = matches[1];
+          const base64Data = matches[2];
+          imageData = Buffer.from(base64Data, 'base64');
+          imageSize = imageData.length;
+          // Set imageUrl to a placeholder that will be updated after insert
+          finalImageUrl = 'db-stored';
+        }
+      }
+
+      const createdEvent = await prisma.memorableMoment.create({
         data: {
           title: event.title.trim(),
           description: event.description.trim(),
-          imageUrl: event.url ? event.url.trim() : '',
+          imageUrl: finalImageUrl,
+          imageData: imageData,
+          imageMimeType: imageMimeType,
+          imageSize: imageSize,
           date: event.date.trim(),
           category: event.category.trim(),
           displayOrder: i,
           isActive: true
         }
       });
+
+      // Update imageUrl to point to the API endpoint if we stored in DB
+      if (imageData) {
+        await prisma.memorableMoment.update({
+          where: { id: createdEvent.id },
+          data: {
+            imageUrl: `/api/memorable-moments/image/${createdEvent.id}`
+          }
+        });
+      }
     }
 
     return NextResponse.json({

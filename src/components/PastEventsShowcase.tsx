@@ -65,16 +65,32 @@ export default function PastEventsShowcase() {
     }
   }, [pastEvents.length]);
 
-  // Helper function to determine if URL is local
+  // Helper function to determine if URL is from database API
+  const isDatabaseImage = (url: string) => {
+    return url.startsWith('/api/memorable-moments/image/');
+  };
+
+  // Helper function to determine if URL is local filesystem
   const isLocalImage = (url: string) => {
     return url.startsWith('/images/');
   };
 
-  // Add cache busting for local images
+  // Helper function to determine if URL is a data URL
+  const isDataUrl = (url: string) => {
+    return url.startsWith('data:image/');
+  };
+
+  // Add cache busting for local images only
   const getImageUrl = (url: string) => {
+    // Database images don't need cache busting (they have immutable content)
+    if (isDatabaseImage(url)) {
+      return url;
+    }
+    // Local filesystem images need cache busting
     if (isLocalImage(url)) {
       return `${url}?t=${Date.now()}`;
     }
+    // Data URLs and external URLs use as-is
     return url;
   };
 
@@ -153,7 +169,7 @@ export default function PastEventsShowcase() {
         <div className="mb-16">
           <div className="relative h-96 md:h-[500px] rounded-3xl overflow-hidden shadow-2xl group">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
-            {isLocalImage(pastEvents[currentImageIndex].url) ? (
+            {isLocalImage(pastEvents[currentImageIndex].url) || isDatabaseImage(pastEvents[currentImageIndex].url) || isDataUrl(pastEvents[currentImageIndex].url) ? (
               <img
                 src={getImageUrl(pastEvents[currentImageIndex].url)}
                 alt={pastEvents[currentImageIndex].title}
@@ -228,7 +244,7 @@ export default function PastEventsShowcase() {
                 </div>
 
                 <div className="relative h-full rounded-2xl overflow-hidden">
-                  {isLocalImage(event.url) ? (
+                  {isLocalImage(event.url) || isDatabaseImage(event.url) || isDataUrl(event.url) ? (
                     <img
                       src={getImageUrl(event.url)}
                       alt={event.title}
@@ -331,35 +347,46 @@ export default function PastEventsShowcase() {
           tabIndex={0}
         >
           <div
-            className="bg-white rounded-3xl max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-300 scale-100"
+            className="bg-white rounded-3xl max-w-7xl w-full mx-4 max-h-[95vh] overflow-y-auto shadow-2xl transform transition-all duration-300 scale-100"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative h-96">
-              {isLocalImage(selectedEvent.url) ? (
-                <img
-                  src={getImageUrl(selectedEvent.url)}
-                  alt={selectedEvent.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+            <div className="relative bg-black flex items-center justify-center min-h-[85vh]">
+              {selectedEvent.url ? (
+                isLocalImage(selectedEvent.url) || isDatabaseImage(selectedEvent.url) || isDataUrl(selectedEvent.url) ? (
+                  <img
+                    src={getImageUrl(selectedEvent.url)}
+                    alt={selectedEvent.title}
+                    className="w-full h-auto max-h-[85vh] object-contain z-0"
+                    onError={(e) => {
+                      console.error('Failed to load image:', selectedEvent.url);
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src={selectedEvent.url}
+                    alt={selectedEvent.title}
+                    fill
+                    className="object-contain z-0"
+                    unoptimized
+                  />
+                )
               ) : (
-                <Image
-                  src={selectedEvent.url}
-                  alt={selectedEvent.title}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
+                <div className="absolute inset-0 flex items-center justify-center text-white text-xl">
+                  No image available
+                </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10"></div>
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+                className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-20"
               >
                 <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-20">
                 <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium mb-4">
                   {selectedEvent.category}
                 </div>
