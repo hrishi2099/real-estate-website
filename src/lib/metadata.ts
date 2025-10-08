@@ -97,7 +97,7 @@ export const defaultMetadata: Metadata = {
     telephone: false,
   },
   icons: {
-    apple: '/apple-icon.png',
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
   openGraph: {

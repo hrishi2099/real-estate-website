@@ -35,7 +35,12 @@ const sourceSans = Source_Sans_3({
 export const metadata: Metadata = {
   ...defaultMetadata,
   icons: {
-    icon: '/2zameen seva2 (1) (1).png', // Path to your PNG favicon in the public directory
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    apple: '/apple-touch-icon.png',
   },
 };
 
