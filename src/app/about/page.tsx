@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ZaminsevaSchema from "@/components/ZaminsevaSchema";
+import StructuredData from "@/components/StructuredData";
 
 export const metadata: Metadata = {
   title: "About Us | Zaminseva Prime - Your Partner in Property",
@@ -83,9 +84,31 @@ const milestones = [
 ];
 
 export default function AboutPage() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About Us",
+        "item": `${siteUrl}/about`
+      }
+    ]
+  };
+
   return (
     <>
       <ZaminsevaSchema pageType="homepage" />
+      <StructuredData data={breadcrumbSchema} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Unique Creative Hero Section */}
       <div className="relative overflow-hidden">

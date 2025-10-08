@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { trackContactSubmission } from "@/lib/analytics-gtm";
 import ZaminsevaSchema from "@/components/ZaminsevaSchema";
+import StructuredData from "@/components/StructuredData";
 
 interface OfficeSettings {
   id: string;
@@ -120,9 +121,31 @@ export default function ContactPage() {
     });
   };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Contact Us",
+        "item": `${siteUrl}/contact`
+      }
+    ]
+  };
+
   return (
     <>
       <ZaminsevaSchema pageType="homepage" />
+      <StructuredData data={breadcrumbSchema} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">

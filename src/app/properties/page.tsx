@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import PropertiesClient from "@/components/PropertiesClient";
 import Script from "next/script";
 import ZaminsevaSchema from "@/components/ZaminsevaSchema";
+import StructuredData from "@/components/StructuredData";
 
 export const metadata: Metadata = generateMetadataHelper(
   "Land Properties by Zaminseva Prime",
@@ -27,9 +28,31 @@ export const metadata: Metadata = generateMetadataHelper(
 );
 
 export default function PropertiesPage() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Properties",
+        "item": `${siteUrl}/properties`
+      }
+    ]
+  };
+
   return (
     <>
       <ZaminsevaSchema pageType="properties" />
+      <StructuredData data={breadcrumbSchema} />
       <PropertiesClient />
     </>
   );

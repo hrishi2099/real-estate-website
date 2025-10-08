@@ -186,9 +186,35 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     "propertyType": getSchemaPropertyType(property.type),
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Properties",
+        "item": `${siteUrl}/properties`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": property.title,
+        "item": `${siteUrl}/properties/${property.id}`
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <StructuredData data={realEstateListingSchema} />
+      <StructuredData data={breadcrumbSchema} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex items-center space-x-2 text-sm">

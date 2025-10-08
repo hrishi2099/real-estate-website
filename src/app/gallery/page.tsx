@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/imageUtils";
+import StructuredData from "@/components/StructuredData";
 
 interface PropertyImage {
   id: string;
@@ -149,8 +150,31 @@ export default function GalleryPage() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [selectedImage]);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com';
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Gallery",
+        "item": `${siteUrl}/gallery`
+      }
+    ]
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <StructuredData data={breadcrumbSchema} />
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -602,6 +626,7 @@ export default function GalleryPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
