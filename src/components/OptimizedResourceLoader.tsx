@@ -18,9 +18,7 @@ export default function OptimizedResourceLoader({
       const loadNonCriticalResources = () => {
         // Preload critical images that are likely to be needed
         const criticalImages = [
-          '/images/hero-bg.jpg',
-          '/images/property-placeholder.jpg',
-          '/logos/logo.png'
+          '/zaminseva-logo.png'
         ];
 
         criticalImages.forEach(src => {
@@ -65,12 +63,6 @@ export default function OptimizedResourceLoader({
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 
       {/* Resource Hints */}
-      {defer && (
-        <>
-          <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossOrigin="" />
-          <link rel="preload" href="/css/critical.css" as="style" />
-        </>
-      )}
     </>
   );
 }
