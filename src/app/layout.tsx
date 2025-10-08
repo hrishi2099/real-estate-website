@@ -136,6 +136,9 @@ export default async function RootLayout({
   return (
     <html lang="en-IN">
       <head>
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && (
+          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
+        )}
         <meta name="geo.region" content="IN-MH" />
         <meta name="geo.placename" content="Maharashtra, India" />
         <meta name="geo.position" content="19.0760;72.8777" />
