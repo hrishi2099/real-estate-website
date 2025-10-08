@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import dynamic from 'next/dynamic';
 import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
 import KMLUploader from "@/components/KMLUploader";
+import KMLEditor from "@/components/admin/KMLEditor";
 import { FEATURE_FLAGS } from "@/lib/features";
 import ClientOnly from "@/components/ClientOnly";
 
@@ -667,6 +668,48 @@ export default function EditProperty() {
                 )}
               </div>
             )}
+          </ClientOnly>
+
+          {/* KML Drawing Editor */}
+          <ClientOnly>
+            <div className="mt-8">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Or Draw Plot Boundary on Map</h3>
+              <KMLEditor
+                propertyId={propertyId}
+                initialKML={formData.kmlContent}
+                latitude={formData.latitude ? Number(formData.latitude) : undefined}
+                longitude={formData.longitude ? Number(formData.longitude) : undefined}
+                onSave={async (kmlContent) => {
+                  try {
+                    const response = await fetch(`/api/properties/${propertyId}/kml`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ kmlContent }),
+                    });
+
+                    if (response.ok) {
+                      setFormData(prev => ({ ...prev, kmlContent }));
+
+                      // Show success message
+                      const successDiv = document.createElement('div');
+                      successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                      successDiv.textContent = 'KML boundary saved successfully!';
+                      document.body.appendChild(successDiv);
+                      setTimeout(() => {
+                        document.body.removeChild(successDiv);
+                      }, 3000);
+                    } else {
+                      throw new Error('Failed to save KML');
+                    }
+                  } catch (error) {
+                    console.error('Error saving KML:', error);
+                    alert('Failed to save KML boundary. Please try again.');
+                  }
+                }}
+              />
+            </div>
           </ClientOnly>
 
           <div className="mt-4">
