@@ -45,7 +45,7 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
           <h2 className="mt-2 text-xl sm:text-3xl leading-tight font-extrabold tracking-tight text-gray-900 sm:leading-8">
             Explore Our Premium Land Plots
           </h2>
-          <p className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-xl text-gray-600 lg:mx-auto leading-relaxed">
+          <p className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-xl text-gray-700 lg:mx-auto leading-relaxed">
             Discover a curated collection of premium properties and exclusive investment opportunities. Each property is carefully selected to meet our high standards of quality and value, ensuring you find the perfect match for your investment goals.
           </p>
         </div>
@@ -93,14 +93,14 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                       {formatPrice(property.price)}
                     </p>
                   </div>
-                  <p className="mt-1 text-xs sm:text-sm text-gray-600 flex items-center">
+                  <p className="mt-1 text-xs sm:text-sm text-gray-700 flex items-center">
                     <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span className="truncate">{property.location}</span>
                   </p>
-                  <div className="mt-2 sm:mt-4 flex items-center justify-between text-xs sm:text-sm text-gray-600">
+                  <div className="mt-2 sm:mt-4 flex items-center justify-between text-xs sm:text-sm text-gray-700">
                     <span className="flex items-center">
                       <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -113,8 +113,8 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
                       href={`/properties/${property.id}`}
                       className={`w-full flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 border border-transparent text-sm font-medium rounded-md touch-manipulation transition-colors ${
                         property.status === 'SOLD'
-                          ? 'text-gray-600 bg-gray-100 hover:bg-gray-200'
-                          : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
+                          ? 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+                          : 'text-blue-800 bg-blue-100 hover:bg-blue-200'
                       }`}
                     >
                       {property.status === 'SOLD' ? 'View Sold Property' : 'View Details'}
@@ -128,13 +128,9 @@ export default function FeaturedProperties({ properties, isFeatured }: FeaturedP
 
         {properties.length === 0 && (
           <div className="mt-10 text-center">
-            <p className="text-gray-600 sm:text-gray-500">We are currently curating a new collection of featured properties. Please check back soon for exciting new investment opportunities.</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Check browser console for debug information, or visit{' '}
-              <a href="/api/debug/properties" className="text-blue-600 hover:underline" target="_blank">
-                /api/debug/properties
-              </a>{' '}
-              to see property data.
+            <p className="text-gray-700">We are currently curating a new collection of featured properties. Please check back soon for exciting new investment opportunities.</p>
+            <p className="text-sm text-gray-600 mt-2">
+              Contact us to learn about upcoming property listings and investment opportunities.
             </p>
           </div>
         )}

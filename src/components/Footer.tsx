@@ -91,7 +91,7 @@ export default function Footer({ settings }: FooterProps) {
                   {newsletterMessage}
                 </p>
               )}
-              <p className="mt-3 text-sm text-gray-400">
+              <p className="mt-3 text-sm text-gray-300">
                 We respect your privacy. Unsubscribe at any time.
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function Footer({ settings }: FooterProps) {
 
             {/* Enhanced Social Links */}
             <div>
-              <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Follow Us</p>
+              <p className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Follow Us</p>
               <div className="flex space-x-4">
                 <a href="https://www.facebook.com/p/Zaminseva-Prime-Pvt-Ltd-61574607166718/"
                    className="group bg-gray-800 hover:bg-blue-600 p-2 rounded-lg transition-all duration-200">
@@ -169,7 +169,7 @@ export default function Footer({ settings }: FooterProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Services Column */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase mb-4">Our Services</h3>
+                <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Our Services</h3>
                 <ul className="space-y-3">
                   <li>
                     <Link href="/properties" className="text-gray-300 hover:text-white flex items-center group transition-colors duration-200">
@@ -209,7 +209,7 @@ export default function Footer({ settings }: FooterProps) {
 
               {/* Company Column */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase mb-4">Company</h3>
+                <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Company</h3>
                 <ul className="space-y-3">
                   <li>
                     <Link href="/about" className="text-gray-300 hover:text-white flex items-center group transition-colors duration-200">
@@ -248,7 +248,7 @@ export default function Footer({ settings }: FooterProps) {
 
               {/* Contact & Legal Column */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase mb-4">Contact & Legal</h3>
+                <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Contact & Legal</h3>
                 <ul className="space-y-3">
                   <li>
                     <div className="flex items-start">
@@ -295,7 +295,7 @@ export default function Footer({ settings }: FooterProps) {
         <div className="mt-16 border-t border-gray-700/50 pt-8">
           <div className="lg:flex lg:items-center lg:justify-between">
             <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-8">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-300 text-sm">
                 &copy; {new Date().getFullYear()} {settings?.companyName || "Company Name"}. All rights reserved.
               </p>
 

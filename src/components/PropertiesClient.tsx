@@ -318,7 +318,7 @@ export default function PropertiesClient() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Available Properties</p>
+                    <p className="text-sm text-gray-700">Available Properties</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {loading ? '...' : pagination.total}
                     </p>
@@ -332,7 +332,7 @@ export default function PropertiesClient() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Currently Showing</p>
+                    <p className="text-sm text-gray-700">Currently Showing</p>
                     <p className="text-lg font-semibold text-green-600">
                       {loading ? '...' : properties.length}
                     </p>
@@ -347,7 +347,7 @@ export default function PropertiesClient() {
                   className={`px-3 py-1 rounded text-sm font-medium transition-all duration-200 ${
                     viewMode === 'grid'
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +360,7 @@ export default function PropertiesClient() {
                   className={`px-3 py-1 rounded text-sm font-medium transition-all duration-200 ${
                     viewMode === 'list'
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,7 +402,7 @@ export default function PropertiesClient() {
                 Premium Land Properties
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full mb-4"></div>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-700 max-w-2xl mx-auto">
                 Each property is carefully selected and verified to ensure the highest quality investment opportunities
               </p>
             </div>
@@ -445,7 +445,7 @@ export default function PropertiesClient() {
                     )}
                     <div className="absolute top-3 right-3">
                       <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-sm">
-                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                       </div>
@@ -460,14 +460,14 @@ export default function PropertiesClient() {
                         <p className={`font-bold text-blue-600 ${viewMode === 'grid' ? 'text-2xl' : 'text-3xl'}`}>
                           {formatPrice(property.price)}
                         </p>
-                        <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                        <span className="text-sm text-gray-700 bg-gray-50 px-2 py-1 rounded-md">
                           ₹{property.pricePerSqft || Math.round(property.price / (property.area || 1))} /sqft
                         </span>
                       </div>
                     </header>
 
                     <div className={`${viewMode === 'grid' ? 'space-y-3 mb-4' : 'grid grid-cols-2 gap-4 mb-6'}`}>
-                      <div className="flex items-center text-gray-600">
+                      <div className="flex items-center text-gray-700">
                         <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -476,7 +476,7 @@ export default function PropertiesClient() {
                       </div>
 
                       <div className={`${viewMode === 'grid' ? 'flex items-center justify-between' : 'col-span-2 flex items-center justify-between'}`}>
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-gray-700">
                           <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                           </svg>
@@ -485,7 +485,7 @@ export default function PropertiesClient() {
                           </span>
                         </div>
 
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-gray-700">
                           <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
@@ -523,7 +523,7 @@ export default function PropertiesClient() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">No Properties Found</h3>
-              <p className="text-gray-600 mb-6">We couldn't find any properties matching your current filters. Try adjusting your search criteria.</p>
+              <p className="text-gray-700 mb-6">We couldn't find any properties matching your current filters. Try adjusting your search criteria.</p>
               <button
                 onClick={() => {
                   setFilters({ priceRange: "", propertyType: "", minArea: "", location: "", status: "" });
