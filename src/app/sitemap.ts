@@ -4,61 +4,50 @@ import { getSitemapProperties } from '@/lib/properties';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com'
 
+  const now = new Date();
+
   const staticPages = [
     {
       url: baseUrl,
-      lastModified: new Date('2024-12-15'),
+      lastModified: now,
       changeFrequency: 'weekly' as const,
-      priority: 1,
-
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/properties`,
-      lastModified: new Date('2024-12-20'),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date('2024-12-10'),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
-      priority: 0.75,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date('2024-12-01'),
-      changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/gallery`,
-      lastModified: new Date('2024-11-25'),
+      url: `${baseUrl}/contact`,
+      lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/gallery`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date('2024-12-15'),
+      lastModified: now,
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
     {
       url: `${baseUrl}/terms-of-service`,
-      lastModified: new Date('2024-12-15'),
+      lastModified: now,
       changeFrequency: 'yearly' as const,
       priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date('2024-11-01'),
-      changeFrequency: 'monthly' as const,
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date('2024-11-01'),
-      changeFrequency: 'monthly' as const,
-      priority: 0.4,
     },
   ]
 

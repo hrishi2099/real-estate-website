@@ -45,28 +45,20 @@ export default function Header({ settings }: HeaderProps) {
           <div className="flex items-center">
             <Link href="/" className="group flex items-center space-x-2 sm:space-x-3 hover:scale-105 transition-transform duration-300">
               {/* Logo Container with enhanced styling */}
-              <div className="relative">
+              <div className="relative flex items-center space-x-3">
                 {/* Decorative background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-2xl blur-sm group-hover:blur-none transition-all duration-300"></div>
 
-                {/* Logo Image - Dynamic from office settings */}
-                {settings?.logoUrl && (
-                  <div className="relative h-8 w-32 sm:h-10 sm:w-40 rounded-xl overflow-hidden">
-                    <Image
-                      src="/logos/logo.png"
-                      alt={`${settings?.companyName || "Company"} Logo`}
-                      fill
-                      className="object-contain"
-                      priority
-                      key={`header-logo-${settings.logoUrl}`}
-                    />
-                  </div>
-                )}
-
-                {/* Company Name with enhanced styling */}
-                <span className="text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 bg-clip-text text-transparent truncate group-hover:from-blue-500 group-hover:to-purple-500 transition-all duration-300">
-                  {settings?.companyName || "Real Estate"}
-                </span>
+                {/* Logo Image - Always visible */}
+                <div className="relative h-10 w-32 sm:h-12 sm:w-40 rounded-xl overflow-hidden z-10">
+                  <Image
+                    src="/logos/logo.png"
+                    alt={`${settings?.companyName || "Zaminseva Prime"} Logo`}
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
               </div>
             </Link>
           </div>

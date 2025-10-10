@@ -6,13 +6,13 @@ import StructuredData from "@/components/StructuredData";
 
 export const metadata: Metadata = {
   title: "About Us | Zaminseva Prime - Your Partner in Property",
-  description: "Discover Zaminseva Prime's story. Your trusted real estate partner for 25+ years, specializing in premium NA plots and farmhouse land with clear titles.",
+  description: "Discover Zaminseva Prime Pvt. Ltd.'s story. Your trusted real estate partner with 22+ years legacy, specializing in premium NA plots and farmhouse land with clear titles.",
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://zaminseva.com'}/about`,
   },
   openGraph: {
     title: "About Us | Zaminseva Prime - Your Partner in Property",
-    description: "Discover Zaminseva Prime's story. Your trusted real estate partner for 25+ years, specializing in premium NA plots and farmhouse land with clear titles.",
+    description: "Discover Zaminseva Prime Pvt. Ltd.'s story. Your trusted real estate partner with 22+ years legacy, specializing in premium NA plots and farmhouse land with clear titles.",
   },
 };
 
@@ -22,14 +22,14 @@ const leadership = {
     role: "Founder & CEO",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b2972c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
     vision: "Transforming real estate investments through transparency and trust",
-    achievements: ["25+ Years Experience", "1200+ Successful Projects", "Industry Pioneer"]
+    achievements: ["22+ Years Experience", "1200+ Successful Projects", "Industry Pioneer"]
   }
 };
 
 const stats = [
   { number: "✓", label: "Clear Title Guarantee" },
   { number: "3.2M+", label: "Sq Ft Developed" },
-  { number: "25+", label: "Years Experience" },
+  { number: "22+", label: "Years Experience" },
   { number: "97%", label: "Client Satisfaction" }
 ];
 
@@ -124,7 +124,7 @@ export default function AboutPage() {
             {/* Floating Badge */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-white shadow-lg border border-blue-100 mb-8">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700">25 Years of Excellence</span>
+              <span className="text-sm font-medium text-gray-700">22+ Years of Excellence</span>
             </div>
 
             {/* Creative Typography */}
@@ -171,6 +171,131 @@ export default function AboutPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Company Information Section */}
+        <div className="mb-20">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl blur-lg opacity-20"></div>
+            <div className="relative bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-white/20 backdrop-blur-sm">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mb-6">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-3 animate-pulse"></div>
+                  <span className="text-sm font-semibold text-blue-700">Official Information</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                  Company <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Overview</span>
+                </h2>
+                <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto"></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Company Name */}
+                <div className="group bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Company Name</h3>
+                      <p className="text-lg font-bold text-gray-900">Zaminseva Prime Pvt. Ltd.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Established */}
+                <div className="group bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Legacy</h3>
+                      <p className="text-lg font-bold text-gray-900">22+ Years</p>
+                      <p className="text-xs text-gray-600 mt-1">Real Estate & Construction</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Incorporation */}
+                <div className="group bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Incorporation</h3>
+                      <p className="text-lg font-bold text-gray-900">12th February, 2025</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="group bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Location</h3>
+                      <p className="text-lg font-bold text-gray-900">Bhandarkar Road</p>
+                      <p className="text-xs text-gray-600 mt-1">Pune, Maharashtra</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Industry */}
+                <div className="group bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Industry</h3>
+                      <p className="text-lg font-bold text-gray-900">Real Estate</p>
+                      <p className="text-xs text-gray-600 mt-1">& Construction</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CIN */}
+                <div className="group bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">CIN</h3>
+                      <p className="text-sm font-bold text-gray-900 break-all">U68100PN2025PTC238008</p>
+                      <p className="text-xs text-gray-600 mt-1">Corporate ID Number</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative bottom element */}
+              <div className="flex justify-center mt-8">
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Our Story Section */}
         <div className="relative">
           {/* Background pattern */}
@@ -211,7 +336,7 @@ export default function AboutPage() {
                       <h3 className="text-lg font-semibold text-gray-900">Legacy of Excellence</h3>
                     </div>
                     <p className="text-gray-600 leading-relaxed">
-                      Zaminseva Prime is a highly respected and trusted real estate company, well known in the market for more than 23 years. Our area of expertise is in Premium Non-agricultural land (plotted development), Gated Communities, Farmhouse plots and Eco-estates.
+                      Zaminseva Prime Pvt. Ltd. is a highly respected and trusted real estate company, well known in the market for more than 22 years. Our area of expertise is in Premium Non-agricultural land (plotted development), Gated Communities, Farmhouse plots and Eco-estates.
                     </p>
                   </div>
                 </div>
@@ -473,7 +598,7 @@ export default function AboutPage() {
                       <div className="text-xs text-gray-500">Transparency</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-blue-600">25+</div>
+                      <div className="text-2xl font-bold text-blue-600">22+</div>
                       <div className="text-xs text-gray-500">Years Trust</div>
                     </div>
                   </div>
@@ -584,7 +709,7 @@ export default function AboutPage() {
         {/* Horizontal Scrolling Timeline */}
         <div className="mb-16">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Journey Over 25 Years</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Journey Over 22+ Years</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto rounded-full"></div>
             <p className="text-gray-600 mt-4">Scroll to explore our milestones</p>
           </div>
