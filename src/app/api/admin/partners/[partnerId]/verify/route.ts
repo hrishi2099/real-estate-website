@@ -9,7 +9,7 @@ const verifySchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { partnerId: string } }
+  { params }: { params: Promise<{ partnerId: string }> }
 ) {
   try {
     const user = getUserFromRequest(request);
@@ -30,7 +30,7 @@ export async function PATCH(
 
     const body = await request.json();
     const { isVerified } = verifySchema.parse(body);
-    const partnerId = params.partnerId;
+    const { partnerId } = await params;
 
     // Update partner verification status
     const updatedPartner = await prisma.channelPartner.update({
