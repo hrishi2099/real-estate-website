@@ -29,6 +29,11 @@ interface OfficeSettings {
   facebookPixelEnabled: boolean | null;
 }
 
+interface ErrorDetail {
+  message?: string;
+  [key: string]: unknown;
+}
+
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<OfficeSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -237,7 +242,7 @@ export default function AdminSettingsPage() {
           if (typeof errorData.error === 'string') {
             errorMessage = errorData.error;
           } else if (Array.isArray(errorData.details)) { // If details is an array of objects
-            errorMessage = errorData.details.map((detail: any) => detail.message || JSON.stringify(detail)).join(', ');
+            errorMessage = errorData.details.map((detail: ErrorDetail) => detail.message || JSON.stringify(detail)).join(', ');
           } else {
             errorMessage = JSON.stringify(errorData); // Fallback to stringifying the whole object
           }

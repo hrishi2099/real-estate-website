@@ -9,6 +9,7 @@ import KMLUploader from "@/components/KMLUploader";
 import KMLEditor from "@/components/admin/KMLEditor";
 import { FEATURE_FLAGS } from "@/lib/features";
 import ClientOnly from "@/components/ClientOnly";
+import Image from "next/image";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -59,6 +60,16 @@ interface PropertyData {
 interface ValidationError {
   path: (string | number)[];
   message: string;
+}
+
+interface UploadedFile {
+  url: string;
+  filename?: string;
+}
+
+interface PropertyResponse {
+  property?: Property;
+  kmlContent?: string;
 }
 
 export default function EditProperty() {
@@ -116,7 +127,8 @@ export default function EditProperty() {
         console.log('API Response:', response); // Debug log
         if (response?.data) {
           // Handle both possible response structures
-          const propertyData: Property = (response.data as any).property || response.data;
+          const responseData = response.data as PropertyResponse | Property;
+          const propertyData: Property = 'property' in responseData && responseData.property ? responseData.property : responseData as Property;
           console.log('Property Data:', propertyData); // Debug log
           
           if (propertyData && propertyData.id) {
@@ -141,7 +153,7 @@ export default function EditProperty() {
               newImages: [],
               existingImages: propertyData.images || [],
               kmlFileUrl: propertyData.kmlFileUrl || '',
-              kmlContent: (propertyData as any).kmlContent || ''
+              kmlContent: 'kmlContent' in responseData && responseData.kmlContent ? responseData.kmlContent : ''
             });
           } else {
             console.log('Property data not found or invalid:', propertyData);
@@ -310,7 +322,7 @@ export default function EditProperty() {
         }
 
         const uploadResult = await uploadResponse.json();
-        newImageUrls = uploadResult.files.map((file: any) => {
+        newImageUrls = uploadResult.files.map((file: UploadedFile) => {
           const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
           return new URL(file.url, baseUrl).href;
         });
@@ -381,16 +393,24 @@ export default function EditProperty() {
         const errorMessage = response?.error || 'Failed to update property. Please check all fields and try again.';
         setErrors({ general: errorMessage });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating property:', error);
-      
-      if (error?.response?.data?.details) {
-        const validationErrors: ValidationError[] = error.response.data.details;
-        const errorMessages = validationErrors.map((err: ValidationError) => `${err.path?.join('.')}: ${err.message}`);
-        setErrors({ general: `Validation Error: ${errorMessages.join(', ')}` });
-      } else if (error?.response?.data?.error) {
-        setErrors({ general: error.response.data.error });
-      } else if (error?.message) {
+
+      // Type guard for error with response
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const responseError = error as { response?: { data?: { details?: ValidationError[]; error?: string } } };
+        if (responseError.response?.data?.details) {
+          const validationErrors: ValidationError[] = responseError.response.data.details;
+          const errorMessages = validationErrors.map((err: ValidationError) => `${err.path?.join('.')}: ${err.message}`);
+          setErrors({ general: `Validation Error: ${errorMessages.join(', ')}` });
+        } else if (responseError.response?.data?.error) {
+          setErrors({ general: responseError.response.data.error });
+        } else if (error instanceof Error) {
+          setErrors({ general: error.message });
+        } else {
+          setErrors({ general: 'Failed to update property. Please check your internet connection and try again.' });
+        }
+      } else if (error instanceof Error) {
         setErrors({ general: error.message });
       } else {
         setErrors({ general: 'Failed to update property. Please check your internet connection and try again.' });
@@ -799,11 +819,14 @@ export default function EditProperty() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {formData.existingImages.map(image => (
               <div key={image.url} className="relative group">
-                <img
-                  src={image.url}
-                  alt={image.alt}
-                  className="w-full h-32 object-cover rounded-lg transition-transform group-hover:scale-105"
-                />
+                <div className="relative w-full h-32">
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    fill
+                    className="object-cover rounded-lg transition-transform group-hover:scale-105"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(image.url)}
@@ -819,11 +842,15 @@ export default function EditProperty() {
             {/* New Images Preview */}
             {formData.newImages.map((image, index) => (
               <div key={index} className="relative group">
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt={`New image ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg opacity-70"
-                />
+                <div className="relative w-full h-32">
+                  <Image
+                    src={URL.createObjectURL(image)}
+                    alt={`New image ${index + 1}`}
+                    fill
+                    className="object-cover rounded-lg opacity-70"
+                    unoptimized
+                  />
+                </div>
                 <div className="absolute inset-0 bg-blue-500 bg-opacity-20 rounded-lg flex items-center justify-center">
                   <div className="text-blue-800 text-xs font-medium bg-blue-100 px-2 py-1 rounded">
                     New

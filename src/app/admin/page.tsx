@@ -84,15 +84,16 @@ export default function AdminDashboard() {
       // Load recent activity (using inquiries as recent activity)
       const inquiriesResponse = await api.getAdminInquiries();
       if (inquiriesResponse?.data) {
-        const inquiriesData: any = inquiriesResponse.data;
-        const activities: RecentActivity[] = Array.isArray(inquiriesData) ? inquiriesData
+        const inquiriesData = inquiriesResponse.data as Inquiry[] | { inquiries: Inquiry[] };
+        const inquiriesArray = Array.isArray(inquiriesData) ? inquiriesData : 'inquiries' in inquiriesData ? inquiriesData.inquiries : [];
+        const activities: RecentActivity[] = inquiriesArray
           .slice(0, 4)
           .map((inquiry: Inquiry) => ({
             id: inquiry.id,
             action: "Property inquiry",
             details: inquiry.property?.title || "Property inquiry",
             time: new Date(inquiry.createdAt).toLocaleDateString()
-          })) : [];
+          }));
         setRecentActivity(activities);
       }
     } catch (error) {

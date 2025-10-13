@@ -48,11 +48,67 @@ model User {
   messageRecipients        RCSRecipient[]
   session                  session[]
   SmartSegment             SmartSegment[]
+  channelPartner           ChannelPartner?
   manager                  User?                @relation("ManagerSubordinate", fields: [managerId], references: [id])
   subordinates             User[]               @relation("ManagerSubordinate")
 
   @@index([managerId], map: "users_managerId_fkey")
   @@map("users")
+}
+
+model ChannelPartner {
+  id                 String               @id @default(cuid())
+  userId             String               @unique
+  companyName        String
+  companyRegistration String?
+  website            String?
+  city               String?
+  state              String?
+  country            String?              @default("India")
+  baseCommission     Decimal              @db.Decimal(5, 2)
+  performanceTier    PerformanceTier      @default(BRONZE)
+  totalReferrals     Int                  @default(0)
+  successfulDeals    Int                  @default(0)
+  totalRevenue       Decimal              @default(0.00) @db.Decimal(15, 2)
+  isVerified         Boolean              @default(false)
+  verificationDate   DateTime?
+  bankAccountName    String?
+  bankAccountNumber  String?
+  bankIFSC           String?
+  panNumber          String?
+  gstNumber          String?
+  agreementSignedAt  DateTime?
+  agreementDocument  String?
+  status             PartnerStatus        @default(PENDING)
+  notes              String?              @db.Text
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals          PartnerReferral[]
+
+  @@map("channel_partners")
+}
+
+model PartnerReferral {
+  id                String          @id @default(cuid())
+  partnerId         String
+  leadName          String
+  leadEmail         String
+  leadPhone         String
+  propertyInterest  String?
+  budgetRange       String?
+  status            ReferralStatus  @default(NEW)
+  notes             String?         @db.Text
+  commissionEarned  Decimal?        @db.Decimal(10, 2)
+  commissionPaidAt  DateTime?
+  propertyId        String?
+  dealClosedAt      DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  partner           ChannelPartner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId], map: "partner_referrals_partnerId_fkey")
+  @@map("partner_referrals")
 }
 
 model Property {
@@ -654,6 +710,7 @@ enum Role {
   USER
   ADMIN
   SALES_MANAGER
+  CHANNEL_PARTNER
 }
 
 enum UserStatus {
@@ -886,4 +943,32 @@ enum lead_grade {
   WARM
   HOT
   QUALIFIED
+}
+
+enum PerformanceTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum ReferralStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  SITE_VISIT_SCHEDULED
+  SITE_VISIT_COMPLETED
+  NEGOTIATION
+  DEAL_WON
+  DEAL_LOST
+  ON_HOLD
 }

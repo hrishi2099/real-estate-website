@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface LeadAssignment {
   id: string;
@@ -78,7 +78,7 @@ export default function LeadAssignmentsManagement() {
   const [bulkAction, setBulkAction] = useState<BulkAction>('update_status');
   const [bulkData, setBulkData] = useState<BulkData>({});
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -97,14 +97,14 @@ export default function LeadAssignmentsManagement() {
 
       if (assignmentsData.success) {
         let filteredAssignments = assignmentsData.data || [];
-        
+
         // Apply priority filter on client side
         if (priorityFilter !== 'all') {
           filteredAssignments = filteredAssignments.filter(
             (assignment: LeadAssignment) => assignment.priority === priorityFilter
           );
         }
-        
+
         setAssignments(filteredAssignments);
       } else {
         setError(assignmentsData.error || 'Failed to load assignments');
@@ -120,11 +120,11 @@ export default function LeadAssignmentsManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, priorityFilter, salesManagerFilter]);
 
   useEffect(() => {
     loadData();
-  }, [statusFilter, priorityFilter, salesManagerFilter]);
+  }, [loadData]);
 
   const handleBulkOperation = async () => {
     if (selectedAssignments.length === 0) {
@@ -537,7 +537,7 @@ export default function LeadAssignmentsManagement() {
                   <select
                     value={bulkAction}
                     onChange={(e) => {
-                      setBulkAction(e.target.value as any);
+                      setBulkAction(e.target.value as BulkAction);
                       setBulkData({});
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { getFeaturesByPropertyType, getPropertyTypeLabel } from "@/lib/propertyFeatures";
 import KMLUploader from "@/components/KMLUploader";
 import { FEATURE_FLAGS } from "@/lib/features";
-import ClientOnly from "@/components/ClientOnly";
+import Image from "next/image";
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
   ssr: false,
@@ -17,6 +17,11 @@ const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
 interface ValidationError {
   path: (string | number)[];
   message: string;
+}
+
+interface UploadedFile {
+  url: string;
+  filename?: string;
 }
 
 export default function NewProperty() {
@@ -150,7 +155,7 @@ export default function NewProperty() {
 
         const uploadResult = await uploadResponse.json();
         console.log('Upload result:', uploadResult);
-        imageUrls = uploadResult.files.map((file: any) => file.url);
+        imageUrls = uploadResult.files.map((file: UploadedFile) => file.url);
         console.log('Image URLs:', imageUrls);
       }
 
@@ -470,11 +475,15 @@ export default function NewProperty() {
               <div className="grid grid-cols-4 gap-2">
                 {formData.images.map((file, index) => (
                   <div key={index} className="relative">
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-16 object-cover rounded border"
-                    />
+                    <div className="relative w-full h-16">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover rounded border"
+                        unoptimized
+                      />
+                    </div>
                     <div className="text-xs text-gray-500 mt-1 truncate">{file.name}</div>
                   </div>
                 ))}

@@ -9,6 +9,7 @@ interface EventPhoto {
   date: string;
   description: string;
   category: string;
+  gallery?: string[]; // Additional photos for the event
 }
 
 interface SectionInfo {
@@ -30,6 +31,7 @@ export default function MemorableMomentsAdmin() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [isLoading, setIsLoading] = useState(true);
+  const [uploadingMultiple, setUploadingMultiple] = useState(false);
 
   // Load data from API on component mount
   useEffect(() => {
@@ -88,7 +90,8 @@ export default function MemorableMomentsAdmin() {
       title: "",
       date: "",
       description: "",
-      category: ""
+      category: "",
+      gallery: []
     };
     setEditingEvent(newEvent);
     setIsAddingNew(true);
@@ -147,6 +150,78 @@ export default function MemorableMomentsAdmin() {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 3000);
     }
+  };
+
+  const handleMultipleImageUpload = async (files: FileList) => {
+    if (!editingEvent) return;
+
+    setUploadingMultiple(true);
+    setUploadProgress(0);
+    const uploadedUrls: string[] = [];
+    const totalFiles = files.length;
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Update progress
+        const baseProgress = (i / totalFiles) * 100;
+        setUploadProgress(baseProgress);
+
+        const response = await fetch('/api/admin/memorable-moments/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(`Failed to upload ${file.name}: ${errorData.error || response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (!result.success || !result.url) {
+          throw new Error(`Invalid response for ${file.name}`);
+        }
+
+        uploadedUrls.push(result.url);
+      }
+
+      // Add all uploaded URLs to the gallery
+      setEditingEvent(prev => {
+        if (!prev) return null;
+        const existingGallery = prev.gallery || [];
+        return {
+          ...prev,
+          gallery: [...existingGallery, ...uploadedUrls]
+        };
+      });
+
+      setUploadProgress(100);
+      alert(`Successfully uploaded ${uploadedUrls.length} image(s)!`);
+    } catch (error) {
+      console.error('Multiple upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload images';
+      alert(`Upload failed: ${errorMessage}`);
+    } finally {
+      setUploadingMultiple(false);
+      setTimeout(() => setUploadProgress(0), 3000);
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    if (!editingEvent) return;
+    setEditingEvent(prev => {
+      if (!prev || !prev.gallery) return prev;
+      const newGallery = [...prev.gallery];
+      newGallery.splice(index, 1);
+      return {
+        ...prev,
+        gallery: newGallery
+      };
+    });
   };
 
   const saveToServer = async () => {
@@ -306,7 +381,7 @@ export default function MemorableMomentsAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {events.map((event) => (
                 <div key={event.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="aspect-video bg-gray-200 rounded-md mb-3 overflow-hidden">
+                  <div className="aspect-video bg-gray-200 rounded-md mb-3 overflow-hidden relative">
                     {event.url && (
                       <img
                         src={event.url.startsWith('/images/') ? `${event.url}?t=${Date.now()}` : event.url}
@@ -318,6 +393,15 @@ export default function MemorableMomentsAdmin() {
                           target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">Image not found</div>';
                         }}
                       />
+                    )}
+                    {/* Gallery indicator badge */}
+                    {event.gallery && event.gallery.length > 0 && (
+                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                        </svg>
+                        {event.gallery.length} more
+                      </div>
                     )}
                   </div>
                   <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
@@ -514,6 +598,103 @@ export default function MemorableMomentsAdmin() {
                       rows={4}
                       className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     />
+                  </div>
+
+                  {/* Multiple Photos Gallery Section */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Additional Photos (Gallery)
+                    </label>
+
+                    {/* Multiple File Upload */}
+                    <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors bg-blue-50">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        multiple
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files && files.length > 0) {
+                            handleMultipleImageUpload(files);
+                          }
+                        }}
+                        className="hidden"
+                        id="multiple-image-upload"
+                        disabled={uploadingMultiple}
+                      />
+                      <label
+                        htmlFor="multiple-image-upload"
+                        className={`cursor-pointer inline-flex flex-col items-center ${
+                          uploadingMultiple ? 'cursor-not-allowed opacity-50' : ''
+                        }`}
+                      >
+                        <svg className="w-10 h-10 text-blue-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-base font-medium text-blue-700 mb-1">
+                          {uploadingMultiple ? 'Uploading photos...' : 'Upload Multiple Photos'}
+                        </span>
+                        <span className="text-sm text-blue-600">
+                          Click to select multiple images
+                        </span>
+                        <span className="text-xs text-gray-600 mt-2">
+                          JPEG, PNG, WebP • Up to 5MB each • Select multiple files
+                        </span>
+                      </label>
+
+                      {/* Upload Progress for Multiple Files */}
+                      {uploadingMultiple && uploadProgress > 0 && (
+                        <div className="mt-4">
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div
+                              className="bg-blue-600 h-3 rounded-full transition-all duration-300 flex items-center justify-center text-xs text-white font-medium"
+                              style={{ width: `${uploadProgress}%` }}
+                            >
+                              {uploadProgress > 10 && `${Math.round(uploadProgress)}%`}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Gallery Preview */}
+                    {editingEvent.gallery && editingEvent.gallery.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-700 mb-3">
+                          Gallery ({editingEvent.gallery.length} photo{editingEvent.gallery.length !== 1 ? 's' : ''})
+                        </p>
+                        <div className="grid grid-cols-3 gap-3">
+                          {editingEvent.gallery.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <div className="relative h-24 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                                <img
+                                  src={imageUrl.startsWith('/images/') ? `${imageUrl}?t=${Date.now()}` : imageUrl}
+                                  alt={`Gallery ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext y="50" x="50" font-size="10" text-anchor="middle" dy=".3em" fill="%23999"%3EError%3C/text%3E%3C/svg%3E';
+                                  }}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeGalleryImage(index)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
+                                title="Remove image"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs py-1 text-center">
+                                Photo {index + 1}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

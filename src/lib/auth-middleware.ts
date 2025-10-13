@@ -44,6 +44,9 @@ export function requireRole(allowedRoles: string[]) {
 // Admin-only middleware
 export const requireAdmin = requireRole(['ADMIN']);
 
+// Channel Partner-only middleware
+export const requireChannelPartner = requireRole(['CHANNEL_PARTNER']);
+
 // Middleware to check if user owns resource or is admin
 export function requireOwnershipOrAdmin(getUserId: (req: NextRequest, ...args: any[]) => string | Promise<string>) {
   return function(handler: (req: AuthenticatedRequest, ...args: any[]) => Promise<NextResponse>) {

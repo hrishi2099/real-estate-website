@@ -1,9 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
 import { generateMetadata as generateMetadataHelper } from "@/lib/metadata";
 import { Metadata } from "next";
 import PropertiesClient from "@/components/PropertiesClient";
-import Script from "next/script";
 import ZaminsevaSchema from "@/components/ZaminsevaSchema";
 import StructuredData from "@/components/StructuredData";
 

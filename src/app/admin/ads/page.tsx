@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -381,11 +382,12 @@ export default function AdsManagement() {
                   <td className="px-6 py-6">
                     <div className="flex items-start space-x-4">
                       {ad.imageUrl ? (
-                        <div className="relative">
-                          <img
+                        <div className="relative w-20 h-20">
+                          <Image
                             src={ad.imageUrl}
                             alt={ad.title}
-                            className="w-20 h-20 object-cover rounded-xl shadow-sm"
+                            fill
+                            className="object-cover rounded-xl shadow-sm"
                           />
                           <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
                             {index + 1}
