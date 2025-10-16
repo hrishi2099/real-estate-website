@@ -153,7 +153,23 @@ export default function PartnerRegisterPage() {
           router.push('/partner/login');
         }, 3000);
       } else {
-        setError(data.error || "Registration failed. Please try again.");
+        // Handle validation errors with details
+        if (data.formattedErrors && Array.isArray(data.formattedErrors)) {
+          const errorMessages = data.formattedErrors.map((err: any) => {
+            const fieldName = err.field.charAt(0).toUpperCase() + err.field.slice(1).replace(/([A-Z])/g, ' $1');
+            return `${fieldName}: ${err.message}`;
+          }).join(' | ');
+          setError(errorMessages);
+        } else if (data.details && Array.isArray(data.details)) {
+          const errorMessages = data.details.map((issue: any) => {
+            const field = issue.path.join('.');
+            const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
+            return `${fieldName}: ${issue.message}`;
+          }).join(' | ');
+          setError(errorMessages);
+        } else {
+          setError(data.error || "Registration failed. Please try again.");
+        }
       }
     } catch {
       setError("Registration failed. Please try again.");
