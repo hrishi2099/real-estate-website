@@ -1,8 +1,11 @@
--- AlterTable
+-- Safe production deployment - Only adds financial management tables
+-- Run this SQL directly on your production database
+
+-- Step 1: Add ACCOUNTS role to users table
 ALTER TABLE `users` MODIFY `role` ENUM('USER', 'ADMIN', 'SALES_MANAGER', 'CHANNEL_PARTNER', 'ACCOUNTS') NOT NULL DEFAULT 'USER';
 
--- CreateTable
-CREATE TABLE `invoices` (
+-- Step 2: Create invoices table
+CREATE TABLE IF NOT EXISTS `invoices` (
     `id` VARCHAR(191) NOT NULL,
     `invoiceNumber` VARCHAR(191) NOT NULL,
     `customerId` VARCHAR(191) NULL,
@@ -27,7 +30,6 @@ CREATE TABLE `invoices` (
     `createdById` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-
     UNIQUE INDEX `invoices_invoiceNumber_key`(`invoiceNumber`),
     INDEX `invoices_customerId_idx`(`customerId`),
     INDEX `invoices_propertyId_idx`(`propertyId`),
@@ -37,8 +39,8 @@ CREATE TABLE `invoices` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `payments` (
+-- Step 3: Create payments table
+CREATE TABLE IF NOT EXISTS `payments` (
     `id` VARCHAR(191) NOT NULL,
     `paymentNumber` VARCHAR(191) NOT NULL,
     `amount` DECIMAL(12, 2) NOT NULL,
@@ -57,7 +59,6 @@ CREATE TABLE `payments` (
     `recordedById` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-
     UNIQUE INDEX `payments_paymentNumber_key`(`paymentNumber`),
     INDEX `payments_invoiceId_idx`(`invoiceId`),
     INDEX `payments_customerId_idx`(`customerId`),
@@ -67,8 +68,8 @@ CREATE TABLE `payments` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `commission_payouts` (
+-- Step 4: Create commission_payouts table
+CREATE TABLE IF NOT EXISTS `commission_payouts` (
     `id` VARCHAR(191) NOT NULL,
     `payoutNumber` VARCHAR(191) NOT NULL,
     `recipientType` ENUM('CHANNEL_PARTNER', 'SALES_MANAGER') NOT NULL,
@@ -93,7 +94,6 @@ CREATE TABLE `commission_payouts` (
     `createdById` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-
     UNIQUE INDEX `commission_payouts_payoutNumber_key`(`payoutNumber`),
     INDEX `commission_payouts_recipientType_idx`(`recipientType`),
     INDEX `commission_payouts_recipientId_idx`(`recipientId`),
@@ -104,8 +104,8 @@ CREATE TABLE `commission_payouts` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `transactions` (
+-- Step 5: Create transactions table
+CREATE TABLE IF NOT EXISTS `transactions` (
     `id` VARCHAR(191) NOT NULL,
     `transactionNumber` VARCHAR(191) NOT NULL,
     `type` ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
@@ -124,7 +124,6 @@ CREATE TABLE `transactions` (
     `recordedById` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-
     UNIQUE INDEX `transactions_transactionNumber_key`(`transactionNumber`),
     INDEX `transactions_type_idx`(`type`),
     INDEX `transactions_category_idx`(`category`),
@@ -134,8 +133,8 @@ CREATE TABLE `transactions` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `expenses` (
+-- Step 6: Create expenses table
+CREATE TABLE IF NOT EXISTS `expenses` (
     `id` VARCHAR(191) NOT NULL,
     `expenseNumber` VARCHAR(191) NOT NULL,
     `category` ENUM('MARKETING', 'OPERATIONAL', 'SALARY', 'UTILITIES', 'RENT', 'MAINTENANCE', 'LEGAL', 'TRAVEL', 'OFFICE_SUPPLIES', 'SOFTWARE', 'OTHER') NOT NULL,
@@ -158,7 +157,6 @@ CREATE TABLE `expenses` (
     `submittedById` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-
     UNIQUE INDEX `expenses_expenseNumber_key`(`expenseNumber`),
     INDEX `expenses_category_idx`(`category`),
     INDEX `expenses_status_idx`(`status`),
@@ -168,35 +166,33 @@ CREATE TABLE `expenses` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
+-- Step 7: Add foreign key constraints
 ALTER TABLE `invoices` ADD CONSTRAINT `invoices_customerId_fkey` FOREIGN KEY (`customerId`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `invoices` ADD CONSTRAINT `invoices_propertyId_fkey` FOREIGN KEY (`propertyId`) REFERENCES `properties`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `invoices` ADD CONSTRAINT `invoices_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `payments` ADD CONSTRAINT `payments_invoiceId_fkey` FOREIGN KEY (`invoiceId`) REFERENCES `invoices`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `payments` ADD CONSTRAINT `payments_customerId_fkey` FOREIGN KEY (`customerId`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `payments` ADD CONSTRAINT `payments_recordedById_fkey` FOREIGN KEY (`recordedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `commission_payouts` ADD CONSTRAINT `commission_payouts_approvedById_fkey` FOREIGN KEY (`approvedById`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `commission_payouts` ADD CONSTRAINT `commission_payouts_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `transactions` ADD CONSTRAINT `transactions_recordedById_fkey` FOREIGN KEY (`recordedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `expenses` ADD CONSTRAINT `expenses_approvedById_fkey` FOREIGN KEY (`approvedById`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `expenses` ADD CONSTRAINT `expenses_submittedById_fkey` FOREIGN KEY (`submittedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Step 8: Insert migration record to mark this as applied
+-- Replace YOUR_DATABASE_NAME with your actual production database name
+INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_name`, `logs`, `rolled_back_at`, `started_at`, `applied_steps_count`)
+VALUES (
+    UUID(),
+    'b8f7e8a9c5d3f2e1a7b9c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6',
+    NOW(3),
+    '20251018054644_add_financial_management_tables',
+    NULL,
+    NULL,
+    NOW(3),
+    1
+);

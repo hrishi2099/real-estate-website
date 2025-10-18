@@ -5,7 +5,7 @@ CREATE TABLE `users` (
     `name` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NULL,
     `password` VARCHAR(191) NOT NULL,
-    `role` ENUM('USER', 'ADMIN', 'SALES_MANAGER', 'CHANNEL_PARTNER') NOT NULL DEFAULT 'USER',
+    `role` ENUM('USER', 'ADMIN', 'SALES_MANAGER', 'CHANNEL_PARTNER', 'ACCOUNTS') NOT NULL DEFAULT 'USER',
     `status` ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
     `joinDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `lastLogin` DATETIME(3) NULL,
@@ -100,9 +100,9 @@ CREATE TABLE `properties` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `pricePerSqft` DECIMAL(10, 2) NULL,
-    `plotCount` INTEGER NULL,
     `kmlFileUrl` TEXT NULL,
     `kmlContent` LONGTEXT NULL,
+    `plotCount` INTEGER NULL,
 
     INDEX `properties_ownerId_fkey`(`ownerId`),
     PRIMARY KEY (`id`)
@@ -568,15 +568,15 @@ CREATE TABLE `memorable_moments` (
     `title` VARCHAR(191) NOT NULL,
     `description` TEXT NOT NULL,
     `imageUrl` VARCHAR(191) NOT NULL,
-    `imageData` LONGBLOB NULL,
-    `imageMimeType` VARCHAR(191) NULL,
-    `imageSize` INTEGER NULL,
     `date` VARCHAR(191) NOT NULL,
     `category` VARCHAR(191) NOT NULL,
     `displayOrder` INTEGER NOT NULL DEFAULT 0,
     `isActive` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `imageData` LONGBLOB NULL,
+    `imageMimeType` VARCHAR(191) NULL,
+    `imageSize` INTEGER NULL,
 
     INDEX `memorable_moments_displayOrder_isActive_idx`(`displayOrder`, `isActive`),
     PRIMARY KEY (`id`)
@@ -653,6 +653,173 @@ CREATE TABLE `session` (
 
     UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
     INDEX `Session_userId_fkey`(`userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `invoices` (
+    `id` VARCHAR(191) NOT NULL,
+    `invoiceNumber` VARCHAR(191) NOT NULL,
+    `customerId` VARCHAR(191) NULL,
+    `customerName` VARCHAR(191) NOT NULL,
+    `customerEmail` VARCHAR(191) NOT NULL,
+    `customerPhone` VARCHAR(191) NULL,
+    `customerAddress` TEXT NULL,
+    `propertyId` VARCHAR(191) NULL,
+    `propertyTitle` VARCHAR(191) NULL,
+    `description` TEXT NULL,
+    `subtotal` DECIMAL(12, 2) NOT NULL,
+    `taxRate` DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
+    `taxAmount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    `discount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    `totalAmount` DECIMAL(12, 2) NOT NULL,
+    `status` ENUM('DRAFT', 'ISSUED', 'SENT', 'PARTIALLY_PAID', 'PAID', 'OVERDUE', 'CANCELLED', 'REFUNDED') NOT NULL DEFAULT 'DRAFT',
+    `issueDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `dueDate` DATETIME(3) NULL,
+    `paidDate` DATETIME(3) NULL,
+    `notes` TEXT NULL,
+    `terms` TEXT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `invoices_invoiceNumber_key`(`invoiceNumber`),
+    INDEX `invoices_customerId_idx`(`customerId`),
+    INDEX `invoices_propertyId_idx`(`propertyId`),
+    INDEX `invoices_createdById_idx`(`createdById`),
+    INDEX `invoices_status_idx`(`status`),
+    INDEX `invoices_issueDate_idx`(`issueDate`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `payments` (
+    `id` VARCHAR(191) NOT NULL,
+    `paymentNumber` VARCHAR(191) NOT NULL,
+    `amount` DECIMAL(12, 2) NOT NULL,
+    `paymentMethod` ENUM('CASH', 'BANK_TRANSFER', 'CHEQUE', 'UPI', 'CARD', 'NET_BANKING', 'OTHER') NOT NULL,
+    `paymentMode` ENUM('ONLINE', 'OFFLINE') NOT NULL DEFAULT 'ONLINE',
+    `referenceNumber` VARCHAR(191) NULL,
+    `bankName` VARCHAR(191) NULL,
+    `invoiceId` VARCHAR(191) NULL,
+    `customerId` VARCHAR(191) NULL,
+    `customerName` VARCHAR(191) NULL,
+    `status` ENUM('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED') NOT NULL DEFAULT 'PENDING',
+    `paymentDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `clearedDate` DATETIME(3) NULL,
+    `notes` TEXT NULL,
+    `receiptUrl` VARCHAR(191) NULL,
+    `recordedById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `payments_paymentNumber_key`(`paymentNumber`),
+    INDEX `payments_invoiceId_idx`(`invoiceId`),
+    INDEX `payments_customerId_idx`(`customerId`),
+    INDEX `payments_recordedById_idx`(`recordedById`),
+    INDEX `payments_status_idx`(`status`),
+    INDEX `payments_paymentDate_idx`(`paymentDate`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `commission_payouts` (
+    `id` VARCHAR(191) NOT NULL,
+    `payoutNumber` VARCHAR(191) NOT NULL,
+    `recipientType` ENUM('CHANNEL_PARTNER', 'SALES_MANAGER') NOT NULL,
+    `recipientId` VARCHAR(191) NOT NULL,
+    `recipientName` VARCHAR(191) NOT NULL,
+    `amount` DECIMAL(10, 2) NOT NULL,
+    `taxDeducted` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `netAmount` DECIMAL(10, 2) NOT NULL,
+    `paymentMethod` ENUM('CASH', 'BANK_TRANSFER', 'CHEQUE', 'UPI', 'CARD', 'NET_BANKING', 'OTHER') NOT NULL,
+    `referenceNumber` VARCHAR(191) NULL,
+    `bankAccountNumber` VARCHAR(191) NULL,
+    `bankIFSC` VARCHAR(191) NULL,
+    `periodStart` DATETIME(3) NOT NULL,
+    `periodEnd` DATETIME(3) NOT NULL,
+    `referralIds` TEXT NULL,
+    `dealIds` TEXT NULL,
+    `status` ENUM('PENDING', 'APPROVED', 'PROCESSING', 'PAID', 'REJECTED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    `approvedAt` DATETIME(3) NULL,
+    `approvedById` VARCHAR(191) NULL,
+    `paidAt` DATETIME(3) NULL,
+    `notes` TEXT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `commission_payouts_payoutNumber_key`(`payoutNumber`),
+    INDEX `commission_payouts_recipientType_idx`(`recipientType`),
+    INDEX `commission_payouts_recipientId_idx`(`recipientId`),
+    INDEX `commission_payouts_status_idx`(`status`),
+    INDEX `commission_payouts_periodStart_periodEnd_idx`(`periodStart`, `periodEnd`),
+    INDEX `commission_payouts_approvedById_idx`(`approvedById`),
+    INDEX `commission_payouts_createdById_idx`(`createdById`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `transactions` (
+    `id` VARCHAR(191) NOT NULL,
+    `transactionNumber` VARCHAR(191) NOT NULL,
+    `type` ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
+    `category` ENUM('PROPERTY_SALE', 'COMMISSION_PAYMENT', 'VENDOR_PAYMENT', 'SALARY', 'MARKETING', 'OPERATIONAL', 'OTHER') NOT NULL,
+    `amount` DECIMAL(12, 2) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `description` TEXT NULL,
+    `referenceType` VARCHAR(191) NULL,
+    `referenceId` VARCHAR(191) NULL,
+    `debitAccount` VARCHAR(191) NULL,
+    `creditAccount` VARCHAR(191) NULL,
+    `status` ENUM('PENDING', 'COMPLETED', 'CANCELLED', 'FAILED') NOT NULL DEFAULT 'COMPLETED',
+    `transactionDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `tags` TEXT NULL,
+    `attachments` TEXT NULL,
+    `recordedById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `transactions_transactionNumber_key`(`transactionNumber`),
+    INDEX `transactions_type_idx`(`type`),
+    INDEX `transactions_category_idx`(`category`),
+    INDEX `transactions_status_idx`(`status`),
+    INDEX `transactions_transactionDate_idx`(`transactionDate`),
+    INDEX `transactions_recordedById_idx`(`recordedById`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `expenses` (
+    `id` VARCHAR(191) NOT NULL,
+    `expenseNumber` VARCHAR(191) NOT NULL,
+    `category` ENUM('MARKETING', 'OPERATIONAL', 'SALARY', 'UTILITIES', 'RENT', 'MAINTENANCE', 'LEGAL', 'TRAVEL', 'OFFICE_SUPPLIES', 'SOFTWARE', 'OTHER') NOT NULL,
+    `subcategory` VARCHAR(191) NULL,
+    `amount` DECIMAL(12, 2) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `description` TEXT NULL,
+    `vendor` VARCHAR(191) NULL,
+    `taxRate` DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
+    `taxAmount` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    `paymentMethod` ENUM('CASH', 'BANK_TRANSFER', 'CHEQUE', 'UPI', 'CARD', 'NET_BANKING', 'OTHER') NULL,
+    `referenceNumber` VARCHAR(191) NULL,
+    `status` ENUM('PENDING', 'APPROVED', 'PAID', 'REJECTED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    `expenseDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `approvedAt` DATETIME(3) NULL,
+    `paidAt` DATETIME(3) NULL,
+    `approvedById` VARCHAR(191) NULL,
+    `receiptUrl` VARCHAR(191) NULL,
+    `notes` TEXT NULL,
+    `submittedById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `expenses_expenseNumber_key`(`expenseNumber`),
+    INDEX `expenses_category_idx`(`category`),
+    INDEX `expenses_status_idx`(`status`),
+    INDEX `expenses_expenseDate_idx`(`expenseDate`),
+    INDEX `expenses_approvedById_idx`(`approvedById`),
+    INDEX `expenses_submittedById_idx`(`submittedById`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -776,3 +943,35 @@ ALTER TABLE `account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`
 -- AddForeignKey
 ALTER TABLE `session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- AddForeignKey
+ALTER TABLE `invoices` ADD CONSTRAINT `invoices_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `invoices` ADD CONSTRAINT `invoices_customerId_fkey` FOREIGN KEY (`customerId`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `invoices` ADD CONSTRAINT `invoices_propertyId_fkey` FOREIGN KEY (`propertyId`) REFERENCES `properties`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `payments` ADD CONSTRAINT `payments_customerId_fkey` FOREIGN KEY (`customerId`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `payments` ADD CONSTRAINT `payments_invoiceId_fkey` FOREIGN KEY (`invoiceId`) REFERENCES `invoices`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `payments` ADD CONSTRAINT `payments_recordedById_fkey` FOREIGN KEY (`recordedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `commission_payouts` ADD CONSTRAINT `commission_payouts_approvedById_fkey` FOREIGN KEY (`approvedById`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `commission_payouts` ADD CONSTRAINT `commission_payouts_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_recordedById_fkey` FOREIGN KEY (`recordedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `expenses` ADD CONSTRAINT `expenses_approvedById_fkey` FOREIGN KEY (`approvedById`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `expenses` ADD CONSTRAINT `expenses_submittedById_fkey` FOREIGN KEY (`submittedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
