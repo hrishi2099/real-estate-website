@@ -14,7 +14,7 @@ const updatePayoutSchema = z.object({
 // GET /api/accounts/commission-payouts/[id] - Get a single payout
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -27,8 +27,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const payout = await prisma.commissionPayout.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         approvedBy: {
           select: {
@@ -71,7 +72,7 @@ export async function GET(
 // PATCH /api/accounts/commission-payouts/[id] - Update a payout (approve/reject/mark paid)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -84,12 +85,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updatePayoutSchema.parse(body);
 
     // Check if payout exists
     const existingPayout = await prisma.commissionPayout.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingPayout) {
@@ -129,7 +131,7 @@ export async function PATCH(
     // Update payout in transaction
     const result = await prisma.$transaction(async (tx) => {
       const payout = await tx.commissionPayout.update({
-        where: { id: params.id },
+        where: { id },
         data: updateData,
         include: {
           approvedBy: {
@@ -174,7 +176,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
@@ -190,7 +192,7 @@ export async function PATCH(
 // DELETE /api/accounts/commission-payouts/[id] - Delete a payout
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -203,9 +205,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     // Check if payout exists
     const payout = await prisma.commissionPayout.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!payout) {
@@ -221,7 +224,7 @@ export async function DELETE(
     }
 
     await prisma.commissionPayout.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Payout deleted successfully' });

@@ -44,17 +44,17 @@ interface DashboardStats {
 }
 
 export default function AccountsPage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [period, setPeriod] = useState('month');
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
+    if (!isLoading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user && (user.role === 'ACCOUNTS' || user.role === 'ADMIN')) {
@@ -86,7 +86,7 @@ export default function AccountsPage() {
     }).format(amount);
   };
 
-  if (loading || loadingStats) {
+  if (isLoading || loadingStats) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">

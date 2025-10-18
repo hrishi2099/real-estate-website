@@ -27,7 +27,7 @@ const updateInvoiceSchema = z.object({
 // GET /api/accounts/invoices/[id] - Get a single invoice
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -40,8 +40,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         customer: {
           select: {
@@ -110,7 +111,7 @@ export async function GET(
 // PATCH /api/accounts/invoices/[id] - Update an invoice
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -123,12 +124,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateInvoiceSchema.parse(body);
 
     // Check if invoice exists
     const existingInvoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingInvoice) {
@@ -156,7 +158,7 @@ export async function PATCH(
     if (validatedData.terms !== undefined) updateData.terms = validatedData.terms;
 
     const invoice = await prisma.invoice.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         customer: {
@@ -188,7 +190,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
@@ -204,7 +206,7 @@ export async function PATCH(
 // DELETE /api/accounts/invoices/[id] - Delete an invoice
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -217,9 +219,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     // Check if invoice exists
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         payments: true,
       },
@@ -238,7 +241,7 @@ export async function DELETE(
     }
 
     await prisma.invoice.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Invoice deleted successfully' });

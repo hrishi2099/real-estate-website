@@ -23,7 +23,7 @@ interface CommissionPayout {
 }
 
 export default function CommissionPayoutsPage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [payouts, setPayouts] = useState<CommissionPayout[]>([]);
   const [loadingPayouts, setLoadingPayouts] = useState(true);
@@ -31,10 +31,10 @@ export default function CommissionPayoutsPage() {
   const [recipientTypeFilter, setRecipientTypeFilter] = useState('');
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
+    if (!isLoading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user && (user.role === 'ACCOUNTS' || user.role === 'ADMIN')) {
@@ -128,7 +128,7 @@ export default function CommissionPayoutsPage() {
     return <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded">Sales Manager</span>;
   };
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">

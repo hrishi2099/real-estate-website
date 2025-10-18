@@ -15,7 +15,7 @@ const updatePaymentSchema = z.object({
 // GET /api/accounts/payments/[id] - Get a single payment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -28,8 +28,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const payment = await prisma.payment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         invoice: {
           select: {
@@ -76,7 +77,7 @@ export async function GET(
 // PATCH /api/accounts/payments/[id] - Update a payment
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -89,12 +90,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updatePaymentSchema.parse(body);
 
     // Check if payment exists
     const existingPayment = await prisma.payment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         invoice: true,
       },
@@ -115,7 +117,7 @@ export async function PATCH(
       if (validatedData.receiptUrl !== undefined) updateData.receiptUrl = validatedData.receiptUrl;
 
       const payment = await tx.payment.update({
-        where: { id: params.id },
+        where: { id },
         data: updateData,
         include: {
           invoice: true,
@@ -184,7 +186,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
@@ -200,7 +202,7 @@ export async function PATCH(
 // DELETE /api/accounts/payments/[id] - Delete a payment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -213,9 +215,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { id } = await params;
     // Check if payment exists
     const payment = await prisma.payment.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!payment) {
@@ -231,7 +234,7 @@ export async function DELETE(
     }
 
     await prisma.payment.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Payment deleted successfully' });

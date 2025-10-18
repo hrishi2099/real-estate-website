@@ -19,7 +19,7 @@ interface Payment {
 }
 
 export default function PaymentsPage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loadingPayments, setLoadingPayments] = useState(true);
@@ -39,10 +39,10 @@ export default function PaymentsPage() {
   });
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
+    if (!isLoading && (!user || (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN'))) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user && (user.role === 'ACCOUNTS' || user.role === 'ADMIN')) {
@@ -183,7 +183,7 @@ export default function PaymentsPage() {
     }
   };
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
