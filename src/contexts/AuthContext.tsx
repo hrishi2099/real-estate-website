@@ -10,7 +10,7 @@ interface User {
   name: string;
   email: string;
   phone?: string;
-  role?: 'USER' | 'ADMIN' | 'SALES_MANAGER' | 'CHANNEL_PARTNER';
+  role?: 'USER' | 'ADMIN' | 'SALES_MANAGER' | 'CHANNEL_PARTNER' | 'ACCOUNTS';
   status?: string;
   joinDate?: string;
   territory?: string;
@@ -23,6 +23,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isSalesManager: boolean;
   isChannelPartner: boolean;
+  isAccounts: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -117,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAdmin: user?.role === 'ADMIN',
     isSalesManager: user?.role === 'SALES_MANAGER',
     isChannelPartner: user?.role === 'CHANNEL_PARTNER',
+    isAccounts: user?.role === 'ACCOUNTS',
     login,
     logout,
     signInWithGoogle,

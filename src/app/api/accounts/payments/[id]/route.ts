@@ -1,0 +1,245 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/authOptions';
+import prisma from '@/lib/prisma';
+import { z } from 'zod';
+
+// Validation schema for updating payments
+const updatePaymentSchema = z.object({
+  status: z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED']).optional(),
+  clearedDate: z.string().optional(),
+  notes: z.string().optional(),
+  receiptUrl: z.string().optional(),
+});
+
+// GET /api/accounts/payments/[id] - Get a single payment
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has ACCOUNTS or ADMIN role
+    if (session.user.role !== 'ACCOUNTS' && session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const payment = await prisma.payment.findUnique({
+      where: { id: params.id },
+      include: {
+        invoice: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+            totalAmount: true,
+            status: true,
+            customerName: true,
+            customerEmail: true,
+          },
+        },
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        recordedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!payment) {
+      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(payment);
+  } catch (error) {
+    console.error('Error fetching payment:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch payment' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH /api/accounts/payments/[id] - Update a payment
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has ACCOUNTS or ADMIN role
+    if (session.user.role !== 'ACCOUNTS' && session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const validatedData = updatePaymentSchema.parse(body);
+
+    // Check if payment exists
+    const existingPayment = await prisma.payment.findUnique({
+      where: { id: params.id },
+      include: {
+        invoice: true,
+      },
+    });
+
+    if (!existingPayment) {
+      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+    }
+
+    // Update payment in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Prepare update data
+      const updateData: any = {};
+
+      if (validatedData.status) updateData.status = validatedData.status;
+      if (validatedData.clearedDate) updateData.clearedDate = new Date(validatedData.clearedDate);
+      if (validatedData.notes !== undefined) updateData.notes = validatedData.notes;
+      if (validatedData.receiptUrl !== undefined) updateData.receiptUrl = validatedData.receiptUrl;
+
+      const payment = await tx.payment.update({
+        where: { id: params.id },
+        data: updateData,
+        include: {
+          invoice: true,
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          recordedBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // If status changed to COMPLETED or payment was linked to invoice, update invoice status
+      if (payment.invoiceId && (validatedData.status === 'COMPLETED' || validatedData.status === 'CANCELLED' || validatedData.status === 'REFUNDED')) {
+        const invoice = await tx.invoice.findUnique({
+          where: { id: payment.invoiceId },
+          include: {
+            payments: {
+              where: {
+                status: 'COMPLETED',
+              },
+            },
+          },
+        });
+
+        if (invoice) {
+          const totalPaid = invoice.payments.reduce(
+            (sum, p) => sum + Number(p.amount),
+            0
+          );
+          const balance = Number(invoice.totalAmount) - totalPaid;
+
+          let newStatus = invoice.status;
+          if (balance <= 0 && totalPaid > 0) {
+            newStatus = 'PAID';
+          } else if (totalPaid > 0) {
+            newStatus = 'PARTIALLY_PAID';
+          } else if (totalPaid === 0 && invoice.status === 'PAID') {
+            newStatus = 'ISSUED';
+          }
+
+          if (newStatus !== invoice.status) {
+            await tx.invoice.update({
+              where: { id: payment.invoiceId },
+              data: {
+                status: newStatus,
+                paidDate: balance <= 0 && totalPaid > 0 ? new Date() : null,
+              },
+            });
+          }
+        }
+      }
+
+      return payment;
+    });
+
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation error', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    console.error('Error updating payment:', error);
+    return NextResponse.json(
+      { error: 'Failed to update payment' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/accounts/payments/[id] - Delete a payment
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has ADMIN role (only admins can delete)
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Check if payment exists
+    const payment = await prisma.payment.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!payment) {
+      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+    }
+
+    // Don't allow deletion if payment is completed
+    if (payment.status === 'COMPLETED') {
+      return NextResponse.json(
+        { error: 'Cannot delete completed payment. Please cancel it first.' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.payment.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json({ message: 'Payment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting payment:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete payment' },
+      { status: 500 }
+    );
+  }
+}
