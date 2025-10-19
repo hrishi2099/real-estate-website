@@ -10,6 +10,10 @@ const updatePaymentSchema = z.object({
   clearedDate: z.string().optional(),
   notes: z.string().optional(),
   receiptUrl: z.string().optional(),
+  // Allow editing customer details
+  customerId: z.string().optional(),
+  customerName: z.string().optional(),
+  payerType: z.enum(['EXISTING_USER', 'NON_USER']).optional(),
 });
 
 // GET /api/accounts/payments/[id] - Get a single payment
@@ -115,6 +119,10 @@ export async function PATCH(
       if (validatedData.clearedDate) updateData.clearedDate = new Date(validatedData.clearedDate);
       if (validatedData.notes !== undefined) updateData.notes = validatedData.notes;
       if (validatedData.receiptUrl !== undefined) updateData.receiptUrl = validatedData.receiptUrl;
+      // Allow editing customer details
+      if (validatedData.customerId !== undefined) updateData.customerId = validatedData.customerId || null;
+      if (validatedData.customerName !== undefined) updateData.customerName = validatedData.customerName;
+      if (validatedData.payerType !== undefined) updateData.payerType = validatedData.payerType;
 
       const payment = await tx.payment.update({
         where: { id },
