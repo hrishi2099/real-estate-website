@@ -49,9 +49,11 @@ export async function GET(req: NextRequest) {
 
 export const POST = requireAdmin(async (req) => {
   const body = await req.json();
+  console.log('Received property creation request with body:', JSON.stringify(body, null, 2));
 
   const validation = createPropertySchema.safeParse(body);
   if (!validation.success) {
+    console.error('Validation failed with issues:', JSON.stringify(validation.error.issues, null, 2));
     return NextResponse.json({ error: 'Invalid input', details: validation.error.issues }, { status: 400 });
   }
 

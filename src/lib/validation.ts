@@ -19,10 +19,12 @@ export function sanitizeEmail(email: string): string {
 
 // SQL injection prevention patterns
 const sqlInjectionPatterns = [
-  /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi,
-  /(\b(or|and)\b\s*\d+\s*=\s*\d+)/gi,
-  /(--|\/\*|\*\/|;)/g,
-  /["`]/g, // Block double quotes and backticks, allow single quotes/apostrophes
+  // Block SQL keywords when combined with suspicious patterns
+  /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\s+(all|distinct|from|into|table|database|where|values)\b)/gi,
+  // Block obvious SQL injection attempts (1=1, 1' OR '1'='1, etc)
+  /(\b(or|and)\b\s*['"]*\s*\d+\s*['"]*\s*=\s*['"]*\s*\d+)/gi,
+  // Block SQL comments only when combined with quotes (not standalone --)
+  /(['"]).*?(--|\/\*|\*\/)/g,
 ];
 
 export function containsSqlInjection(input: string): boolean {
@@ -132,8 +134,8 @@ export const createPropertySchema = z.object({
   area: z.number().min(0, 'Area must be positive').optional(),
   features: z.array(createSecureTextSchema(1, 100, 'Feature')).optional(),
   isFeatured: z.boolean().default(false),
-  kmlFileUrl: z.string().optional().or(z.literal('')).nullable(),
-  kmlContent: z.string().optional().or(z.literal('')).nullable(),
+  kmlFileUrl: z.union([z.string(), z.literal(''), z.null()]).optional(),
+  kmlContent: z.union([z.string(), z.literal(''), z.null()]).optional(),
   images: z.array(z.object({
     url: z.string().url(),
     filename: z.string(),
