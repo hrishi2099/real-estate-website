@@ -16,6 +16,12 @@ const createPaymentSchema = z.object({
   customerName: z.string().optional(),
   paymentDate: z.string().optional(),
   notes: z.string().optional(),
+  // New fields
+  projectName: z.string().optional(),
+  pendingAccount: z.number().optional(),
+  plotArea: z.number().optional(),
+  totalAmount: z.number().optional(),
+  payerType: z.enum(['EXISTING_USER', 'NON_USER']).optional(),
 });
 
 // Generate payment number in format: PAY-YYYY-MM-001
@@ -186,6 +192,12 @@ export async function POST(request: NextRequest) {
           notes: validatedData.notes,
           status: 'PENDING',
           recordedById: session.user!.id,
+          // New fields
+          projectName: validatedData.projectName,
+          pendingAccount: validatedData.pendingAccount,
+          plotArea: validatedData.plotArea,
+          totalAmount: validatedData.totalAmount,
+          payerType: validatedData.payerType,
         },
         include: {
           invoice: {

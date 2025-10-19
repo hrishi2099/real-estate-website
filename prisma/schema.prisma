@@ -771,6 +771,12 @@ model Payment {
   notes           String?       @db.Text
   receiptUrl      String?
   recordedById    String
+  // New fields for enhanced payment tracking
+  projectName     String?
+  pendingAccount  Decimal?      @db.Decimal(12, 2)
+  plotArea        Decimal?      @db.Decimal(10, 2)
+  totalAmount     Decimal?      @db.Decimal(12, 2)
+  payerType       String?       // 'EXISTING_USER' or 'NON_USER'
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   customer        User?         @relation("CustomerPayments", fields: [customerId], references: [id])

@@ -16,6 +16,12 @@ interface Payment {
   referenceNumber?: string;
   customerName?: string;
   invoice?: { invoiceNumber: string };
+  // New fields
+  projectName?: string;
+  pendingAccount?: number;
+  plotArea?: number;
+  totalAmount?: number;
+  payerType?: string;
 }
 
 export default function PaymentsPage() {
@@ -36,6 +42,12 @@ export default function PaymentsPage() {
     customerName: '',
     paymentDate: new Date().toISOString().split('T')[0],
     notes: '',
+    // New fields
+    projectName: '',
+    pendingAccount: '',
+    plotArea: '',
+    totalAmount: '',
+    payerType: 'EXISTING_USER',
   });
 
   useEffect(() => {
@@ -86,6 +98,12 @@ export default function PaymentsPage() {
           customerName: formData.customerName || undefined,
           paymentDate: formData.paymentDate,
           notes: formData.notes || undefined,
+          // New fields
+          projectName: formData.projectName || undefined,
+          pendingAccount: formData.pendingAccount ? parseFloat(formData.pendingAccount) : undefined,
+          plotArea: formData.plotArea ? parseFloat(formData.plotArea) : undefined,
+          totalAmount: formData.totalAmount ? parseFloat(formData.totalAmount) : undefined,
+          payerType: formData.payerType || undefined,
         }),
       });
 
@@ -101,6 +119,11 @@ export default function PaymentsPage() {
           customerName: '',
           paymentDate: new Date().toISOString().split('T')[0],
           notes: '',
+          projectName: '',
+          pendingAccount: '',
+          plotArea: '',
+          totalAmount: '',
+          payerType: 'EXISTING_USER',
         });
         fetchPayments();
       } else {
@@ -277,8 +300,8 @@ export default function PaymentsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer / Invoice</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer / Project</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount / Plot</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -294,14 +317,31 @@ export default function PaymentsPage() {
                           <div className="text-xs text-gray-500">Ref: {payment.referenceNumber}</div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4">
                         <div className="text-sm text-gray-900">{payment.customerName || 'N/A'}</div>
+                        {payment.projectName && (
+                          <div className="text-xs text-gray-500">🏗️ {payment.projectName}</div>
+                        )}
+                        {payment.payerType && (
+                          <div className="text-xs text-blue-600">
+                            {payment.payerType === 'EXISTING_USER' ? '👤 Has Login' : '👥 No Login'}
+                          </div>
+                        )}
                         {payment.invoice && (
                           <div className="text-xs text-gray-500">{payment.invoice.invoiceNumber}</div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
+                        {payment.totalAmount && (
+                          <div className="text-xs text-gray-500">Total: {formatCurrency(payment.totalAmount)}</div>
+                        )}
+                        {payment.pendingAccount && (
+                          <div className="text-xs text-orange-600">Pending: {formatCurrency(payment.pendingAccount)}</div>
+                        )}
+                        {payment.plotArea && (
+                          <div className="text-xs text-green-600">📐 {payment.plotArea} sqft</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -444,6 +484,69 @@ export default function PaymentsPage() {
                   onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                  <input
+                    type="text"
+                    value={formData.projectName}
+                    onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    placeholder="e.g., Green Valley Phase 2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payer Type</label>
+                  <select
+                    value={formData.payerType}
+                    onChange={(e) => setFormData({ ...formData, payerType: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="EXISTING_USER">Existing User (Has Login)</option>
+                    <option value="NON_USER">Non-User (No Login Yet)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.totalAmount}
+                    onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    placeholder="Total contract amount"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pending Account (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.pendingAccount}
+                    onChange={(e) => setFormData({ ...formData, pendingAccount: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    placeholder="Outstanding balance"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Plot Area (sqft)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.plotArea}
+                    onChange={(e) => setFormData({ ...formData, plotArea: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    placeholder="Area in sqft"
+                  />
+                </div>
               </div>
 
               <div>
