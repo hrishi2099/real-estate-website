@@ -137,6 +137,7 @@ export const createPropertySchema = z.object({
   images: z.array(z.object({
     url: z.string().url(),
     filename: z.string(),
+    isPrimary: z.boolean().optional(),
   })).optional(),
 });
 
