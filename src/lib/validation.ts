@@ -137,7 +137,10 @@ export const createPropertySchema = z.object({
   kmlFileUrl: z.union([z.string(), z.literal(''), z.null()]).optional(),
   kmlContent: z.union([z.string(), z.literal(''), z.null()]).optional(),
   images: z.array(z.object({
-    url: z.string().url(),
+    url: z.union([
+      z.string().url(), // Full URL (https://example.com/uploads/image.jpg)
+      z.string().startsWith('/'), // Relative path (/uploads/image.jpg)
+    ]),
     filename: z.string(),
     isPrimary: z.boolean().optional(),
   })).optional(),
