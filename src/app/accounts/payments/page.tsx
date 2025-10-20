@@ -64,7 +64,10 @@ export default function PaymentsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
+  const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null);
+  const [deletingPayment, setDeletingPayment] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -446,6 +449,47 @@ export default function PaymentsPage() {
     }
   };
 
+  const handleDeleteClick = (payment: Payment) => {
+    setPaymentToDelete(payment);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!paymentToDelete) return;
+
+    try {
+      setDeletingPayment(true);
+      const response = await fetch(`/api/accounts/payments/${paymentToDelete.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setPayments(payments.filter(p => p.id !== paymentToDelete.id));
+        setShowDeleteModal(false);
+        setPaymentToDelete(null);
+        alert('Payment deleted successfully');
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to delete: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      alert('Error deleting payment. Check console for details.');
+    } finally {
+      setDeletingPayment(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setPaymentToDelete(null);
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -498,12 +542,71 @@ export default function PaymentsPage() {
     return '';
   };
 
+  // Generate unique payment plan identifier
+  const generatePaymentPlanId = (customerName: string, projectName: string) => {
+    if (!customerName || !projectName) return '';
+
+    // Create a simple hash-like identifier
+    const cleanCustomer = customerName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 4);
+    const cleanProject = projectName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 4);
+    const timestamp = Date.now().toString().slice(-6);
+
+    return `PP-${cleanCustomer}-${cleanProject}-${timestamp}`;
+  };
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  // Calculate actual pending amount for a payment based on all payments in the same plan
+  const calculateActualPending = (payment: any) => {
+    if (!payment.totalAmount || !payment.customerName || !payment.projectName) {
+      return payment.pendingAccount ? Number(payment.pendingAccount) : null;
+    }
+
+    // Find all payments for the same customer and project
+    const relatedPayments = payments.filter(
+      (p) =>
+        p.customerName === payment.customerName &&
+        p.projectName === payment.projectName &&
+        p.status === 'COMPLETED'
+    );
+
+    // Sum all completed payments
+    const totalPaid = relatedPayments.reduce(
+      (sum, p) => sum + Number(p.amount),
+      0
+    );
+
+    // Calculate actual pending
+    const actualPending = Number(payment.totalAmount) - totalPaid;
+
+    return actualPending >= 0 ? actualPending : 0;
+  };
+
+  // Get installment count for a payment
+  const getInstallmentInfo = (payment: any) => {
+    if (!payment.customerName || !payment.projectName) {
+      return null;
+    }
+
+    // Find all payments for the same customer and project
+    const relatedPayments = payments
+      .filter(
+        (p) =>
+          p.customerName === payment.customerName &&
+          p.projectName === payment.projectName
+      )
+      .sort((a, b) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime());
+
+    const totalInstallments = relatedPayments.length;
+    const installmentNumber = relatedPayments.findIndex((p) => p.id === payment.id) + 1;
+
+    return { installmentNumber, totalInstallments };
   };
 
   const getStatusColor = (status: string) => {
@@ -657,6 +760,14 @@ export default function PaymentsPage() {
                         {payment.projectName && (
                           <div className="text-xs text-gray-500">🏗️ {payment.projectName}</div>
                         )}
+                        {(() => {
+                          const installmentInfo = getInstallmentInfo(payment);
+                          return installmentInfo && installmentInfo.totalInstallments > 1 && (
+                            <div className="text-xs text-indigo-600 font-semibold">
+                              💳 Installment #{installmentInfo.installmentNumber} of {installmentInfo.totalInstallments}
+                            </div>
+                          );
+                        })()}
                         {payment.payerType && (
                           <div className="text-xs text-blue-600">
                             {payment.payerType === 'EXISTING_USER' ? '👤 Has Login' : '👥 No Login'}
@@ -671,9 +782,33 @@ export default function PaymentsPage() {
                         {payment.totalAmount && (
                           <div className="text-xs text-gray-500">Total: {formatCurrency(payment.totalAmount)}</div>
                         )}
-                        {payment.pendingAccount && (
-                          <div className="text-xs text-orange-600">Pending: {formatCurrency(payment.pendingAccount)}</div>
-                        )}
+                        {(() => {
+                          const actualPending = calculateActualPending(payment);
+                          if (actualPending === null) return null;
+
+                          const totalAmount = Number(payment.totalAmount);
+                          const paidAmount = totalAmount - actualPending;
+                          const percentage = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
+
+                          return (
+                            <>
+                              <div className="text-xs text-orange-600 font-semibold">
+                                Balance: {formatCurrency(actualPending)}
+                              </div>
+                              {totalAmount > 0 && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                    <div
+                                      className="bg-green-600 h-1.5 rounded-full"
+                                      style={{ width: `${percentage}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs text-gray-600">{percentage}%</span>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                         {payment.plotArea && (
                           <div className="text-xs text-green-600">📐 {payment.plotArea} sqft</div>
                         )}
@@ -704,20 +839,43 @@ export default function PaymentsPage() {
                             Edit
                           </button>
                           {payment.status === 'PENDING' && (
+                            <>
+                              <button
+                                onClick={() => updatePaymentStatus(payment.id, 'COMPLETED')}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                Complete
+                              </button>
+                              <button
+                                onClick={() => updatePaymentStatus(payment.id, 'FAILED')}
+                                className="text-orange-600 hover:text-orange-900"
+                              >
+                                Failed
+                              </button>
+                            </>
+                          )}
+                          {payment.status === 'COMPLETED' && (
                             <button
-                              onClick={() => updatePaymentStatus(payment.id, 'COMPLETED')}
-                              className="text-green-600 hover:text-green-900"
+                              onClick={() => updatePaymentStatus(payment.id, 'CANCELLED')}
+                              className="text-yellow-600 hover:text-yellow-900"
+                              title="Cancel this completed payment"
                             >
-                              Complete
+                              Cancel
                             </button>
                           )}
-                          {payment.status === 'PENDING' && (
+                          {payment.status !== 'COMPLETED' && (
                             <button
-                              onClick={() => updatePaymentStatus(payment.id, 'FAILED')}
+                              onClick={() => handleDeleteClick(payment)}
                               className="text-red-600 hover:text-red-900"
+                              title="Delete payment"
                             >
-                              Failed
+                              Delete
                             </button>
+                          )}
+                          {payment.status === 'COMPLETED' && (
+                            <span className="text-xs text-gray-500 italic" title="Cancel first to delete">
+                              (Cancel to delete)
+                            </span>
                           )}
                         </div>
                       </td>
@@ -887,10 +1045,10 @@ export default function PaymentsPage() {
                 </div>
               )}
 
-              {!showEditModal && (
+              {!showEditModal && !(paymentHistory && paymentHistory.summary.totalPayments > 0) && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Select Property (Optional)
+                    Select Property (Optional but Recommended)
                     {properties.length > 0 && (
                       <span className="text-xs text-gray-500 ml-2">({properties.length} available)</span>
                     )}
@@ -931,61 +1089,160 @@ export default function PaymentsPage() {
                 </div>
               )}
 
-              {/* Payment History Summary */}
+              {/* Simplified Info Banner for Existing Payment Plans */}
               {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-2 mb-3">
-                    <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-600 rounded-full p-2">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-blue-900 mb-2">Previous Payment History Found</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                        <div>
-                          <span className="text-blue-600 block">Total Payments</span>
-                          <span className="font-semibold text-blue-900">{paymentHistory.summary.totalPayments}</span>
-                        </div>
-                        <div>
-                          <span className="text-blue-600 block">Amount Paid</span>
-                          <span className="font-semibold text-green-700">{formatCurrency(paymentHistory.summary.totalPaid)}</span>
-                        </div>
-                        {paymentHistory.summary.totalAmount && (
-                          <div>
-                            <span className="text-blue-600 block">Total Amount</span>
-                            <span className="font-semibold text-blue-900">{formatCurrency(paymentHistory.summary.totalAmount)}</span>
-                          </div>
-                        )}
-                        {paymentHistory.summary.currentPending !== null && (
-                          <div>
-                            <span className="text-blue-600 block">Pending (Auto-filled)</span>
-                            <span className="font-semibold text-orange-700">{formatCurrency(paymentHistory.summary.currentPending)}</span>
-                          </div>
+                      <h4 className="font-bold text-green-900 text-base">
+                        Adding Installment #{paymentHistory.summary.totalPayments + 1}
+                      </h4>
+                      <p className="text-sm text-green-700">
+                        Customer & Project details auto-filled. Just enter the payment amount and method.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Payment History Ledger */}
+              {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-5 shadow-md">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="bg-blue-600 rounded-full p-2">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-blue-900 text-lg mb-1">Payment Ledger Found</h4>
+                      <p className="text-sm text-blue-700">
+                        <span className="font-semibold">{paymentHistory.summary.customerName}</span>
+                        {paymentHistory.summary.projectName && <> • {paymentHistory.summary.projectName}</>}
+                      </p>
+                      <div className="mt-2 inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-mono">
+                        ID: {generatePaymentPlanId(
+                          paymentHistory.summary.customerName || formData.customerName,
+                          paymentHistory.summary.projectName || formData.projectName
                         )}
                       </div>
-                      {paymentHistory.summary.totalAmount && paymentHistory.summary.currentPending !== null && (
-                        <div className="mt-3">
-                          <div className="flex justify-between text-xs text-blue-600 mb-1">
-                            <span>Payment Progress</span>
-                            <span>{Math.round((paymentHistory.summary.totalPaid / paymentHistory.summary.totalAmount) * 100)}%</span>
-                          </div>
-                          <div className="w-full bg-blue-200 rounded-full h-2">
-                            <div
-                              className="bg-green-600 h-2 rounded-full transition-all"
-                              style={{
-                                width: `${Math.min((paymentHistory.summary.totalPaid / paymentHistory.summary.totalAmount) * 100, 100)}%`
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
                     </div>
+                  </div>
+
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <span className="text-xs text-gray-600 block">Total Installments</span>
+                      <span className="font-bold text-blue-900 text-lg">{paymentHistory.summary.totalPayments}</span>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <span className="text-xs text-gray-600 block">Amount Paid</span>
+                      <span className="font-bold text-green-700 text-sm">{formatCurrency(paymentHistory.summary.totalPaid)}</span>
+                    </div>
+                    {paymentHistory.summary.totalAmount && (
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <span className="text-xs text-gray-600 block">Total Amount</span>
+                        <span className="font-bold text-blue-900 text-sm">{formatCurrency(paymentHistory.summary.totalAmount)}</span>
+                      </div>
+                    )}
+                    {paymentHistory.summary.currentPending !== null && (
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <span className="text-xs text-gray-600 block">Balance Due</span>
+                        <span className="font-bold text-orange-700 text-sm">{formatCurrency(paymentHistory.summary.currentPending)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Progress Bar */}
+                  {paymentHistory.summary.totalAmount && paymentHistory.summary.currentPending !== null && (
+                    <div className="bg-white rounded-lg p-3 shadow-sm mb-4">
+                      <div className="flex justify-between text-xs font-medium text-gray-700 mb-2">
+                        <span>Payment Progress</span>
+                        <span className="text-blue-600">{Math.round((paymentHistory.summary.totalPaid / paymentHistory.summary.totalAmount) * 100)}% Complete</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500 shadow-sm"
+                          style={{
+                            width: `${Math.min((paymentHistory.summary.totalPaid / paymentHistory.summary.totalAmount) * 100, 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment Installments Ledger */}
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2">
+                      <h5 className="text-white font-semibold text-sm">Payment Installments History</h5>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-gray-50 sticky top-0">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-gray-600 font-semibold">#</th>
+                            <th className="px-3 py-2 text-left text-gray-600 font-semibold">Date</th>
+                            <th className="px-3 py-2 text-right text-gray-600 font-semibold">Amount</th>
+                            <th className="px-3 py-2 text-center text-gray-600 font-semibold">Status</th>
+                            <th className="px-3 py-2 text-right text-gray-600 font-semibold">Balance</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {paymentHistory.payments
+                            .sort((a, b) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime())
+                            .map((payment, index) => {
+                              const totalPaidUpToThis = paymentHistory.payments
+                                .slice(0, index + 1)
+                                .filter(p => p.status === 'COMPLETED')
+                                .reduce((sum, p) => sum + Number(p.amount), 0);
+                              const balanceAfter = (paymentHistory.summary.totalAmount || 0) - totalPaidUpToThis;
+
+                              return (
+                                <tr key={payment.id} className="hover:bg-blue-50 transition-colors">
+                                  <td className="px-3 py-2 font-mono font-semibold text-blue-900">#{index + 1}</td>
+                                  <td className="px-3 py-2 text-gray-700">{formatDate(payment.paymentDate)}</td>
+                                  <td className="px-3 py-2 text-right font-semibold text-gray-900">
+                                    {formatCurrency(Number(payment.amount))}
+                                  </td>
+                                  <td className="px-3 py-2 text-center">
+                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                      payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                      payment.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {payment.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-semibold text-orange-700">
+                                    {formatCurrency(balanceAfter)}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 text-xs text-blue-700 bg-blue-100 rounded-lg p-2">
+                    💡 <span className="font-semibold">This is installment #{paymentHistory.summary.totalPayments + 1}</span> for this payment plan
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Payer Type *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Payer Type *
+                    {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                      <span className="text-xs text-gray-500 ml-2">(Locked)</span>
+                    )}
+                  </label>
                   <select
                     value={formData.payerType}
                     onChange={(e) => {
@@ -996,7 +1253,10 @@ export default function PaymentsPage() {
                         customerName: '',
                       });
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                      paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                    }`}
                   >
                     <option value="EXISTING_USER">Existing User (Has Login)</option>
                     <option value="NON_USER">Non-User (No Login Yet)</option>
@@ -1005,15 +1265,27 @@ export default function PaymentsPage() {
                 {!showEditModal && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Project Name {formData.propertyId && '(Auto-filled)'}
+                      Project Name * {formData.propertyId && '(Auto-filled)'}
+                      {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                        <span className="text-xs text-gray-500 ml-2">(Locked)</span>
+                      )}
                     </label>
                     <input
                       type="text"
+                      required
                       value={formData.projectName}
                       onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                       placeholder="e.g., Green Valley Phase 2"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {paymentHistory && paymentHistory.summary.totalPayments > 0
+                        ? '🔒 Locked from previous installments'
+                        : 'Required for payment tracking - links all installments together'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1022,6 +1294,9 @@ export default function PaymentsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Customer {formData.payerType === 'EXISTING_USER' ? '*' : ''}
+                  {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                    <span className="text-xs text-gray-500 ml-2">(Locked)</span>
+                  )}
                 </label>
                 {formData.payerType === 'EXISTING_USER' ? (
                   <div>
@@ -1029,8 +1304,10 @@ export default function PaymentsPage() {
                       required
                       value={formData.customerId}
                       onChange={(e) => handleUserSelect(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                      disabled={loadingUsers}
+                      disabled={loadingUsers || (paymentHistory && paymentHistory.summary.totalPayments > 0)}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                     >
                       <option value="">
                         {loadingUsers ? 'Loading users...' : 'Select a user...'}
@@ -1049,6 +1326,7 @@ export default function PaymentsPage() {
                   <div>
                     <input
                       type="text"
+                      required
                       value={formData.customerName}
                       onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                       onBlur={() => {
@@ -1057,11 +1335,16 @@ export default function PaymentsPage() {
                           fetchPaymentHistory(undefined, formData.customerName, formData.projectName || undefined);
                         }
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                      placeholder="Enter customer name"
+                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
+                      placeholder="Enter customer full name"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Enter name and click outside to check payment history
+                      {paymentHistory && paymentHistory.summary.totalPayments > 0
+                        ? '🔒 Locked from previous installments'
+                        : 'Required for tracking - Enter name and click outside to check payment history'}
                     </p>
                   </div>
                 )}
@@ -1070,7 +1353,12 @@ export default function PaymentsPage() {
               {!showEditModal && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Total Amount (₹)
+                      {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                        <span className="text-xs text-gray-500 ml-2">(Locked)</span>
+                      )}
+                    </label>
                     <input
                       type="text"
                       value={formatIndianNumber(formData.totalAmount)}
@@ -1080,7 +1368,10 @@ export default function PaymentsPage() {
                           setFormData({ ...formData, totalAmount: rawValue });
                         }
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                       placeholder="Total contract amount"
                     />
                     {formData.totalAmount && numberToWords(formData.totalAmount) && (
@@ -1131,6 +1422,9 @@ export default function PaymentsPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Plot Area (sqft) {formData.propertyId && '(Auto-filled)'}
+                      {paymentHistory && paymentHistory.summary.totalPayments > 0 && (
+                        <span className="text-xs text-gray-500 ml-2">(Locked)</span>
+                      )}
                     </label>
                     <input
                       type="text"
@@ -1141,7 +1435,10 @@ export default function PaymentsPage() {
                           setFormData({ ...formData, plotArea: rawValue });
                         }
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                       placeholder="Area in sqft"
                     />
                   </div>
@@ -1179,6 +1476,84 @@ export default function PaymentsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && paymentToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-red-600 to-rose-600 text-white px-6 py-4 rounded-t-xl">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h2 className="text-xl font-bold">Confirm Delete</h2>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-gray-700 mb-3">
+                  Are you sure you want to delete this payment record?
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Number:</span>
+                    <span className="font-semibold text-gray-900">{paymentToDelete.paymentNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Customer:</span>
+                    <span className="font-semibold text-gray-900">{paymentToDelete.customerName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Amount:</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(paymentToDelete.amount)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className={`font-semibold ${paymentToDelete.status === 'COMPLETED' ? 'text-red-600' : 'text-gray-900'}`}>
+                      {paymentToDelete.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {paymentToDelete.status === 'COMPLETED' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 flex items-start gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>
+                      <strong>Warning:</strong> This payment is marked as COMPLETED. Deleting it may affect payment history and balances. Consider canceling it instead.
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500">
+                ⚠️ This action cannot be undone. The payment record will be permanently deleted.
+              </p>
+            </div>
+
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deletingPayment}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {deletingPayment ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+              <button
+                onClick={handleDeleteCancel}
+                disabled={deletingPayment}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -247,9 +247,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user has ADMIN role (only admins can delete)
-    if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // Check if user has ADMIN or ACCOUNTS role
+    if (user.role !== 'ADMIN' && user.role !== 'ACCOUNTS') {
+      return NextResponse.json({ error: 'Forbidden - Only ADMIN or ACCOUNTS can delete payments' }, { status: 403 });
     }
 
     const { id } = await params;
