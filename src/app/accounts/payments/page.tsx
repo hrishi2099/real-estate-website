@@ -192,34 +192,39 @@ export default function PaymentsPage() {
   useEffect(() => {
     if (!showCreateModal && !showEditModal) return;
 
-    // Don't auto-calculate if payment history already provided the pending amount
-    if (paymentHistory && paymentHistory.summary.currentPending !== null) {
-      return;
-    }
-
     const totalAmount = parseFloat(formData.totalAmount) || 0;
     const currentPayment = parseFloat(formData.amount) || 0;
 
-    // Only auto-calculate if we have a total amount and it's greater than 0
-    if (totalAmount > 0 && currentPayment > 0) {
-      const calculatedPending = totalAmount - currentPayment;
+    let calculatedPending = 0;
 
-      // Only update if the calculated value is different from current
-      // This prevents infinite loops
-      if (calculatedPending >= 0 && formData.pendingAccount !== calculatedPending.toString()) {
-        setFormData((prev) => ({
-          ...prev,
-          pendingAccount: calculatedPending.toString(),
-        }));
+    // If payment history exists with currentPending, use it as base
+    if (paymentHistory && paymentHistory.summary.currentPending !== null) {
+      const existingPending = paymentHistory.summary.currentPending;
+
+      // For subsequent installments: newPending = currentPending - currentPayment
+      if (currentPayment > 0) {
+        calculatedPending = existingPending - currentPayment;
+      } else {
+        // If no payment entered yet, show the existing pending
+        calculatedPending = existingPending;
       }
-    } else if (totalAmount === 0 || currentPayment === 0) {
-      // Clear pending amount if either value is removed
-      if (formData.pendingAccount !== '') {
-        setFormData((prev) => ({
-          ...prev,
-          pendingAccount: '',
-        }));
-      }
+    } else if (totalAmount > 0) {
+      // For first payment: pending = totalAmount - currentPayment
+      calculatedPending = totalAmount - currentPayment;
+    }
+
+    // Update pending amount if it changed and is valid
+    if (calculatedPending >= 0 && formData.pendingAccount !== calculatedPending.toString()) {
+      setFormData((prev) => ({
+        ...prev,
+        pendingAccount: calculatedPending.toString(),
+      }));
+    } else if (totalAmount === 0 && currentPayment === 0 && formData.pendingAccount !== '') {
+      // Clear pending amount if both values are removed
+      setFormData((prev) => ({
+        ...prev,
+        pendingAccount: '',
+      }));
     }
   }, [formData.amount, formData.totalAmount, showCreateModal, showEditModal, paymentHistory]);
 
