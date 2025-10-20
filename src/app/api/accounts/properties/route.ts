@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
 
     const where: any = {
-      status: 'ACTIVE', // Only show active properties
+      status: {
+        in: ['ACTIVE', 'SOLD', 'PENDING'] // Show properties that may have payment records
+      }
     };
 
     if (search) {
