@@ -185,6 +185,41 @@ export default function PaymentsPage() {
     }
   }, [showCreateModal, showEditModal]);
 
+  // Auto-calculate pending amount when total amount or current payment changes
+  useEffect(() => {
+    if (!showCreateModal && !showEditModal) return;
+
+    // Don't auto-calculate if payment history already provided the pending amount
+    if (paymentHistory && paymentHistory.summary.currentPending !== null) {
+      return;
+    }
+
+    const totalAmount = parseFloat(formData.totalAmount) || 0;
+    const currentPayment = parseFloat(formData.amount) || 0;
+
+    // Only auto-calculate if we have a total amount and it's greater than 0
+    if (totalAmount > 0 && currentPayment > 0) {
+      const calculatedPending = totalAmount - currentPayment;
+
+      // Only update if the calculated value is different from current
+      // This prevents infinite loops
+      if (calculatedPending >= 0 && formData.pendingAccount !== calculatedPending.toString()) {
+        setFormData((prev) => ({
+          ...prev,
+          pendingAccount: calculatedPending.toString(),
+        }));
+      }
+    } else if (totalAmount === 0 || currentPayment === 0) {
+      // Clear pending amount if either value is removed
+      if (formData.pendingAccount !== '') {
+        setFormData((prev) => ({
+          ...prev,
+          pendingAccount: '',
+        }));
+      }
+    }
+  }, [formData.amount, formData.totalAmount, showCreateModal, showEditModal, paymentHistory]);
+
   const handleUserSelect = (userId: string) => {
     const selectedUser = users.find(u => u.id === userId);
     if (selectedUser) {
@@ -235,11 +270,18 @@ export default function PaymentsPage() {
         const data = await response.json();
         setPaymentHistory(data);
 
-        // Auto-calculate pending balance
+        // Auto-fill from payment history (takes priority over form calculation)
         if (data.summary.currentPending !== null) {
           setFormData((prev) => ({
             ...prev,
             pendingAccount: data.summary.currentPending.toString(),
+            totalAmount: prev.totalAmount || data.summary.totalAmount?.toString() || '',
+          }));
+        } else if (data.summary.totalAmount) {
+          // If no pending but we have total amount, auto-fill it
+          setFormData((prev) => ({
+            ...prev,
+            totalAmount: prev.totalAmount || data.summary.totalAmount.toString(),
           }));
         }
       } else {
@@ -410,6 +452,50 @@ export default function PaymentsPage() {
       currency: 'INR',
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  // Format number with Indian numbering system (lakhs, crores)
+  const formatIndianNumber = (value: string) => {
+    if (!value) return '';
+
+    // Remove all non-digits except decimal point
+    const cleanValue = value.replace(/[^\d.]/g, '');
+
+    // Split into integer and decimal parts
+    const parts = cleanValue.split('.');
+    let integerPart = parts[0];
+    const decimalPart = parts[1];
+
+    // Format integer part with Indian grouping
+    if (integerPart.length > 3) {
+      const lastThree = integerPart.slice(-3);
+      const remaining = integerPart.slice(0, -3);
+      integerPart = remaining.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
+    }
+
+    return decimalPart !== undefined ? `${integerPart}.${decimalPart}` : integerPart;
+  };
+
+  // Parse Indian formatted number back to plain number string
+  const parseIndianNumber = (value: string) => {
+    return value.replace(/,/g, '');
+  };
+
+  // Convert number to words (Indian system - Lakhs, Crores)
+  const numberToWords = (num: string) => {
+    if (!num || num === '0') return '';
+
+    const amount = parseFloat(num);
+    if (isNaN(amount)) return '';
+
+    if (amount >= 10000000) {
+      return `${(amount / 10000000).toFixed(2)} Crores`;
+    } else if (amount >= 100000) {
+      return `${(amount / 100000).toFixed(2)} Lakhs`;
+    } else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(2)} Thousand`;
+    }
+    return '';
   };
 
   const formatDate = (date: string) => {
@@ -660,14 +746,24 @@ export default function PaymentsPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Amount (₹) *</label>
                       <input
-                        type="number"
+                        type="text"
                         required
-                        min="0"
-                        step="0.01"
-                        value={formData.amount}
-                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                        value={formatIndianNumber(formData.amount)}
+                        onChange={(e) => {
+                          const rawValue = parseIndianNumber(e.target.value);
+                          // Only allow valid numbers
+                          if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
+                            setFormData({ ...formData, amount: rawValue });
+                          }
+                        }}
+                        placeholder="0"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       />
+                      {formData.amount && numberToWords(formData.amount) && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          ≈ {numberToWords(formData.amount)}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Payment Date *</label>
@@ -976,49 +1072,75 @@ export default function PaymentsPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.totalAmount}
-                      onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                      type="text"
+                      value={formatIndianNumber(formData.totalAmount)}
+                      onChange={(e) => {
+                        const rawValue = parseIndianNumber(e.target.value);
+                        if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
+                          setFormData({ ...formData, totalAmount: rawValue });
+                        }
+                      }}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       placeholder="Total contract amount"
                     />
+                    {formData.totalAmount && numberToWords(formData.totalAmount) && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        ≈ {numberToWords(formData.totalAmount)}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                       Pending Account (₹)
-                      {paymentHistory && paymentHistory.summary.currentPending !== null && (
-                        <span className="text-xs text-green-600 font-normal">✓ Auto-calculated</span>
-                      )}
+                      {paymentHistory && paymentHistory.summary.currentPending !== null ? (
+                        <span className="text-xs text-green-600 font-normal">✓ From History</span>
+                      ) : formData.totalAmount && formData.amount && formData.pendingAccount ? (
+                        <span className="text-xs text-blue-600 font-normal">✓ Auto-calculated</span>
+                      ) : null}
                     </label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.pendingAccount}
-                      onChange={(e) => setFormData({ ...formData, pendingAccount: e.target.value })}
+                      type="text"
+                      value={formatIndianNumber(formData.pendingAccount)}
+                      onChange={(e) => {
+                        const rawValue = parseIndianNumber(e.target.value);
+                        if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
+                          setFormData({ ...formData, pendingAccount: rawValue });
+                        }
+                      }}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
-                        paymentHistory && paymentHistory.summary.currentPending !== null ? 'bg-green-50' : ''
+                        paymentHistory && paymentHistory.summary.currentPending !== null ? 'bg-green-50' :
+                        formData.totalAmount && formData.amount && formData.pendingAccount ? 'bg-blue-50' : ''
                       }`}
                       placeholder="Outstanding balance"
                     />
-                    {paymentHistory && paymentHistory.summary.currentPending !== null && (
+                    {paymentHistory && paymentHistory.summary.currentPending !== null ? (
                       <p className="text-xs text-gray-500 mt-1">
-                        Calculated from: Total Amount - Completed Payments
+                        From payment history: Total - Completed Payments
                       </p>
-                    )}
+                    ) : formData.totalAmount && formData.amount && formData.pendingAccount ? (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Total ({formatIndianNumber(formData.totalAmount)}) - Current Payment ({formatIndianNumber(formData.amount)})
+                        {numberToWords(formData.pendingAccount) && ` ≈ ${numberToWords(formData.pendingAccount)}`}
+                      </p>
+                    ) : formData.pendingAccount && numberToWords(formData.pendingAccount) ? (
+                      <p className="text-xs text-orange-600 mt-1">
+                        ≈ {numberToWords(formData.pendingAccount)}
+                      </p>
+                    ) : null}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Plot Area (sqft) {formData.propertyId && '(Auto-filled)'}
                     </label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.plotArea}
-                      onChange={(e) => setFormData({ ...formData, plotArea: e.target.value })}
+                      type="text"
+                      value={formatIndianNumber(formData.plotArea)}
+                      onChange={(e) => {
+                        const rawValue = parseIndianNumber(e.target.value);
+                        if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
+                          setFormData({ ...formData, plotArea: rawValue });
+                        }
+                      }}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       placeholder="Area in sqft"
                     />

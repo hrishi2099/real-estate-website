@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/authOptions';
+import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 
@@ -55,13 +54,23 @@ async function generatePaymentNumber() {
 // GET /api/accounts/payments - List payments with filtering
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user from database to check role
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true },
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has ACCOUNTS or ADMIN role
-    if (session.user.role !== 'ACCOUNTS' && session.user.role !== 'ADMIN') {
+    if (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -142,13 +151,23 @@ export async function GET(request: NextRequest) {
 // POST /api/accounts/payments - Create a new payment
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const userPayload = getUserFromRequest(request);
+    if (!userPayload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user from database to check role
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+      select: { id: true, role: true, status: true },
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has ACCOUNTS or ADMIN role
-    if (session.user.role !== 'ACCOUNTS' && session.user.role !== 'ADMIN') {
+    if (user.role !== 'ACCOUNTS' && user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -191,7 +210,7 @@ export async function POST(request: NextRequest) {
             : new Date(),
           notes: validatedData.notes,
           status: 'PENDING',
-          recordedById: session.user!.id,
+          recordedById: user.id,
           // New fields
           projectName: validatedData.projectName,
           pendingAccount: validatedData.pendingAccount,
