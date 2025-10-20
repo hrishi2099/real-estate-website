@@ -1253,7 +1253,7 @@ export default function PaymentsPage() {
                         customerName: '',
                       });
                     }}
-                    disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                    disabled={!!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                     className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                       paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                     }`}
@@ -1275,7 +1275,7 @@ export default function PaymentsPage() {
                       required
                       value={formData.projectName}
                       onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      disabled={!!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                         paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
@@ -1304,7 +1304,7 @@ export default function PaymentsPage() {
                       required
                       value={formData.customerId}
                       onChange={(e) => handleUserSelect(e.target.value)}
-                      disabled={loadingUsers || (paymentHistory && paymentHistory.summary.totalPayments > 0)}
+                      disabled={loadingUsers || !!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                         paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
@@ -1335,7 +1335,7 @@ export default function PaymentsPage() {
                           fetchPaymentHistory(undefined, formData.customerName, formData.projectName || undefined);
                         }
                       }}
-                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      disabled={!!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                         paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
@@ -1368,7 +1368,7 @@ export default function PaymentsPage() {
                           setFormData({ ...formData, totalAmount: rawValue });
                         }
                       }}
-                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      disabled={!!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                         paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
@@ -1435,7 +1435,7 @@ export default function PaymentsPage() {
                           setFormData({ ...formData, plotArea: rawValue });
                         }
                       }}
-                      disabled={paymentHistory && paymentHistory.summary.totalPayments > 0}
+                      disabled={!!(paymentHistory && paymentHistory.summary.totalPayments > 0)}
                       className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 ${
                         paymentHistory && paymentHistory.summary.totalPayments > 0 ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
