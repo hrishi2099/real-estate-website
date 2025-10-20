@@ -6,8 +6,9 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting database seed...')
 
-  // Hash password for admin user
+  // Hash password for test users
   const hashedPassword = await bcrypt.hash('admin123', 12)
+  const accountsPassword = await bcrypt.hash('accounts123', 12)
 
   // Create admin user
   const adminUser = await prisma.user.upsert({
@@ -23,6 +24,21 @@ async function main() {
   })
 
   console.log('✅ Admin user created:', adminUser.email)
+
+  // Create accounts user
+  const accountsUser = await prisma.user.upsert({
+    where: { email: 'accounts@example.com' },
+    update: {},
+    create: {
+      email: 'accounts@example.com',
+      name: 'Accounts User',
+      password: accountsPassword,
+      role: 'ACCOUNTS',
+      emailVerified: true,
+    },
+  })
+
+  console.log('✅ Accounts user created:', accountsUser.email)
 
   // Create sample properties
   const properties = [

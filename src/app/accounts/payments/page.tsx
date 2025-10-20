@@ -126,10 +126,18 @@ export default function PaymentsPage() {
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true);
-      const response = await fetch('/api/accounts/users');
+      const response = await fetch('/api/accounts/users', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to fetch users:', errorData);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -141,13 +149,28 @@ export default function PaymentsPage() {
   const fetchProperties = async () => {
     try {
       setLoadingProperties(true);
-      const response = await fetch('/api/accounts/properties');
+      console.log('Fetching properties from /api/accounts/properties...');
+      const response = await fetch('/api/accounts/properties', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Properties response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
-        setProperties(data.properties);
+        console.log('Properties data received:', data);
+        console.log('Number of properties:', data.properties?.length || 0);
+        setProperties(data.properties || []);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to fetch properties:', errorData);
+        alert(`Failed to load properties: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error fetching properties:', error);
+      alert('Error loading properties. Check console for details.');
     } finally {
       setLoadingProperties(false);
     }
@@ -156,8 +179,9 @@ export default function PaymentsPage() {
   // Fetch users and properties when modal opens
   useEffect(() => {
     if (showCreateModal || showEditModal) {
-      if (users.length === 0) fetchUsers();
-      if (properties.length === 0) fetchProperties();
+      console.log('Modal opened, fetching users and properties...');
+      fetchUsers();
+      fetchProperties();
     }
   }, [showCreateModal, showEditModal]);
 
@@ -769,10 +793,16 @@ export default function PaymentsPage() {
 
               {!showEditModal && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Select Property (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Property (Optional)
+                    {properties.length > 0 && (
+                      <span className="text-xs text-gray-500 ml-2">({properties.length} available)</span>
+                    )}
+                  </label>
                   <select
                     value={formData.propertyId}
                     onChange={(e) => {
+                      console.log('Property selected:', e.target.value);
                       if (e.target.value) {
                         handlePropertySelect(e.target.value);
                       } else {
@@ -784,16 +814,23 @@ export default function PaymentsPage() {
                     disabled={loadingProperties}
                   >
                     <option value="">
-                      {loadingProperties ? 'Loading properties...' : 'Select a property or enter manually below'}
+                      {loadingProperties ? 'Loading properties...' :
+                       properties.length === 0 ? 'No properties found - enter details manually below' :
+                       'Select a property or enter manually below'}
                     </option>
                     {properties.map((property) => (
                       <option key={property.id} value={property.id}>
-                        {property.title} - {property.location} {property.area ? `(${property.area} sqft)` : ''}
+                        {property.title} - {property.location} {property.area ? `(${property.area} sqft)` : ''} [{property.status}]
                       </option>
                     ))}
                   </select>
                   {formData.propertyId && (
                     <p className="text-xs text-green-600 mt-1">✓ Property selected - project details auto-filled below</p>
+                  )}
+                  {!loadingProperties && properties.length === 0 && (
+                    <p className="text-xs text-orange-600 mt-1">
+                      ⚠ No properties loaded. Check browser console for errors or create properties first.
+                    </p>
                   )}
                 </div>
               )}
